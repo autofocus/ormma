@@ -1,0 +1,28 @@
+Crisp Wireless, Inc. is hosting the test ads on its ad server for the ORMMA project. Developers can use these URLs to request the same test ads that are available in Source.
+
+To learn more about the adRequest API please logon to http://www.crispwireless.com/content/mobile-resources.
+
+
+ORMMA Partner Key: 
+945344a4ac19d2b72d29bf03edecf5b5 
+
+
+
+adRequest API URLs
+
+Simple HTML banner
+http://api.crispwireless.com/adRequest.v1/single/ad.html?sitekey=ORMMA&zonekey=Level_0&partnerkey=945344a4ac19d2b72d29bf03edecf5b5&random=1234
+ 
+
+HTML banner, ORMMA Level 1
+http://api.crispwireless.com/adRequest.v1/single/ad.html?sitekey=ORMMA&zonekey=Level_1&partnerkey=945344a4ac19d2b72d29bf03edecf5b5&random=1234
+ 
+
+HTML banner, ORMMA Level 2
+http://api.crispwireless.com/adRequest.v1/single/ad.html?sitekey=ORMMA&zonekey=Level_2&partnerkey=945344a4ac19d2b72d29bf03edecf5b5&random=1234
+ 
+
+HTML banner, ORMMA Level 3
+http://api.crispwireless.com/adRequest.v1/single/ad.html?sitekey=ORMMA&zonekey=Level_3&partnerkey=945344a4ac19d2b72d29bf03edecf5b5&random=1234
+
+
