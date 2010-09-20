@@ -67,6 +67,7 @@ NSString * const ORMMACommandService = @"service";
 
 @synthesize bridgeDelegate = m_bridgeDelegate;
 @synthesize reachability = m_reachability;
+@synthesize motionManager = m_motionManager;
 
 
 
@@ -80,16 +81,19 @@ NSString * const ORMMACommandService = @"service";
 		// set ourselves up for location based services
 		m_locationManager = [[CLLocationManager alloc] init];
         m_locationManager.delegate = self;
+		m_locationManager.desiredAccuracy = kCLLocationAccuracyBest;
 		
+		// check for the availability of Core Motion
+		if ( NSClassFromString( @"CMMotionManager" ) != nil )
+		{
+			self.motionManager = [[CMMotionManager alloc] init];
+		}
+
 		// make sure to register for the events that we care about
 		NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 		[notificationCenter addObserver:self
 							   selector:@selector(orientationChanged:)
 								   name:UIDeviceOrientationDidChangeNotification
-								 object:nil];
-		[notificationCenter addObserver:self
-							   selector:@selector(proximityStateChanged:)
-								   name:UIDeviceProximityStateDidChangeNotification
 								 object:nil];
 		[notificationCenter addObserver:self
 							   selector:@selector(reachabilityStateChanged:)
@@ -112,7 +116,7 @@ NSString * const ORMMACommandService = @"service";
 	m_bridgeDelegate = nil;
 	m_accelerometer.delegate = nil,[m_accelerometer release], m_accelerometer = nil;
 	[m_locationManager release], m_locationManager = nil;
-	[m_motionManager stopGyroUpdates], [m_motionManager release], m_locationManager = nil;
+	[self.motionManager stopGyroUpdates], self.motionManager = nil;
 	[super dealloc];
 }
 
@@ -304,38 +308,33 @@ NSString * const ORMMACommandService = @"service";
 	}
 	else if ( [@"headingChange" isEqualToString:service] ) // compass
 	{
-		if ( enabled )
+		if ( [CLLocationManager headingAvailable] )
 		{
-			[m_locationManager startUpdatingHeading];
-		}
-		else
-		{
-			[m_locationManager stopUpdatingHeading];
-		}
-		m_compassEnabled = enabled;
-	}
-	else if ( [@"rotationChange" isEqualToString:service] ) // gyroscope
-	{
-		if ( enabled )
-		{
-			if ( m_timer == nil )
+			if ( enabled )
 			{
-				m_timer = [NSTimer scheduledTimerWithTimeInterval:0.1 
-														   target:self
-														 selector:@selector(timerFired)
-														 userInfo:nil 
-														  repeats:YES];
-				[m_motionManager startGyroUpdates];
-		   }
+				[m_locationManager startUpdatingHeading];
+			}
+			else
+			{
+				[m_locationManager stopUpdatingHeading];
+			}
+			m_compassEnabled = enabled;
 		}
-		else
-		{
-			[m_motionManager stopGyroUpdates];
-		}
-		m_compassEnabled = enabled;
 	}
 	else if ( [@"locationChange" isEqualToString:service] ) // Location Based Services
 	{
+		if ( [CLLocationManager locationServicesEnabled] )
+		{
+			if ( enabled )
+			{
+				[m_locationManager startUpdatingLocation];
+			}
+			else
+			{
+				[m_locationManager stopUpdatingLocation];
+			}
+			m_locationEnabled = enabled;
+		}
 	}
 	else if ( [@"networkChange" isEqualToString:service] ) // Reachability / Network
 	{
@@ -354,11 +353,28 @@ NSString * const ORMMACommandService = @"service";
 		}
 		m_networkEnabled = enabled;
 	}
-	else if ( [@"proximityChange" isEqualToString:service] ) // Proximity Sensor
+	else if ( [@"rotationChange" isEqualToString:service] ) // gyroscope
 	{
-		UIDevice *device = [UIDevice currentDevice];
-		device.proximityMonitoringEnabled = enabled;
-		m_proximityEnabled = enabled;
+		if ( self.motionManager != nil )
+		{
+			if ( enabled )
+			{
+				if ( m_timer == nil )
+				{
+					m_timer = [NSTimer scheduledTimerWithTimeInterval:0.1 
+															   target:self
+															 selector:@selector(timerFired)
+															 userInfo:nil 
+															  repeats:YES];
+					[self.motionManager startGyroUpdates];
+				}
+			}
+			else
+			{
+				[self.motionManager stopGyroUpdates];
+			}
+			m_gyroscopeEnabled = enabled;
+		}
 	}
 	
 	// anything else is not something that we need to enable or disable
@@ -388,13 +404,14 @@ NSString * const ORMMACommandService = @"service";
 	if ( m_gyroscopeEnabled )
 	{
 		[m_timer invalidate], m_timer = nil;
-		[m_motionManager stopGyroUpdates];
+		[self.motionManager stopGyroUpdates];
 		m_gyroscopeEnabled = NO;
 	}
 	
 	// location monitoring
 	if ( m_locationEnabled )
 	{
+		[m_locationManager stopUpdatingLocation];
 		m_locationEnabled = NO;
 	}
 	
@@ -407,14 +424,6 @@ NSString * const ORMMACommandService = @"service";
 			self.reachability = nil;
 		}
 		m_networkEnabled = NO;
-	}
-	
-	// proximity monitoring
-	if ( m_proximityEnabled )
-	{
-		UIDevice *device = [UIDevice currentDevice];
-		device.proximityMonitoringEnabled = NO;
-		m_proximityEnabled = NO;
 	}
 }
 
@@ -447,15 +456,6 @@ NSString * const ORMMACommandService = @"service";
 			break;
 	}
 	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.orientationChanged( %i );", orientationAngle];
-	[self.bridgeDelegate executeJavaScript:js];
-}
-
-
-- (void)proximityStateChanged:(NSNotification *)notification
-{
-	UIDevice *device = [UIDevice currentDevice];
-	BOOL proximityState = device.proximityState;
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.proximityChanged( %@ );", ( proximityState ? @"true" : @"false" )];
 	[self.bridgeDelegate executeJavaScript:js];
 }
 
@@ -500,10 +500,10 @@ NSString * const ORMMACommandService = @"service";
 - (void)timerFired
 {
 	// get the current gyroscope data
+	CMGyroData *data = self.motionManager.gyroData;
 	NSLog( @"Gyroscope Data Available: %f, %f, %f", data.rotationRate.x, 
 													data.rotationRate.y, 
 													data.rotationRate.z );
-	CMGyroData *data = m_motionManager.gyroData;
 	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.rotation( %f, %f, %f );", data.rotationRate.x, 
 																							data.rotationRate.y, 
 																							data.rotationRate.z];
@@ -519,6 +519,29 @@ NSString * const ORMMACommandService = @"service";
 	didUpdateToLocation:(CLLocation *)newLocation 
 		   fromLocation:(CLLocation *)oldLocation
 {
+	NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
+	[formatter setTimeStyle:NSDateFormatterFullStyle];
+	[formatter setDateStyle:NSDateFormatterFullStyle];
+	NSString *ts = [formatter stringFromDate:newLocation.timestamp];;
+	NSLog( @"Location Data Available: (%f, %f, %f ), acc: %f / %f, ts: %@, speed: %f @ %f", newLocation.coordinate.latitude, 
+																							newLocation.coordinate.longitude, 
+																							newLocation.altitude,
+																							newLocation.horizontalAccuracy,
+																							newLocation.verticalAccuracy,
+																							ts,
+																							newLocation.speed,
+																							newLocation.course );
+	NSString *jsFormat = @"ormmaNativeBridge.locationChanged( %f, %f, %f, %f, %f, '%@', %f, %f );";
+	NSString *js = [NSString stringWithFormat:jsFormat, newLocation.coordinate.latitude, 
+														newLocation.coordinate.longitude, 
+														newLocation.altitude,
+														newLocation.horizontalAccuracy,
+														newLocation.verticalAccuracy,
+														ts,
+														newLocation.speed,
+														newLocation.course];
+	NSLog( @"JS: %@", js );
+	[self.bridgeDelegate executeJavaScript:js];
 }
 
 
