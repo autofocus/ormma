@@ -305,7 +305,7 @@
 							<real>248</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>114 260 1343 890 0 0 1920 1178 </string>
+						<string>103 185 1343 890 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -335,7 +335,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>FA18D2261246E81500F00C71</string>
+										<string>FADF79421247F61C003F7C45</string>
 										<key>history</key>
 										<array>
 											<string>FAD28C6612381DBA00562D0B</string>
@@ -351,13 +351,13 @@
 											<string>FAE3A93F1242B12900285B32</string>
 											<string>FAE3A9B51243C22E00285B32</string>
 											<string>FAE3AD0712467D0400285B32</string>
-											<string>FA18D0FE1246C96E00F00C71</string>
-											<string>FA18D1261246D10C00F00C71</string>
-											<string>FA18D13D1246D36400F00C71</string>
-											<string>FA18D1D61246E52000F00C71</string>
-											<string>FA18D20B1246E6B900F00C71</string>
-											<string>FA18D2241246E81500F00C71</string>
-											<string>FA18D2251246E81500F00C71</string>
+											<string>FADF79341247F35A003F7C45</string>
+											<string>FADF79351247F35A003F7C45</string>
+											<string>FADF79361247F35A003F7C45</string>
+											<string>FADF79381247F35A003F7C45</string>
+											<string>FADF79391247F35A003F7C45</string>
+											<string>FADF79401247F61C003F7C45</string>
+											<string>FADF79411247F61C003F7C45</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -371,18 +371,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {1073, 603}}</string>
+								<string>{{0, 0}, {1073, 597}}</string>
 								<key>RubberWindowFrame</key>
-								<string>114 260 1343 890 0 0 1920 1178 </string>
+								<string>103 185 1343 890 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>603pt</string>
+							<string>597pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>241pt</string>
+							<string>247pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -396,7 +396,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {1073, 214}}</string>
+										<string>{{10, 27}, {1073, 220}}</string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -413,8 +413,6 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {1073, 214}}</string>
-										<key>RubberWindowFrame</key>
-										<string>114 260 1343 890 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXProjectFindModule</string>
@@ -452,7 +450,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {1073, 214}}</string>
+										<string>{{10, 27}, {1073, 220}}</string>
+										<key>RubberWindowFrame</key>
+										<string>103 185 1343 890 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -480,11 +480,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>FA18D1031246C96E00F00C71</string>
+				<string>FADF77C2124793D8003F7C45</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>FA18D1041246C96E00F00C71</string>
+				<string>FADF77C3124793D8003F7C45</string>
 				<string>FAD28C4412381BE900562D0B</string>
-				<string>FA18D1051246C96E00F00C71</string>
+				<string>FADF77C4124793D8003F7C45</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -679,7 +679,7 @@
 		<string>/Users/rhedin/source/iOS/ORMMA/ORMMA/ORMMA.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>114 260 1343 890 0 0 1920 1178 </string>
+	<string>103 185 1343 890 0 0 1920 1178 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>

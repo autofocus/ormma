@@ -229,18 +229,6 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	// we've finished loading the URL
 	
-//	// see if this is a call from our iframe
-//	NSURLRequest *request = webView.request;
-//	NSURL *url = [request URL];
-//	NSString *urlString = [url absoluteString];
-//	NSLog( @"webViewDidFinishLoading: %@", urlString );
-//	if ( ![@"about:blank" isEqualToString:urlString] )
-//	{
-//		// call from iFrame, nothing to do
-//		NSLog( @"Called from iFrame, ignoring" );
-//		return;
-//	}		
-	
 	// check for the existence of the ORMMA objects
 	// if they do not exist, then assume we're good to display
 	// otherwise wait for the creative to notify us that its done.

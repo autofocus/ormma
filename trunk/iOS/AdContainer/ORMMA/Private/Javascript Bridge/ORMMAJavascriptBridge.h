@@ -23,20 +23,20 @@
 @private
 	id<ORMMAJavascriptBridgeDelegate> m_bridgeDelegate;
 	
-	CLLocationManager *m_locationManager;
 	Reachability *m_reachability;
-	UIAccelerometer *m_accelerometer;
+	CLLocationManager *m_locationManager;
 	CMMotionManager *m_motionManager;
+	UIAccelerometer *m_accelerometer;
 	NSTimer *m_timer;
-
+	
 	BOOL m_accelerometerEnabled;
 	BOOL m_compassEnabled;
 	BOOL m_gyroscopeEnabled;
 	BOOL m_locationEnabled;
 	BOOL m_networkEnabled;
-	BOOL m_proximityEnabled;
 }
 @property( nonatomic, assign ) id<ORMMAJavascriptBridgeDelegate> bridgeDelegate;
+@property( nonatomic, retain ) CMMotionManager *motionManager;
 
 
 

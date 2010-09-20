@@ -1,49 +1,84 @@
-/*
- * The ORMMA Standard Javascript API
+/**
+ * ORMMA is the constructor for the standard ad API.
  *
+ * NOTE: An instance of this object will be created automatically and should
+ *       not be instantiated directly.
+ *
+ * @returns a new object
  */
-
-// Constructor
 function ORMMA() 
 {
 	this.version = "0.1";
-	this.nextWatchId = 1;
 	this.eventListeners = { };
 }
 
 
-// --- PRIVATE METHODS ---
 
-ORMMA.prototype.listenersForEvent = function( event )
-{
-	var listenersForEvent = this.eventListeners[event];
-	if ( listenersForEvent == null )
-	{
-		listenersForEvent = {};
-		this.eventListeners[event] = listenersForEvent;
-	}
-	var listeners = listenersForEvent[event]; 
-	if ( listeners == null )
-	{
-		listeners = new Array();
-		listenersForEvent[event] = listeners;
-	}
-	return listeners;
-}
+/**************************************************************************/
+/***************** PRIVATE METHODS, FOR INTERNAL USE ONLY *****************/
+/**************************************************************************/
 
 
+
+/**
+ * fireListenersForEvent executes all listeners registered for the specified
+ * event. The listeners will be fired sequentially, in the order that they
+ * were registered.
+ *
+ * NOTE: This function is called internally and is not intended for public use.
+ *
+ * @param {event} String, the name of the event.
+ *
+ * @returns nothing.
+ */
 ORMMA.prototype.fireListenersForEvent = function( event )
 {
 	var listeners = this.listenersForEvent( event.name ); 
-	var index;
-	for ( index = ( listeners.length - 1); index >= 0; index-- )
+	for ( var index = 0; index < listeners.length; index++ )
 	{
 		listeners[index]( event );
 	}
 }
 
 
-// --- PUBLIC METHODS ---
+
+/**
+ * listenersForEvent retrieves all the listeners for the specified event name.
+ *
+ * NOTE: This function is called internally and is not intended for public use.
+ *
+ * @param {event} String, the name of the event.
+ *
+ * @returns array, the listeners for the event.
+ */
+ORMMA.prototype.listenersForEvent = function( event )
+{
+	var listenersForEvent = this.eventListeners[event];
+	if ( listenersForEvent == null )
+	{
+		listenersForEvent = new Array();
+		this.eventListeners[event] = listenersForEvent;
+	}
+	return listenersForEvent;
+}
+
+
+
+/**********************************************************************/
+/*************************** PUBLIC METHODS ***************************/
+/**********************************************************************/
+
+
+
+/**
+ * addAsset requests that the specified resource be cached locally using the
+ * alias specified.
+ *
+ * @param {alias} String, how to reference the resource locally.
+ * @param {uri} String, the source uri of the resource to cache.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.addAsset = function( alias, uri )
 {
 	ormmaNativeBridge.executeNativeAddAsset( "addasset", alias, uri );
@@ -51,6 +86,16 @@ ORMMA.prototype.addAsset = function( alias, uri )
 }
 
 
+
+/**
+ * addAsset requests that the specified list of resource be cached locally
+ * using the information specified.
+ *
+ * @param {assets} array of assets to cache. Each entry must contain
+ * both an "alias" and a "uri" property.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.addAssets = function( assets )
 {
 	// walk list of assets
@@ -63,6 +108,16 @@ ORMMA.prototype.addAssets = function( assets )
 }
 
 
+
+/**
+ * addEventListener adds a listener to be called when the specified event is
+ * fired.
+ *
+ * @param {event} String, the name of the event for which to register.
+ * @param {listener} Function, the function to call when the event is fired.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.addEventListener = function( event, listener )
 {
 	var listeners = this.listenersForEvent( event ); 
@@ -72,7 +127,7 @@ ORMMA.prototype.addEventListener = function( event, listener )
 		if ( listeners.length == 1 )
 		{
 			// enable native events
-			ormmaNativeBridge.enableNativeEvents( event, "yes" );
+			ormmaNativeBridge.enableNativeEventsForService( event, "yes" );
 		}
 	}
 		
@@ -80,12 +135,25 @@ ORMMA.prototype.addEventListener = function( event, listener )
 }
 
 
+
+/**
+ * cacheRemaining retrieves the amount of cache remaining on the local device.
+ *
+ * @returns Number, the amount of cache remaining (in bytes)
+ */
 ORMMA.prototype.cacheRemaining = function()
 {
 	return ormmaNativeBridge.cacheRemaining;
 }
 
 
+
+/**
+ * close requests that the current ad be restored to it's default ("closed")
+ * state. Does nothing if the ad is already in the default state.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.close = function()
 {
 	ormmaNativeBridge.executeNativeClose();
@@ -93,60 +161,131 @@ ORMMA.prototype.close = function()
 }
 
 
-ORMMA.prototype.getHeading = function(  )
+
+/**
+ * getHeading retrieves the last known heading.
+ *
+ * @returns ORMMAHeading, the heading.
+ */
+ORMMA.prototype.getHeading = function()
 {
 	return ormmaNativeBridge.heading;
 }
 
 
-ORMMA.prototype.getLocation = function(  )
+
+/**
+ * getLocation retrieves the last known location information, if any.
+ *
+ * @returns ORMMALocation, the location.
+ */
+ORMMA.prototype.getLocation = function()
 {
 	return ormmaNativeBridge.location;
 }
 
 
+
+/**
+ * getNetwork retrieves the last known network state.
+ *
+ * @returns String, last known network state.
+ *                  "unknown" - network state is unknown
+ *                  "offline" - device is offline
+ *                  "cell"    - device is on a cellular network
+ *                  "wifi"    - device is on a wifi network
+ */
 ORMMA.prototype.getNetwork = function(  )
 {
 	return ormmaNativeBridge.network;
 }
 
 
+
+/**
+ * getOrientation retrieves the last known orientation.
+ *
+ * @returns Number, the orientation, in degrees.
+ *                    0 - Portrait
+ *                   90 - Landscape, Right
+ *                  180 - Portrait, Upside Down
+ *                  270 - Landscape, Left
+ */
 ORMMA.prototype.getOrientation = function()
 {
 	return ormmaNativeBridge.orientation;
 }
 
 
+
+/**
+ * getResizeDimensions retrieves the current dimensions of the ad.
+ *
+ * @returns ORMMAResizeDimensions, the current resize dimensions.
+ */
 ORMMA.prototype.getResizeDimensions = function()
 {
 	return ormmaNativeBridge.resizeDimensions;
 }
 
 
+
+/**
+ * getResizeProperties retrieves the current display properties of the ad.
+ *
+ * @returns ORMMAResizeProperties, the current resize properties.
+ */
 ORMMA.prototype.getResizeProperties = function()
 {
 	return ormmaNativeBridge.resizeProperties;
 }
 
 
+
+/**
+ * getScreenSize retrieves the current size (dimensions) of the screen in points.
+ *
+ * @returns ORMMAScreenSize, the current size of the screen.
+ */
 ORMMA.prototype.getScreenSize = function()
 {
 	return ormmaNativeBridge.screenSize;
 }
 
 
+
+/**
+ * getShakeProperties retrieves the current shake properties.
+ *
+ * @returns ORMMAShakeProperties, the shake properties.
+ */
 ORMMA.prototype.getShakeProperties = function()
 {
 	return ormmaNativeBridge.shakeProperties;
 }
 
 
+
+/**
+ * getState retrieves the current display state of the ad.
+ *
+ * @returns String, the current display state.
+ *                  "hidden"   - as is not visible
+ *                  "default"  - ad is in the default state
+ *                  "expanded" - ad is in an expanded state
+ */
 ORMMA.prototype.getState = function()
 {
 	return ormmaNativeBridge.state;
 }
 
 
+
+/**
+ * hide requests that the entire ad be hidden.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.hide = function()
 {
 	ormmaNativeBridge.executeNativeHide();
@@ -154,13 +293,28 @@ ORMMA.prototype.hide = function()
 }
 
 
-ORMMA.prototype.removeAllAssets = function(  )
+
+/**
+ * removeAllAssets requests that all cached assets be removed.
+ *
+ * @returns false (for use in links)
+ */
+ORMMA.prototype.removeAllAssets = function()
 {
 	// TODO
 	return false;
 }
 
 
+
+/**
+ * removeAsset requests that the cached resource referenced by the specified 
+ * alias be removed.
+ *
+ * @param {alias} String, the name of the resource to remove.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.removeAsset = function( alias )
 {
 	ormmaNativeBridge.executeNativeRemoveAsset( alias );
@@ -168,6 +322,15 @@ ORMMA.prototype.removeAsset = function( alias )
 }
 
 
+
+/**
+ * removeEventListener removes the specified listener from the event.
+ *
+ * @param {event} String, the name of the event.
+ * @param {listener} Function, the listener to remove.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.removeEventListener = function( event, listener )
 {
 	var listeners = this.listenersForEvent( event ); 
@@ -179,20 +342,37 @@ ORMMA.prototype.removeEventListener = function( event, listener )
 	if ( listeners.length == 0 )
 	{
 		// disable the native events
-		ormmaNativeBridge.enableNativeEvents( event, "no" );
+		ormmaNativeBridge.enableNativeEventsForService( event, "no" );
 	}
 	
 	return false;
 }
 
 
-ORMMA.prototype.request = function( display )
+
+/**
+ * request requests that the specified URI be displayed.
+ *
+ * @param {uri} String, the uri to display.
+ * @param {display} String, the display state.
+ *
+ * @returns false (for use in links)
+ */
+ORMMA.prototype.request = function( uri, display )
 {
-	ormmaNativeBridge.executeNativeRequest( display );
+	ormmaNativeBridge.executeNativeRequest( uri, display );
 	return false;
 }
 
 
+
+/**
+ * request requests that the ad be resized.
+ *
+ * @param {dimensions} ORMMADimensions, the new dimensions of the ad.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.resize = function( dimensions )
 {
 	// see if the properties are being changed
@@ -208,6 +388,14 @@ ORMMA.prototype.resize = function( dimensions )
 }
 
 
+
+/**
+ * setResizeProperties updates the properties to be used when resizing ads.
+ *
+ * @param {dimensions} ORMMAResizeProperties, the new properties to use.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.setResizeProperties = function( properties )
 {
 	ormmaNativeBridge.resizeProperties = properties;
@@ -215,6 +403,14 @@ ORMMA.prototype.setResizeProperties = function( properties )
 }
 
 
+
+/**
+ * setShakeProperties updates the properties to be used to identify a shake.
+ *
+ * @param {properties} ORMMAShakeProperties, the new properties to use.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.setShakeProperties = function( properties )
 {
 	ormmaNativeBridge.shakeProperties = properties;
@@ -222,6 +418,12 @@ ORMMA.prototype.setShakeProperties = function( properties )
 }
 
 
+
+/**
+ * show requests that the ad be displayed to the user.
+ *
+ * @returns false (for use in links)
+ */
 ORMMA.prototype.show = function()
 {
 	ormmaNativeBridge.executeNativeShow();
@@ -229,46 +431,61 @@ ORMMA.prototype.show = function()
 }
 
 
-ORMMA.prototype.state = function()
-{
-	return ormmaNativeBridge.state;
-}
 
-
+/**
+ * supports retrieves a list of features that the device supports.
+ *
+ * @returns array, a list of Strings denoting each feature.
+ */
 ORMMA.prototype.supports = function()
 {
 	return ormmaNativeBridge.supportedFeatures;
 }
 
 
-/*
- * ORMMA Events
+
+/******************************************************************/
+/************************** ORMMA EVENTS **************************/
+/******************************************************************/
+
+
+
+/**
+ * ORMMAAssetReadyEvent: fired whenever an asset has been cached.
  */
-
-function ORMMAAlignmentChangeEvent()
-{
-	this.name = "alignmentChange";
-	this.degrees = 0;
-}
-
 function ORMMAAssetReadyEvent()
 {
 	this.name = "assetReady";
 	this.alias = "";
 }
 
+
+
+/**
+ * ORMMAAssetRemovedEvent: fired whenever an asset is removed from the cache.
+ */
 function ORMMAAssetRemovedEvent()
 {
 	this.name = "assetRemoved";
 	this.alias = "";
 }
 
+
+
+/**
+ * ORMMAAssetRetiredEvent: fired whenever an asset is retired from the cache.
+ */
 function ORMMAAssetRetiredEvent()
 {
 	this.name = "assetRetired";
 	this.alias = "";
 }
 
+
+
+/**
+ * ORMMAErrorEvent: fired whenever an error occurs.
+ */
 function ORMMAErrorEvent()
 {
 	this.name = "error";
@@ -276,6 +493,11 @@ function ORMMAErrorEvent()
 	this.action = null;
 }
 
+
+
+/**
+ * ORMMAHeadingChangeEvent: fired whenever heading (compass) data is available.
+ */
 function ORMMAHeadingChangeEvent()
 {
 	this.name = "headingChange";
@@ -285,43 +507,66 @@ function ORMMAHeadingChangeEvent()
 	this.timestamp = 0;
 }
 
+
+
+/**
+ * ORMMAKeyboardChangeEvent: fired whenever the soft keyboard has been either
+ * displayed or put away.
+ */
 function ORMMAKeyboardChangeEvent()
 {
 	this.name = "keyboardChange";
 	this.open = false;
 }
 
+
+
+/**
+ * ORMMALocationChangeEvent: fired whenever location based service data (GPS)
+ * has been updated.
+ */
 function ORMMALocationChangeEvent()
 {
 	this.name = "locationChange";
-	this.lat = 0;
-	this.lng = 0;
+	this.lattidue = -1;
+	this.longitude = -1;
+	this.altitude = -1;
+	this.horizontalAccuracy = -1;
+	this.verticalAccuracy = -1;
+	this.timestamp = "";
+	this.speed = -1;
+	this.course = -1;
 }
 
-function ORMMANetowrkChangeEvent()
+
+
+/**
+ * ORMMANetworkChangeEvent: fired whenever the network status has changed.
+ */
+function ORMMANetworkChangeEvent()
 {
 	this.name = "networkChange";
 	this.online = false;
 	this.connection = "none";
 }
 
+
+
+/**
+ * ORMMAOrientationChangeEvent: fired whenever the device orientation has
+ * been changed.
+ */
 function ORMMAOrientationChangeEvent()
 {
 	this.name = "orientationChange";
 	this.orientation = -1;
 }
 
-function ORMMAProximityChangeEvent()
-{
-	this.name = "proximityChange";
-	this.proximity = false;
-}
 
-function ORMMAReadyEvent()
-{
-	this.name = "ready";
-}
 
+/**
+ * ORMMAResponseEvent: fired whenever a request is completed.
+ */
 function ORMMAResponseEvent()
 {
 	this.name = "response";
@@ -329,14 +574,24 @@ function ORMMAResponseEvent()
 	this.response = null;
 }
 
+
+
+/**
+ * ORMMARotationChangeEvent: fired whenever gyroscope data is available.
+ */
 function ORMMARotationChangeEvent()
 {
 	this.name = "rotationChange";
-	this.x = 0;
-	this.y = 0;
-	this.z = 0;
+	this.x = -1;
+	this.y = -1;
+	this.z = -1;
 }
 
+
+
+/**
+ * ORMMAScreenSizeChangeEvent: fired whenever the screen dimensions are changed.
+ */
 function ORMMAScreenSizeChangeEvent()
 {
 	this.name = "screenSizeChange";
@@ -344,6 +599,11 @@ function ORMMAScreenSizeChangeEvent()
 	this.width = 320;
 }
 
+
+
+/**
+ * ORMMAShakeEvent: fired whenever a shake event is detected.
+ */
 function ORMMAShakeEvent()
 {
 	this.name = "shake";
@@ -351,11 +611,21 @@ function ORMMAShakeEvent()
 	this.time = 0;
 }
 
+
+
+/**
+ * ORMMAReadyEvent: fired whenever the native SDK is ready in all respects.
+ */
 function ORMMAReadyEvent()
 {
 	this.name = "ready";
 }
 
+
+
+/**
+ * ORMMASizeChangeEvent: fired whenever the ad size or position is changed.
+ */
 function ORMMASizeChangeEvent()
 {
 	this.name = "sizeChange";
@@ -363,12 +633,22 @@ function ORMMASizeChangeEvent()
 	this.properties = new ORMMAResizeProperties();
 }
 
+
+
+/**
+ * ORMMAStateChangeEvent: fired whenever the display state changes.
+ */
 function ORMMAStateChangeEvent()
 {
 	this.name = "stateChange";
 	this.state = "unknown";
 }
 
+
+
+/**
+ * ORMMATiltChangeEvent: fired whenever accelerometer data is available.
+ */
 function ORMMATiltChangeEvent()
 {
 	this.name = "tiltChange";
@@ -379,12 +659,15 @@ function ORMMATiltChangeEvent()
 
 
 
-/*
- * The ORMMA Standard Object Types
- *
- */
+/****************************************************************************/
+/************************** ORMMA STANDARD OBJECTS **************************/
+/****************************************************************************/
 
-// Heading
+
+
+/**
+ * ORMMAHeading: contains heading (compass) information. 
+ */
 function ORMMAHeading()
 {
 	this.magneticHeading = -1;
@@ -394,15 +677,27 @@ function ORMMAHeading()
 }
 
 
-// Location
+
+/**
+ * ORMMALocation: contains a physical/geographic location. 
+ */
 function ORMMALocation()
 {
-	this.latitude = 0;
-	this.longitude = 0;
+	this.latitude = -1;
+	this.longitude = -1;
+	this.altitude = -1;
+	this.horizontalAccuracy = -1;
+	this.verticalAccuracy = -1;
+	this.timestamp = "";
+	this.speed = -1;
+	this.course = -1;
 }
 
 
-// Resize Dimensions
+
+/**
+ * ORMMAResizeDimensions: contains the new origin and ad size for resize.
+ */
 function ORMMAResizeDimensions() 
 {
 	this.x = -1;
@@ -428,7 +723,11 @@ function ORMMAResizeDimensions()
 	}
 }
 
-// Resize Dimensions
+
+
+/**
+ * ORMMAResizeProperties: contains properties used during ad resize. 
+ */
 function ORMMAResizeProperties() 
 {
 	this.transition = "default";
@@ -439,7 +738,11 @@ function ORMMAResizeProperties()
 	this.isModal = true;
 }
 
-// Resize Dimensions
+
+
+/**
+ * ORMMAScreenSize: contains the size of the screen.
+ */
 function ORMMAScreenSize() 
 {
 	this.height = 0;
@@ -447,7 +750,10 @@ function ORMMAScreenSize()
 }
 
 
-// Shake Properties
+
+/**
+ * ORMMAShakeProperties: contains properties identifying a shake.
+ */
 function ORMMAShakeProperties()
 {
 	this.intensity = 0;
@@ -455,7 +761,16 @@ function ORMMAShakeProperties()
 }
 
 
-// now create the standard API object
+
+/*******************************************************************/
+/************************** ORMMA GLOBALS **************************/
+/*******************************************************************/
+
+
+
+/**
+ * Creates a new global ORMMA  Object
+ */
 var ormma = new ORMMA();
 
 

@@ -51,6 +51,7 @@
 		FAD28C5F12381D9B00562D0B /* ORMMA_Abstraction_Layer_iOS.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C5B12381C8100562D0B /* ORMMA_Abstraction_Layer_iOS.js */; };
 		FAD28C6E12381DFF00562D0B /* ORMMA_Standard_HTML_Stub.html in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */; };
 		FAD28C7112381E3C00562D0B /* ORMMA_Javascript_API.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C6F12381E3500562D0B /* ORMMA_Javascript_API.js */; };
+		FADF791D1247F29B003F7C45 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADF791C1247F29B003F7C45 /* CoreMotion.framework */; };
 		FAE3A51F124159BE00285B32 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A51E124159BE00285B32 /* EventKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAE3A521124159BE00285B32 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A520124159BE00285B32 /* EventKitUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
@@ -115,6 +116,7 @@
 		FAD28C5B12381C8100562D0B /* ORMMA_Abstraction_Layer_iOS.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ORMMA_Abstraction_Layer_iOS.js; sourceTree = "<group>"; };
 		FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ORMMA_Standard_HTML_Stub.html; sourceTree = "<group>"; };
 		FAD28C6F12381E3500562D0B /* ORMMA_Javascript_API.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ORMMA_Javascript_API.js; sourceTree = "<group>"; };
+		FADF791C1247F29B003F7C45 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		FAE3A51E124159BE00285B32 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
 		FAE3A520124159BE00285B32 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
 		FAE3A86A12429E8500285B32 /* ORMMA Test Bed-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ORMMA Test Bed-Info.plist"; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				FAE3A51F124159BE00285B32 /* EventKit.framework in Frameworks */,
 				FAE3A521124159BE00285B32 /* EventKitUI.framework in Frameworks */,
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
+				FADF791D1247F29B003F7C45 /* CoreMotion.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,6 +186,7 @@
 				FAE3A88E12429F8B00285B32 /* CoreFoundation.framework */,
 				FAE3A89012429F8B00285B32 /* CoreGraphics.framework */,
 				FAE3A89212429F8B00285B32 /* CoreLocation.framework */,
+				FADF791C1247F29B003F7C45 /* CoreMotion.framework */,
 				FAE3A51E124159BE00285B32 /* EventKit.framework */,
 				FAE3A520124159BE00285B32 /* EventKitUI.framework */,
 				AACBBE490F95108600F1A2B1 /* Foundation.framework */,

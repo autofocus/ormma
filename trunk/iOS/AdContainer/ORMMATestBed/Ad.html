@@ -4,50 +4,48 @@
       // we need to wait until the page has loaded to make sure that all of the
 	  // ORMMA code is setup
 	  // once it is, let's register for the "ready" event
-      ormma.addEventListener( "ready", ORMMA_Ready );
-      ormma.addEventListener( "stateChange", ORMMA_StateChange );
+      ormma.addEventListener( "ready",       ORMMAReadyEventHandler );
+      ormma.addEventListener( "stateChange", StateChangedEventHandler );
    }
+
+
+   function LocationChangedEventHandler( locationEvent )
+   {
+      var lattitude = document.getElementById( "locLattitude" );
+      var longitude = document.getElementById( "locLongitude" );
+      var altitude = document.getElementById( "locAltitude" );
+      var horizontalAccuracy = document.getElementById( "locHorizontalAccuracy" );
+      var verticalAccuracy = document.getElementById( "locVerticalAccuracy" );
+      var ts = document.getElementById( "locTimestamp" );
+      var course = document.getElementById( "locCourse" );
+      var speed = document.getElementById( "locSpeed" );
+	  lattitude.innerHTML = locationEvent.lattitude;
+	  longitude.innerHTML = locationEvent.longitude;
+	  altitude.innerHTML = locationEvent.altitude;
+	  horizontalAccuracy.innerHTML = locationEvent.horizontalAccuracy;
+	  verticalAccuracy.innerHTML = locationEvent.verticalAccuracy;
+	  course.innerHTML = locationEvent.course;
+	  speed.innerHTML = locationEvent.speed;
+	  ts.innerHTML = locationEvent.timestamp;
+   }
+
    
-   function ORMMA_Ready()
+   function ORMMAReadyEventHandler()
    {
       // the ORMMA engine is ready to deal with us, so tell it to show the ad
 	  ormma.show();
 	  
 	  // now add some event listeners
-      ormma.addEventListener( "orientationChange", ORMMA_OrientationChange );
-      ormma.addEventListener( "headingChange", ORMMA_HeadingChange );
-      ormma.addEventListener( "tiltChange", ORMMA_TiltChange );
-      ormma.addEventListener( "rotationChange", ORMMA_RotationChange );
-   }
-   
-   function ORMMA_StateChange( state )
-   {
-      // show the correct content when the state changes
-      var defaultDiv = document.getElementByID( "default" );
-      var expandedDiv = document.getElementByID( "expanded" );
-	  if ( state == "default" )
-	  {
-	     defaultDiv.style.visibility = "visible";
-	     expandedDiv.style.visibility = "hidden";
-	  }
-	  else if ( state == "expanded" )
-	  {
-	     defaultDiv.style.visibility = "hidden";
-	     expandedDiv.style.visibility = "visible";
-	  }
-      var stateSpan = document.getElementByID( "currentState" );
-	  stateSpan.innerHTML = state;
+      ormma.addEventListener( "headingChange",     HeadingChangedEventHandler );
+      ormma.addEventListener( "locationChange",    LocationChangedEventHandler );
+      ormma.addEventListener( "orientationChange", OrientationChangedEventHandler );
+      ormma.addEventListener( "tiltChange",        TiltChangedEventHandler );
+      ormma.addEventListener( "rotationChange",    RotationChangedEventHandler );
    }
 
-   function ORMMA_OrientationChange( orientationChangeEvent )
-   {
-      var orientationSpan = document.getElementByID( "orientation" );
-	  orientationSpan.innerHTML = orientationChangeEvent.orientation;
-   }
 
-   function ORMMA_HeadingChange( headingChangeEvent )
+   function HeadingChangedEventHandler( headingChangeEvent )
    {
-      var orientationSpan = document.getElementByID( "orientation" );
       var m = document.getElementById( "headingMagnetic" );
       var t = document.getElementById( "headingTrue" );
       var a = document.getElementById( "headingAccuracy" );
@@ -56,20 +54,33 @@
 	  a.innerHTML = headingChangeEvent.accuracy;
    }
 
-   function ORMMA_TiltChange( tiltEvent )
+
+   function OrientationChangedEventHandler( orientationChangeEvent )
    {
-   //alert( "Tilt: " + tiltEvent.x + ", " + tiltEvent.y + ", " + tiltEvent.z );
-      var x = document.getElementById( "accX" );
-      var y = document.getElementById( "accY" );
-      var z = document.getElementById( "accZ" );
-	  x.innerHTML = tiltEvent.x;
-	  y.innerHTML = tiltEvent.y;
-	  z.innerHTML = tiltEvent.z;
+      var orientationSpan = document.getElementById( "orientation" );
+	  orientationSpan.innerHTML = orientationChangeEvent.orientation;
+   }
+   
+   
+   function ResizeAd()
+   {
+     // grow the screen
+     var d = new ORMMAResizeDimensions( 10, 0, 300, 250 );
+     ormma.resize( d );
+	  
+	  return false;
+   }
+   
+   
+   function RestoreToDefault()
+   {
+	  ormma.close();
+	  return false;
    }
 
-   function ORMMA_RotationChange( rotationEvent )
+
+   function RotationChangedEventHandler( rotationEvent )
    {
-   //alert( "GYRO: " + rotationEvent.x + ", " + rotationEvent.y + ", " + rotationEvent.z );
       var x = document.getElementById( "gyroX" );
       var y = document.getElementById( "gyroY" );
       var z = document.getElementById( "gyroZ" );
@@ -77,40 +88,55 @@
 	  y.innerHTML = rotationEvent.y;
 	  z.innerHTML = rotationEvent.z;
    }
+
    
-   function ResizeAd()
+   function StateChangedEventHandler( state )
    {
-      if ( ormma.getState() == "default" )
+      // show the correct content when the state changes
+      var defaultDiv = document.getElementById( "default" );
+      var expandedDiv = document.getElementById( "expanded" );
+	  if ( state.state == "default" )
 	  {
-	     // grow the screen
-         var d = new ORMMAResizeDimensions( 10, 0, 300, 250 );
-	     ormma.resize( d );
+	     defaultDiv.style.visibility = "visible";
+	     expandedDiv.style.visibility = "hidden";
 	  }
-	  else
+	  else if ( state.state == "expanded" )
 	  {
-	     // restore our state
-	     ormma.close();
+	     defaultDiv.style.visibility = "hidden";
+	     expandedDiv.style.visibility = "visible";
 	  }
-	  
-	  return false;
+      var stateSpan = document.getElementById( "currentState" );
+	  stateSpan.innerHTML = state.state;
    }
-   
-   function RestoreToDefault()
+
+
+   function TiltChangedEventHandler( tiltEvent )
    {
-	  ormma.close();
-	  return false;
+      var x = document.getElementById( "accX" );
+      var y = document.getElementById( "accY" );
+      var z = document.getElementById( "accZ" );
+	  x.innerHTML = tiltEvent.x;
+	  y.innerHTML = tiltEvent.y;
+	  z.innerHTML = tiltEvent.z;
    }
    
 </script>
 
 <div id="default" style="visibility=visible;">
-   <a href="javascript:ormma.hide();">Hide</a>&nbsp;&nbsp;<a href="javascript:ResizeAd();">Resize</a>
+   <a href="javascript:ormma.hide();">Hide</a>
+   &nbsp;&nbsp;
+   <a href="javascript:ResizeAd();">Resize</a>
 </div>
 
 <div id="expanded" style="visibility=hidden;">
+   <a href="javascript:RestoreToDefault();">Close</a><br>
    Orientation: <span id="orientation"></span><br>
    State: <span id="currentState"></span><br>
-   Accelerometer: X: <span id="accX"></span>, Y: <span id="accY"></span>, Z: <span id="accZ"></span><br>
-   Gyroscope: X: <span id="gyroX"></span>, Y: <span id="gyroY">, Z: <span id="gyroZ"></span></span><br>
-   Heading: M: <span id="headingMagnetic"></span>, T: <span id="headingTrue"></span>, A: <span id="headingAccuracy"></span><br>
+   Acc: X: <span id="accX"></span>, Y: <span id="accY"></span>, Z: <span id="accZ"></span><br>
+   Gyro: X: <span id="gyroX"></span>, Y: <span id="gyroY"></span>, Z: <span id="gyroZ"></span><br>
+   Head: M: <span id="headingMagnetic"></span>, T: <span id="headingTrue"></span>, A: <span id="headingAccuracy"></span><br>
+   Loc: Lat: <span id="locLattitude"></span>, Lng: <span id="locLongitude"></span><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Alt: <span id="locAltitude"></span><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HA:<span id="locHorizontalAccuracy"></span>, VA:<span id="locVerticalAccuracy"></span><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Course:<span id="locCourse"></span>, Speed:<span id="locSpeed"></span><br>
 </div>
