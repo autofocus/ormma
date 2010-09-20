@@ -1,0 +1,636 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA747D9F0F9514B9006C5449 /* ORMMA_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */; };
+		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		FAB6E05012402A6E00DF64C9 /* UIDevice-Hardware.h in Headers */ = {isa = PBXBuildFile; fileRef = FAB6E04E12402A6E00DF64C9 /* UIDevice-Hardware.h */; };
+		FAB6E05112402A6E00DF64C9 /* UIDevice-Hardware.m in Sources */ = {isa = PBXBuildFile; fileRef = FAB6E04F12402A6E00DF64C9 /* UIDevice-Hardware.m */; };
+		FAD28BE512381B2A00562D0B /* FileSystemCache.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BB912381B2A00562D0B /* FileSystemCache.h */; };
+		FAD28BE612381B2A00562D0B /* FileSystemCache.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BBA12381B2A00562D0B /* FileSystemCache.m */; };
+		FAD28BE712381B2A00562D0B /* DeferredObjectSelector.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BBB12381B2A00562D0B /* DeferredObjectSelector.h */; };
+		FAD28BE812381B2A00562D0B /* DeferredObjectSelector.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BBC12381B2A00562D0B /* DeferredObjectSelector.m */; };
+		FAD28BE912381B2A00562D0B /* ORMMAJavascriptBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BBE12381B2A00562D0B /* ORMMAJavascriptBridge.h */; };
+		FAD28BEA12381B2A00562D0B /* ORMMAJavascriptBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BBF12381B2A00562D0B /* ORMMAJavascriptBridge.m */; };
+		FAD28BEB12381B2A00562D0B /* ORMMAView.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BC112381B2A00562D0B /* ORMMAView.h */; };
+		FAD28BEC12381B2A00562D0B /* ORMMAView.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BC212381B2A00562D0B /* ORMMAView.m */; };
+		FAD28BED12381B2A00562D0B /* ASIAuthenticationDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BC612381B2A00562D0B /* ASIAuthenticationDialog.h */; };
+		FAD28BEE12381B2A00562D0B /* ASIAuthenticationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BC712381B2A00562D0B /* ASIAuthenticationDialog.m */; };
+		FAD28BEF12381B2A00562D0B /* ASICacheDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BC812381B2A00562D0B /* ASICacheDelegate.h */; };
+		FAD28BF012381B2A00562D0B /* ASIDownloadCache.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BC912381B2A00562D0B /* ASIDownloadCache.h */; };
+		FAD28BF112381B2A00562D0B /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BCA12381B2A00562D0B /* ASIDownloadCache.m */; };
+		FAD28BF212381B2A00562D0B /* ASIFormDataRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BCB12381B2A00562D0B /* ASIFormDataRequest.h */; };
+		FAD28BF312381B2A00562D0B /* ASIFormDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BCC12381B2A00562D0B /* ASIFormDataRequest.m */; };
+		FAD28BF412381B2A00562D0B /* ASIHTTPRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BCD12381B2A00562D0B /* ASIHTTPRequest.h */; };
+		FAD28BF512381B2A00562D0B /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BCE12381B2A00562D0B /* ASIHTTPRequest.m */; };
+		FAD28BF612381B2A00562D0B /* ASIHTTPRequestConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BCF12381B2A00562D0B /* ASIHTTPRequestConfig.h */; };
+		FAD28BF712381B2A00562D0B /* ASIHTTPRequestDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD012381B2A00562D0B /* ASIHTTPRequestDelegate.h */; };
+		FAD28BF812381B2A00562D0B /* ASIInputStream.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD112381B2A00562D0B /* ASIInputStream.h */; };
+		FAD28BF912381B2A00562D0B /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BD212381B2A00562D0B /* ASIInputStream.m */; };
+		FAD28BFA12381B2A00562D0B /* ASINetworkQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD312381B2A00562D0B /* ASINetworkQueue.h */; };
+		FAD28BFB12381B2A00562D0B /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BD412381B2A00562D0B /* ASINetworkQueue.m */; };
+		FAD28BFC12381B2A00562D0B /* ASIProgressDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD512381B2A00562D0B /* ASIProgressDelegate.h */; };
+		FAD28BFD12381B2A00562D0B /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD612381B2A00562D0B /* Reachability.h */; };
+		FAD28BFE12381B2A00562D0B /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BD712381B2A00562D0B /* Reachability.m */; };
+		FAD28BFF12381B2A00562D0B /* JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD912381B2A00562D0B /* JSON.h */; };
+		FAD28C0012381B2A00562D0B /* NSObject+SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BDB12381B2A00562D0B /* NSObject+SBJSON.h */; };
+		FAD28C0112381B2A00562D0B /* NSObject+SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BDC12381B2A00562D0B /* NSObject+SBJSON.m */; };
+		FAD28C0212381B2A00562D0B /* NSString+SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BDD12381B2A00562D0B /* NSString+SBJSON.h */; };
+		FAD28C0312381B2A00562D0B /* NSString+SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BDE12381B2A00562D0B /* NSString+SBJSON.m */; };
+		FAD28C0412381B2A00562D0B /* SBJsonBase.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BDF12381B2A00562D0B /* SBJsonBase.h */; };
+		FAD28C0512381B2A00562D0B /* SBJsonBase.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BE012381B2A00562D0B /* SBJsonBase.m */; };
+		FAD28C0612381B2A00562D0B /* SBJsonParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BE112381B2A00562D0B /* SBJsonParser.h */; };
+		FAD28C0712381B2A00562D0B /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BE212381B2A00562D0B /* SBJsonParser.m */; };
+		FAD28C0812381B2A00562D0B /* SBJsonWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BE312381B2A00562D0B /* SBJsonWriter.h */; };
+		FAD28C0912381B2A00562D0B /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BE412381B2A00562D0B /* SBJsonWriter.m */; };
+		FAD28C5F12381D9B00562D0B /* ORMMA_Abstraction_Layer_iOS.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C5B12381C8100562D0B /* ORMMA_Abstraction_Layer_iOS.js */; };
+		FAD28C6E12381DFF00562D0B /* ORMMA_Standard_HTML_Stub.html in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */; };
+		FAD28C7112381E3C00562D0B /* ORMMA_Javascript_API.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C6F12381E3500562D0B /* ORMMA_Javascript_API.js */; };
+		FAE3A51F124159BE00285B32 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A51E124159BE00285B32 /* EventKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		FAE3A521124159BE00285B32 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A520124159BE00285B32 /* EventKitUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FAD28C5312381C0E00562D0B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FAD28C4D12381BF800562D0B;
+			remoteInfo = "ORMMA Bundle";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMA_Prefix.pch; sourceTree = SOURCE_ROOT; };
+		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D2AAC07E0554694100DB518D /* libORMMA.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libORMMA.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAB6E04E12402A6E00DF64C9 /* UIDevice-Hardware.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIDevice-Hardware.h"; sourceTree = "<group>"; };
+		FAB6E04F12402A6E00DF64C9 /* UIDevice-Hardware.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIDevice-Hardware.m"; sourceTree = "<group>"; };
+		FAD28BB912381B2A00562D0B /* FileSystemCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystemCache.h; sourceTree = "<group>"; };
+		FAD28BBA12381B2A00562D0B /* FileSystemCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileSystemCache.m; sourceTree = "<group>"; };
+		FAD28BBB12381B2A00562D0B /* DeferredObjectSelector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeferredObjectSelector.h; sourceTree = "<group>"; };
+		FAD28BBC12381B2A00562D0B /* DeferredObjectSelector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeferredObjectSelector.m; sourceTree = "<group>"; };
+		FAD28BBE12381B2A00562D0B /* ORMMAJavascriptBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAJavascriptBridge.h; sourceTree = "<group>"; };
+		FAD28BBF12381B2A00562D0B /* ORMMAJavascriptBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAJavascriptBridge.m; sourceTree = "<group>"; };
+		FAD28BC112381B2A00562D0B /* ORMMAView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAView.h; sourceTree = "<group>"; };
+		FAD28BC212381B2A00562D0B /* ORMMAView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAView.m; sourceTree = "<group>"; };
+		FAD28BC512381B2A00562D0B /* ASI Http Request - LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "ASI Http Request - LICENSE"; sourceTree = "<group>"; };
+		FAD28BC612381B2A00562D0B /* ASIAuthenticationDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIAuthenticationDialog.h; sourceTree = "<group>"; };
+		FAD28BC712381B2A00562D0B /* ASIAuthenticationDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIAuthenticationDialog.m; sourceTree = "<group>"; };
+		FAD28BC812381B2A00562D0B /* ASICacheDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASICacheDelegate.h; sourceTree = "<group>"; };
+		FAD28BC912381B2A00562D0B /* ASIDownloadCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDownloadCache.h; sourceTree = "<group>"; };
+		FAD28BCA12381B2A00562D0B /* ASIDownloadCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDownloadCache.m; sourceTree = "<group>"; };
+		FAD28BCB12381B2A00562D0B /* ASIFormDataRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIFormDataRequest.h; sourceTree = "<group>"; };
+		FAD28BCC12381B2A00562D0B /* ASIFormDataRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIFormDataRequest.m; sourceTree = "<group>"; };
+		FAD28BCD12381B2A00562D0B /* ASIHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequest.h; sourceTree = "<group>"; };
+		FAD28BCE12381B2A00562D0B /* ASIHTTPRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIHTTPRequest.m; sourceTree = "<group>"; };
+		FAD28BCF12381B2A00562D0B /* ASIHTTPRequestConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestConfig.h; sourceTree = "<group>"; };
+		FAD28BD012381B2A00562D0B /* ASIHTTPRequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestDelegate.h; sourceTree = "<group>"; };
+		FAD28BD112381B2A00562D0B /* ASIInputStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIInputStream.h; sourceTree = "<group>"; };
+		FAD28BD212381B2A00562D0B /* ASIInputStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIInputStream.m; sourceTree = "<group>"; };
+		FAD28BD312381B2A00562D0B /* ASINetworkQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINetworkQueue.h; sourceTree = "<group>"; };
+		FAD28BD412381B2A00562D0B /* ASINetworkQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINetworkQueue.m; sourceTree = "<group>"; };
+		FAD28BD512381B2A00562D0B /* ASIProgressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIProgressDelegate.h; sourceTree = "<group>"; };
+		FAD28BD612381B2A00562D0B /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		FAD28BD712381B2A00562D0B /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		FAD28BD912381B2A00562D0B /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
+		FAD28BDA12381B2A00562D0B /* License.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = License.md; sourceTree = "<group>"; };
+		FAD28BDB12381B2A00562D0B /* NSObject+SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SBJSON.h"; sourceTree = "<group>"; };
+		FAD28BDC12381B2A00562D0B /* NSObject+SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SBJSON.m"; sourceTree = "<group>"; };
+		FAD28BDD12381B2A00562D0B /* NSString+SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SBJSON.h"; sourceTree = "<group>"; };
+		FAD28BDE12381B2A00562D0B /* NSString+SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SBJSON.m"; sourceTree = "<group>"; };
+		FAD28BDF12381B2A00562D0B /* SBJsonBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonBase.h; sourceTree = "<group>"; };
+		FAD28BE012381B2A00562D0B /* SBJsonBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonBase.m; sourceTree = "<group>"; };
+		FAD28BE112381B2A00562D0B /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
+		FAD28BE212381B2A00562D0B /* SBJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonParser.m; sourceTree = "<group>"; };
+		FAD28BE312381B2A00562D0B /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
+		FAD28BE412381B2A00562D0B /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
+		FAD28C4E12381BF800562D0B /* ORMMA.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORMMA.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAD28C4F12381BF800562D0B /* ORMMA Bundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ORMMA Bundle-Info.plist"; sourceTree = "<group>"; };
+		FAD28C5B12381C8100562D0B /* ORMMA_Abstraction_Layer_iOS.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ORMMA_Abstraction_Layer_iOS.js; sourceTree = "<group>"; };
+		FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ORMMA_Standard_HTML_Stub.html; sourceTree = "<group>"; };
+		FAD28C6F12381E3500562D0B /* ORMMA_Javascript_API.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ORMMA_Javascript_API.js; sourceTree = "<group>"; };
+		FAE3A51E124159BE00285B32 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
+		FAE3A520124159BE00285B32 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
+		FAE3A86A12429E8500285B32 /* ORMMA Test Bed-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ORMMA Test Bed-Info.plist"; sourceTree = "<group>"; };
+		FAE3A88C12429F8B00285B32 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		FAE3A88E12429F8B00285B32 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		FAE3A89012429F8B00285B32 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		FAE3A89212429F8B00285B32 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		FAE3A89412429F8B00285B32 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		FAE3A89612429F8B00285B32 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		FAE3A89812429F8B00285B32 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		FAE3A89A12429F8B00285B32 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		FAE3A89C12429F8B00285B32 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		FAE3A89E12429F8B00285B32 /* libz.1.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.3.dylib; path = usr/lib/libz.1.2.3.dylib; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D2AAC07C0554694100DB518D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAE3A51F124159BE00285B32 /* EventKit.framework in Frameworks */,
+				FAE3A521124159BE00285B32 /* EventKitUI.framework in Frameworks */,
+				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FAD28C4C12381BF800562D0B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D2AAC07E0554694100DB518D /* libORMMA.a */,
+				FAD28C4E12381BF800562D0B /* ORMMA.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* ORMMA */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28BB712381B2A00562D0B /* Private */,
+				FAD28BC012381B2A00562D0B /* Public */,
+				FAD28BC312381B2A00562D0B /* Third Party */,
+				FAD28C5912381C3400562D0B /* Resources */,
+				32C88DFF0371C24200C91783 /* Other Sources */,
+				0867D69AFE84028FC02AAC07 /* Frameworks */,
+				034768DFFF38A50411DB9C8B /* Products */,
+				FAD28C4F12381BF800562D0B /* ORMMA Bundle-Info.plist */,
+				FAE3A86A12429E8500285B32 /* ORMMA Test Bed-Info.plist */,
+			);
+			name = ORMMA;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FAE3A88C12429F8B00285B32 /* CFNetwork.framework */,
+				FAE3A88E12429F8B00285B32 /* CoreFoundation.framework */,
+				FAE3A89012429F8B00285B32 /* CoreGraphics.framework */,
+				FAE3A89212429F8B00285B32 /* CoreLocation.framework */,
+				FAE3A51E124159BE00285B32 /* EventKit.framework */,
+				FAE3A520124159BE00285B32 /* EventKitUI.framework */,
+				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
+				FAE3A89E12429F8B00285B32 /* libz.1.2.3.dylib */,
+				FAE3A89412429F8B00285B32 /* MessageUI.framework */,
+				FAE3A89612429F8B00285B32 /* MobileCoreServices.framework */,
+				FAE3A89812429F8B00285B32 /* QuartzCore.framework */,
+				FAE3A89A12429F8B00285B32 /* SystemConfiguration.framework */,
+				FAE3A89C12429F8B00285B32 /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		32C88DFF0371C24200C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		FAB6E0451240291D00DF64C9 /* Erica Sadun */ = {
+			isa = PBXGroup;
+			children = (
+				FAB6E04E12402A6E00DF64C9 /* UIDevice-Hardware.h */,
+				FAB6E04F12402A6E00DF64C9 /* UIDevice-Hardware.m */,
+			);
+			path = "Erica Sadun";
+			sourceTree = "<group>";
+		};
+		FAD28BB712381B2A00562D0B /* Private */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28BBB12381B2A00562D0B /* DeferredObjectSelector.h */,
+				FAD28BBC12381B2A00562D0B /* DeferredObjectSelector.m */,
+				FAD28BB812381B2A00562D0B /* Cache Implementations */,
+				FAD28BBD12381B2A00562D0B /* Javascript Bridge */,
+			);
+			path = Private;
+			sourceTree = "<group>";
+		};
+		FAD28BB812381B2A00562D0B /* Cache Implementations */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28BB912381B2A00562D0B /* FileSystemCache.h */,
+				FAD28BBA12381B2A00562D0B /* FileSystemCache.m */,
+			);
+			path = "Cache Implementations";
+			sourceTree = "<group>";
+		};
+		FAD28BBD12381B2A00562D0B /* Javascript Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28BBE12381B2A00562D0B /* ORMMAJavascriptBridge.h */,
+				FAD28BBF12381B2A00562D0B /* ORMMAJavascriptBridge.m */,
+			);
+			path = "Javascript Bridge";
+			sourceTree = "<group>";
+		};
+		FAD28BC012381B2A00562D0B /* Public */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28BC112381B2A00562D0B /* ORMMAView.h */,
+				FAD28BC212381B2A00562D0B /* ORMMAView.m */,
+			);
+			path = Public;
+			sourceTree = "<group>";
+		};
+		FAD28BC312381B2A00562D0B /* Third Party */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28BC412381B2A00562D0B /* ASI HTTP Request */,
+				FAB6E0451240291D00DF64C9 /* Erica Sadun */,
+				FAD28BD812381B2A00562D0B /* JSON Framework */,
+			);
+			path = "Third Party";
+			sourceTree = "<group>";
+		};
+		FAD28BC412381B2A00562D0B /* ASI HTTP Request */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28BC512381B2A00562D0B /* ASI Http Request - LICENSE */,
+				FAD28BC612381B2A00562D0B /* ASIAuthenticationDialog.h */,
+				FAD28BC712381B2A00562D0B /* ASIAuthenticationDialog.m */,
+				FAD28BC812381B2A00562D0B /* ASICacheDelegate.h */,
+				FAD28BC912381B2A00562D0B /* ASIDownloadCache.h */,
+				FAD28BCA12381B2A00562D0B /* ASIDownloadCache.m */,
+				FAD28BCB12381B2A00562D0B /* ASIFormDataRequest.h */,
+				FAD28BCC12381B2A00562D0B /* ASIFormDataRequest.m */,
+				FAD28BCD12381B2A00562D0B /* ASIHTTPRequest.h */,
+				FAD28BCE12381B2A00562D0B /* ASIHTTPRequest.m */,
+				FAD28BCF12381B2A00562D0B /* ASIHTTPRequestConfig.h */,
+				FAD28BD012381B2A00562D0B /* ASIHTTPRequestDelegate.h */,
+				FAD28BD112381B2A00562D0B /* ASIInputStream.h */,
+				FAD28BD212381B2A00562D0B /* ASIInputStream.m */,
+				FAD28BD312381B2A00562D0B /* ASINetworkQueue.h */,
+				FAD28BD412381B2A00562D0B /* ASINetworkQueue.m */,
+				FAD28BD512381B2A00562D0B /* ASIProgressDelegate.h */,
+				FAD28BD612381B2A00562D0B /* Reachability.h */,
+				FAD28BD712381B2A00562D0B /* Reachability.m */,
+			);
+			path = "ASI HTTP Request";
+			sourceTree = "<group>";
+		};
+		FAD28BD812381B2A00562D0B /* JSON Framework */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28BD912381B2A00562D0B /* JSON.h */,
+				FAD28BDA12381B2A00562D0B /* License.md */,
+				FAD28BDB12381B2A00562D0B /* NSObject+SBJSON.h */,
+				FAD28BDC12381B2A00562D0B /* NSObject+SBJSON.m */,
+				FAD28BDD12381B2A00562D0B /* NSString+SBJSON.h */,
+				FAD28BDE12381B2A00562D0B /* NSString+SBJSON.m */,
+				FAD28BDF12381B2A00562D0B /* SBJsonBase.h */,
+				FAD28BE012381B2A00562D0B /* SBJsonBase.m */,
+				FAD28BE112381B2A00562D0B /* SBJsonParser.h */,
+				FAD28BE212381B2A00562D0B /* SBJsonParser.m */,
+				FAD28BE312381B2A00562D0B /* SBJsonWriter.h */,
+				FAD28BE412381B2A00562D0B /* SBJsonWriter.m */,
+			);
+			path = "JSON Framework";
+			sourceTree = "<group>";
+		};
+		FAD28C5912381C3400562D0B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28C5D12381C8F00562D0B /* HTML */,
+				FAD28C5A12381C3F00562D0B /* Javascript */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		FAD28C5A12381C3F00562D0B /* Javascript */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28C5B12381C8100562D0B /* ORMMA_Abstraction_Layer_iOS.js */,
+				FAD28C6F12381E3500562D0B /* ORMMA_Javascript_API.js */,
+			);
+			path = Javascript;
+			sourceTree = "<group>";
+		};
+		FAD28C5D12381C8F00562D0B /* HTML */ = {
+			isa = PBXGroup;
+			children = (
+				FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */,
+			);
+			path = HTML;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D2AAC07A0554694100DB518D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA747D9F0F9514B9006C5449 /* ORMMA_Prefix.pch in Headers */,
+				FAD28BE512381B2A00562D0B /* FileSystemCache.h in Headers */,
+				FAD28BE712381B2A00562D0B /* DeferredObjectSelector.h in Headers */,
+				FAD28BE912381B2A00562D0B /* ORMMAJavascriptBridge.h in Headers */,
+				FAD28BEB12381B2A00562D0B /* ORMMAView.h in Headers */,
+				FAD28BED12381B2A00562D0B /* ASIAuthenticationDialog.h in Headers */,
+				FAD28BEF12381B2A00562D0B /* ASICacheDelegate.h in Headers */,
+				FAD28BF012381B2A00562D0B /* ASIDownloadCache.h in Headers */,
+				FAD28BF212381B2A00562D0B /* ASIFormDataRequest.h in Headers */,
+				FAD28BF412381B2A00562D0B /* ASIHTTPRequest.h in Headers */,
+				FAD28BF612381B2A00562D0B /* ASIHTTPRequestConfig.h in Headers */,
+				FAD28BF712381B2A00562D0B /* ASIHTTPRequestDelegate.h in Headers */,
+				FAD28BF812381B2A00562D0B /* ASIInputStream.h in Headers */,
+				FAD28BFA12381B2A00562D0B /* ASINetworkQueue.h in Headers */,
+				FAD28BFC12381B2A00562D0B /* ASIProgressDelegate.h in Headers */,
+				FAD28BFD12381B2A00562D0B /* Reachability.h in Headers */,
+				FAD28BFF12381B2A00562D0B /* JSON.h in Headers */,
+				FAD28C0012381B2A00562D0B /* NSObject+SBJSON.h in Headers */,
+				FAD28C0212381B2A00562D0B /* NSString+SBJSON.h in Headers */,
+				FAD28C0412381B2A00562D0B /* SBJsonBase.h in Headers */,
+				FAD28C0612381B2A00562D0B /* SBJsonParser.h in Headers */,
+				FAD28C0812381B2A00562D0B /* SBJsonWriter.h in Headers */,
+				FAB6E05012402A6E00DF64C9 /* UIDevice-Hardware.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D2AAC07D0554694100DB518D /* ORMMA Library */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "ORMMA Library" */;
+			buildPhases = (
+				D2AAC07A0554694100DB518D /* Headers */,
+				D2AAC07B0554694100DB518D /* Sources */,
+				D2AAC07C0554694100DB518D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FAD28C5412381C0E00562D0B /* PBXTargetDependency */,
+			);
+			name = "ORMMA Library";
+			productName = ORMMA;
+			productReference = D2AAC07E0554694100DB518D /* libORMMA.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		FAD28C4D12381BF800562D0B /* ORMMA Bundle */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FAD28C5212381BF900562D0B /* Build configuration list for PBXNativeTarget "ORMMA Bundle" */;
+			buildPhases = (
+				FAD28C4A12381BF800562D0B /* Resources */,
+				FAD28C4B12381BF800562D0B /* Sources */,
+				FAD28C4C12381BF800562D0B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ORMMA Bundle";
+			productName = "ORMMA Bundle";
+			productReference = FAD28C4E12381BF800562D0B /* ORMMA.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "ORMMA" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* ORMMA */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FAD28C4D12381BF800562D0B /* ORMMA Bundle */,
+				D2AAC07D0554694100DB518D /* ORMMA Library */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FAD28C4A12381BF800562D0B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAD28C5F12381D9B00562D0B /* ORMMA_Abstraction_Layer_iOS.js in Resources */,
+				FAD28C7112381E3C00562D0B /* ORMMA_Javascript_API.js in Resources */,
+				FAD28C6E12381DFF00562D0B /* ORMMA_Standard_HTML_Stub.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D2AAC07B0554694100DB518D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAD28BE612381B2A00562D0B /* FileSystemCache.m in Sources */,
+				FAD28BE812381B2A00562D0B /* DeferredObjectSelector.m in Sources */,
+				FAD28BEA12381B2A00562D0B /* ORMMAJavascriptBridge.m in Sources */,
+				FAD28BEC12381B2A00562D0B /* ORMMAView.m in Sources */,
+				FAD28BEE12381B2A00562D0B /* ASIAuthenticationDialog.m in Sources */,
+				FAD28BF112381B2A00562D0B /* ASIDownloadCache.m in Sources */,
+				FAD28BF312381B2A00562D0B /* ASIFormDataRequest.m in Sources */,
+				FAD28BF512381B2A00562D0B /* ASIHTTPRequest.m in Sources */,
+				FAD28BF912381B2A00562D0B /* ASIInputStream.m in Sources */,
+				FAD28BFB12381B2A00562D0B /* ASINetworkQueue.m in Sources */,
+				FAD28BFE12381B2A00562D0B /* Reachability.m in Sources */,
+				FAD28C0112381B2A00562D0B /* NSObject+SBJSON.m in Sources */,
+				FAD28C0312381B2A00562D0B /* NSString+SBJSON.m in Sources */,
+				FAD28C0512381B2A00562D0B /* SBJsonBase.m in Sources */,
+				FAD28C0712381B2A00562D0B /* SBJsonParser.m in Sources */,
+				FAD28C0912381B2A00562D0B /* SBJsonWriter.m in Sources */,
+				FAB6E05112402A6E00DF64C9 /* UIDevice-Hardware.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FAD28C4B12381BF800562D0B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FAD28C5412381C0E00562D0B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FAD28C4D12381BF800562D0B /* ORMMA Bundle */;
+			targetProxy = FAD28C5312381C0E00562D0B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB921F08733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				DSTROOT = /tmp/ORMMA.dst;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = ORMMA_Prefix.pch;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = ORMMA;
+			};
+			name = Debug;
+		};
+		1DEB922008733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DSTROOT = /tmp/ORMMA.dst;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = ORMMA_Prefix.pch;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = ORMMA;
+			};
+			name = Release;
+		};
+		1DEB922308733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-ObjC",
+				);
+				PREBINDING = NO;
+				SDKROOT = iphoneos4.1;
+			};
+			name = Debug;
+		};
+		1DEB922408733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-ObjC",
+				);
+				PREBINDING = NO;
+				SDKROOT = iphoneos4.1;
+			};
+			name = Release;
+		};
+		FAD28C5012381BF900562D0B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "ORMMA Bundle-Info.plist";
+				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ORMMA;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		FAD28C5112381BF900562D0B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "ORMMA Bundle-Info.plist";
+				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ORMMA;
+				WRAPPER_EXTENSION = bundle;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "ORMMA Library" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB921F08733DC00010E9CD /* Debug */,
+				1DEB922008733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "ORMMA" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB922308733DC00010E9CD /* Debug */,
+				1DEB922408733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FAD28C5212381BF900562D0B /* Build configuration list for PBXNativeTarget "ORMMA Bundle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAD28C5012381BF900562D0B /* Debug */,
+				FAD28C5112381BF900562D0B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}
