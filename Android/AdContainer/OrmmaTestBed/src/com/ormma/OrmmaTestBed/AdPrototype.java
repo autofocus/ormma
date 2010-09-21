@@ -1,6 +1,5 @@
 package com.ormma.OrmmaTestBed;
 
-import com.ormma.R;
 import com.ormma.view.OrmmaView;
 
 import android.app.Activity;
