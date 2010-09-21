@@ -14,7 +14,7 @@ public class AdPrototype extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mAdView = (OrmmaView) findViewById(R.id.ad);
-        mAdView.loadUrl("file:///android_asset/www/ad.html");
+        mAdView.loadUrl("file:///android_asset/ad.html");
 	
     }
 }
