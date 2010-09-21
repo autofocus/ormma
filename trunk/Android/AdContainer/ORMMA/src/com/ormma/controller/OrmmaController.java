@@ -27,7 +27,6 @@ import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.ormma.util.JSONHelper;
 import com.ormma.view.OrmmaView;
 
 public class OrmmaController {
