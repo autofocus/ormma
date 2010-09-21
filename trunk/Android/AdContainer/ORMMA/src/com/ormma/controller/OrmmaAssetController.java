@@ -1,10 +1,12 @@
 package com.ormma.controller;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -21,10 +23,27 @@ public class OrmmaAssetController extends OrmmaController{
 		super(adView, c);
 	}
 
+	
+	
+
+	
+	public String copyTextFromJarIntoAssetDir(String alias, String source) {
+		try {
+			InputStream in = OrmmaAssetController.class.getResourceAsStream(source);;
+			writeToDisk(in, alias);
+			return mContext.getFilesDir()+alias;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	
 	public void addAsset(String alias, String url) {
 		HttpEntity entity = getHttpEntity(url);
 		try {
-			writeToDisk(entity, alias);
+			InputStream in = entity.getContent();
+			writeToDisk(in, alias);
 			String str = "javascript:OrmmaAdController.addedAsset('" + alias + "' )";
 			mOrmmaView.loadUrl(str);
 		} catch (Exception e) {
@@ -63,13 +82,12 @@ public class OrmmaAssetController extends OrmmaController{
 		return free;
 	}
 
-	private void writeToDisk(HttpEntity entity, String file) throws IllegalStateException, IOException
+	private void writeToDisk(InputStream in, String file) throws IllegalStateException, IOException
 	/**
 	 * writes a HTTP entity to the specified filename and location on disk
 	 */
 	{
 		int i = 0;
-		InputStream in = entity.getContent();
 		byte buff[] = new byte[1024];
 		FileOutputStream out = getAssetOutputString(file);
 		do {
@@ -132,5 +150,6 @@ public class OrmmaAssetController extends OrmmaController{
 		}
 		return name;
 	}
+
 	
 }
