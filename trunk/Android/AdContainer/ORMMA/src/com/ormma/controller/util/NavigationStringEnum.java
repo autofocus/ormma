@@ -1,4 +1,4 @@
-package com.ormma.controller;
+package com.ormma.controller.util;
 
 public enum NavigationStringEnum {
 

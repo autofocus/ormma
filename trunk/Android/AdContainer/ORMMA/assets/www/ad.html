@@ -28,7 +28,7 @@ function resize(form)
 	
 	//ORMMAControllerBridge.resize(JSON.stringify(dimens),JSON.stringify(props));
 
-	OrmmaAdController.addEventListener('assetReady', function(event,alias) { alert(alias);});
+//	OrmmaAdController.addEventListener('assetReady', function(event,alias) { alert(alias);});
 	OrmmaAdController.addEventListener('locationChange', function(event,loc) { alert(loc.lat);});
 
 //	OrmmaAdController.addAsset("/tmp/abc","http://www.mariettana.org/images/NA%20Logo%20Heading.jpg");
@@ -41,7 +41,7 @@ function resize(form)
 //        '/tmp/two.jpg':'http://www.mariettana.org/images/NA%20Logo%20Heading.jpg',
 //        '/tmp/three.jpg':'http://www.mariettana.org/images/NA%20Logo%20Heading.jpg'
 //});
-document.getElementById("x").innerHTML = OrmmaAdController.getScreenSize().height;
+//document.getElementById("x").innerHTML = OrmmaAdController.getScreenSize().height;
 //OrmmaAdController.resize(dimens);
 }
 
