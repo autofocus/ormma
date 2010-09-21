@@ -1,4 +1,4 @@
-package com.ormma.listeners;
+package com.ormma.controller.listeners;
 /* License (MIT)
  * Copyright (c) 2008 Nitobi
  * website: http://phonegap.com
@@ -21,6 +21,8 @@ package com.ormma.listeners;
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import com.ormma.controller.OrmmaLocationController;
+
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
@@ -30,20 +32,24 @@ import android.util.Log;
 
 public class LocListener implements LocationListener {
 	
-	LocationUpdateListener LocationUpdateListener;
+	OrmmaLocationController mOrmmaLocationController;
 	private LocationManager mLocMan;
 	private Location cLoc;
+	private String mProvider;
+	private long mInterval;
 	
-	public LocListener(Context c, int interval, LocationUpdateListener m, String provider)
+	
+	public LocListener(Context c, int interval, OrmmaLocationController ormmaLocationController, String provider)
 	{
-		LocationUpdateListener = m;
+		mOrmmaLocationController = ormmaLocationController;
 		mLocMan = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
-		mLocMan.requestLocationUpdates(provider, interval, 0, this);
+		mProvider = provider;
+		mInterval = interval;
 	}
 	
 	
 	public void onProviderDisabled(String provider) {
-		LocationUpdateListener.fail();
+		mOrmmaLocationController.fail();
 	}
 
 
@@ -51,13 +57,13 @@ public class LocListener implements LocationListener {
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		if(status == 0)
 		{
-			LocationUpdateListener.fail();
+			mOrmmaLocationController.fail();
 		}
 	}
 
 
 	public void onLocationChanged(Location location) {
-		LocationUpdateListener.success(location);
+		mOrmmaLocationController.success(location);
 	}
 
 	public void stop()
@@ -70,6 +76,11 @@ public class LocListener implements LocationListener {
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	public void start() {
+		mLocMan.requestLocationUpdates(mProvider, mInterval, 0, this);		
 	}
 	
 }

@@ -272,61 +272,55 @@
     /* implementations of public methods for specific vendors */
 
     function _resize (dimensions, properties) {
-        ORMMAControllerBridge.resize(JSON.stringify(dimensions), JSON.stringify(properties));
+        ORMMADisplayControllerBridge.resize(JSON.stringify(dimensions), JSON.stringify(properties));
     }
 
     function _close () {
-        ORMMAControllerBridge.close();
+        ORMMADisplayControllerBridge.close();
     }
 
 	function _cacheRemaining() {
-		return ORMMAControllerBridge.cacheRemaining();
+		return ORMMAAssetsControllerBridge.cacheRemaining();
 	}
 
 	function _hide() {
-		ORMMAControllerBridge.hide();
+		ORMMADisplayControllerBridge.hide();
 	}
 
 	function _show() {
-		ORMMAControllerBridge.show();
+		ORMMADisplayControllerBridge.show();
 	}
 
 
 	function _addAsset(alias, uri) {
-		ORMMAControllerBridge.addAsset(alias, uri);
+		ORMMAAssetsControllerBridge.addAsset(alias, uri);
 	}
 
 	function _removeAsset(alias) {
-		ORMMAControllerBridge.removeAsset(alias);
+		ORMMAAssetsControllerBridge.removeAsset(alias);
 	}
 
 	function _getHeading() {
-		return ORMMAControllerBridge.getHeading();
+		return ORMMALocationControllerBridge.getHeading();
 	}
 
 	function _getLocation() {
-		return eval('('+ORMMAControllerBridge.getLocation()+')');
+		return eval('('+ORMMALocationControllerBridge.getLocation()+')');
 	}
 
 	function _getNetwork() {
-		return ORMMAControllerBridge.getNetwork();
+		return ORMMANetworkControllerBridge.getNetwork();
 	}
 	function _getOrientation() {
-		return ORMMAControllerBridge.getOrientation();
+		return ORMMADisplayControllerBridge.getOrientation();
 	}
 
 	function _getScreenSize() {
-		return eval('('+ORMMAControllerBridge.getScreenSize()+')');
-	}
-	function _getShakeProperties() {
-		return ORMMAControllerBridge.getShakeProperties;
-	}
-	function _getState() {
-		return ORMMAControllerBridge.getState();
+		return eval('('+ORMMADisplayControllerBridge.getScreenSize()+')');
 	}
 	
 	function _startLocationListener(){
-		ORMMAControllerBridge.startLocationListener();
+		ORMMALocationControllerBridge.startLocationListener();
 	}
 
 })();
