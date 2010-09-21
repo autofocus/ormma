@@ -105,10 +105,13 @@ public class OrmmaView extends WebView {
 			super.onReceivedError(view, errorCode, description, failingUrl);
 		}
 		public void onPageFinished(WebView view, String url) {
+			
+			String scriptPath = mAssetController.copyTextFromJarIntoAssetDir("/js/OrmmaAdController.js","/js/OrmmaAdController.js");
+			
 			loadUrl("javascript:	"+
 						"{ var body = document.getElementsByTagName('head').item(0);"+
 						"script = document.createElement('script');"+
-						"script.src = \"../js/OrmmaAdController.js\";"+
+						"script.src = \"" + scriptPath + "\";"+
 						"script.type = 'text/javascript';"+
 						"body.appendChild(script)"+
 						"}");
