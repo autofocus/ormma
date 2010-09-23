@@ -1,31 +1,12 @@
 package com.ormma.controller;
 
-import java.io.EOFException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.Surface;
-import android.view.View;
-import android.view.WindowManager;
 
 import com.ormma.controller.util.NavigationStringEnum;
 import com.ormma.controller.util.TransitionStringEnum;
@@ -35,11 +16,8 @@ public class OrmmaController {
 
 	protected OrmmaView mOrmmaView;
 
-	private LocationManager mLocationManager;
-
 	private static final String STRING_TYPE = "class java.lang.String";
 	private static final String INT_TYPE = "int";
-	private static final String LONG_TYPE = "long";
 	private static final String BOOLEAN_TYPE = "boolean";
 	private static final String FLOAT_TYPE = "float";
 	private static final String NAVIGATION_TYPE = "class com.ormma.NavigationStringEnum";
