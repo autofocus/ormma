@@ -21,20 +21,19 @@ package com.ormma.controller.listeners;
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import com.ormma.controller.OrmmaLocationController;
-
 import android.content.Context;
 import android.location.Location;
-import android.location.LocationManager;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
+
+import com.ormma.controller.OrmmaLocationController;
 
 public class LocListener implements LocationListener {
 	
 	OrmmaLocationController mOrmmaLocationController;
 	private LocationManager mLocMan;
-	private Location cLoc;
+//	private Location cLoc;
 	private String mProvider;
 	private long mInterval;
 	

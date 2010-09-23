@@ -1,12 +1,10 @@
 package com.ormma.controller;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -30,8 +28,7 @@ public class OrmmaAssetController extends OrmmaController{
 	public String copyTextFromJarIntoAssetDir(String alias, String source) {
 		try {
 			InputStream in = OrmmaAssetController.class.getResourceAsStream(source);;
-			writeToDisk(in, alias);
-			return mContext.getFilesDir()+alias;
+			return writeToDisk(in, alias);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -82,7 +79,7 @@ public class OrmmaAssetController extends OrmmaController{
 		return free;
 	}
 
-	private void writeToDisk(InputStream in, String file) throws IllegalStateException, IOException
+	public String writeToDisk(InputStream in, String file) throws IllegalStateException, IOException
 	/**
 	 * writes a HTTP entity to the specified filename and location on disk
 	 */
@@ -100,6 +97,8 @@ public class OrmmaAssetController extends OrmmaController{
 		} while (true);
 		out.flush();
 		out.close();
+		return mContext.getFilesDir()+"/"+file;
+
 	}
 
 	
@@ -149,6 +148,14 @@ public class OrmmaAssetController extends OrmmaController{
 			name = asset.substring(asset.lastIndexOf(java.io.File.separatorChar)+1);
 		}
 		return name;
+	}
+
+
+
+
+
+	public String getAssetPath() {
+		return "file://"+ mContext.getFilesDir()+"/";
 	}
 
 	

@@ -3,15 +3,13 @@ package com.ormma.controller.listeners;
 
 	import java.util.List;
 
-import com.ormma.view.OrmmaView;
-
+import android.content.Context;
 import android.hardware.Sensor;
-	import android.hardware.SensorEvent;
-	import android.hardware.SensorEventListener;
-	import android.hardware.SensorManager;
-	import android.content.Context;
-import android.util.Log;
-import android.webkit.WebView;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
+import com.ormma.view.OrmmaView;
 
 	public class AccelListener implements SensorEventListener{
 
