@@ -1,0 +1,10 @@
+@charset "UTF-8";
+/* CSS Document */
+
+#banner {position:absolute; left:0px; top:0px; display:none}
+#closebanner {position:absolute; left:265; top:-15px; display:none}
+#panel {position:absolute; left:0px; top:0px; display:none}
+#hotspot {position:absolute; left:50px; top:120px}
+#ajax {position:absolute; left:50px; top:150px}
+#close {position:absolute; left:250px; top:0px}
+img {border:none}
