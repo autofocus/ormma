@@ -15,7 +15,7 @@
 * @param {String} msg text to output
 */
 function logit(msg) {
-	if (console) {
+	if (typeof(console)!=='undefined') {
 		console.log((new Date()).getTime() + '-' + msg);
 	}
 }
