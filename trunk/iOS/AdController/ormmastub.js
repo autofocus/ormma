@@ -16,7 +16,80 @@
 */
 (function () {
 
-    /**
+/* 
+* Private helper functions to provide mock data
+*/
+	
+	/**
+	* This class takes on the responsibility of providing data just as a fully implemented
+	* registration object would
+	* @class
+	* @private
+	*/
+	function MockRegistration() {
+		this.hasListener = [];
+		this.timer = [];
+		this.mockValue = [];
+		this.events = ['heading', 'location', 'network', 'orientation', 'screensize', 'rotation', 'shake', 'tilt', 'shakeproperties'];
+		for (var i = 0; i < this.events.length; i = i + 1) {
+			this.hasListener[this.events[i]] = false;
+			this.mockValue[this.events[i]] = 0;
+			this.timer[this.events[i]] = null;
+		}
+	}
+	
+	/* instatiation of MockRegistration object, loaded event */
+	var registration = new MockRegistration(),
+		evt = document.createEvent('MessageEvent');
+
+
+	/**
+	* Generic private function to throw events to listeners, in this implementation, all events are MessageEvents
+	* @private
+	* @param {String} msg The type of event being thrown
+	* @param {String} data The response data for the event
+	* @see startPolling
+	*/
+	function throwEvent(msg, data) {
+		var evt = document.createEvent('MessageEvent');
+		evt.initMessageEvent(msg, true, true, data, null, 0, null, null);
+		window.dispatchEvent(evt);
+	}
+
+	/**
+	* Generic private helper function to register a listener and throw events for a polled feature. Interval is 500ms
+	* @private
+	* @param {String} evt the type of event that is being polled
+	* @param {Function} listener the function to be registered as a listener
+	* @see addEventListener
+	*/
+	function startPolling(evt, listener) {
+		if (!registration.hasListener[evt]) {
+			registration.hasListener[evt] = true;
+			window.addEventListener(evt, listener, false);
+			registration.timer[evt] = setInterval(function () {
+				throwEvent(evt, registration.mockValue[evt]++);
+			}, 500);
+		}
+	}
+	
+	/**
+	* Generic private helper function to remove a listener for a polled feature. 
+	* @private
+	* @param {String} evt the type of event that is being stopped
+	* @param {Function} listener the function to be removed as a listener
+	* @see removeEventListener
+	*/
+	function stopPolling(evt, listener) {
+		registration.hasListener[evt] = false; 
+		clearInterval(registration.timer[evt]);
+	}
+
+/*
+* Public API
+*/
+
+	/**
      * The main ad controller object
      * @namespace encapusaltes all methods of the ORMMA JavaScript API
      */
@@ -46,7 +119,20 @@
         * @param {Function} listener function name (or anonymous function) to execute 
         */
         addEventListener : function (evt, listener) {
-            window.addEventListener(evt, listener, false);
+			switch (evt) {
+			case "network" : 
+			case "orientation" : 
+			case "screensize" : 
+			case "heading" : 
+			case "location" : 
+			case "rotation" : 
+			case "shake" : 
+			case "tilt" : 
+				startPolling(evt, listener); 
+				break;
+			default : 
+				window.addEventListener(evt, listener, false);
+			}
         },
 
         /**
@@ -61,8 +147,21 @@
         * @param {Function} listener (optional) function to be removed 
         */    
         removeEventListener : function (evt, listener) {
-            window.removeEventListener(evt, listener, false);
-        },
+			window.removeEventListener(evt, listener, false);
+			switch (evt) {
+			case "network" : 
+			case "orientation" : 
+			case "screensize" : 
+			case "heading" : 
+			case "location" : 
+			case "rotation" : 
+			case "shake" : 
+			case "tilt" : 
+				stopPolling(evt); 
+				break;
+			default : //do nothing
+			}
+		},
 
         /**
         * This method returns whether the ad is in its default, fixed position or is in an expanded, larger position.
@@ -136,7 +235,7 @@
         * @returns {JSON} {height, width} - the maximum height and width the view can grow to 
         */
         getMaxSize : function () {
-            return ( {'height' : '250', 'width' : '320'});
+            return ({'height' : '250', 'width' : '320'});
         },
         
         /**
@@ -276,7 +375,18 @@
         * @returns {Boolean } true, the feature is supported and getter and events are available; false, the feature is not supported 
         */
         supports : function (feature) {
-            return (false);
+			var response = false;
+			switch (feature) {
+			case 'network':
+			case 'orientation':
+			case 'screensize':
+			case 'heading':
+			case 'location':
+			case 'shake':
+			case 'tilt': 
+				response = true;
+			}
+            return (response);
         },
         
         /**
@@ -341,24 +451,139 @@
             evt = document.createEvent('Event');
             evt.initEvent('resizeChange', true, true);
             window.dispatchEvent(evt);
-        }
+        },
+		
+		/**
+		* Use this method to get the most recent compass direction of the current vertical axis of the device. 
+		* To receive events when the a change occurs, register an event listener for "heading" events. Values are:
+		*
+		* <table>
+		* <tr><th>value</th><th>description</th></tr>
+		* <tr><td>-1</td><td>no heading known</td></tr>
+		* <tr><td>0-359</td><td>compass direction in degrees</td></tr>
+		* </table>
+		*
+		* <br/>#side effects: will enable the compass on device, using more battery
+		* <br/>#ORMMA Level: 2
+		*
+		* @returns {Number} degrees
+		* @see headingChange event
+		*/
+		getHeading : function () {
+			return (registration.mockValue.heading);
+		},
+		
+		/**
+		* Use this method to get the most recent location reading from the device. To receive events when a 
+		* change occurs, register an event listener for "location" events. 
+		*
+		* <br/>#side effects: will enable the gps on device, using more battery
+		* <br/>#ORMMA Level: 2
+		*
+		* @returns {Object} Latitude and longitude, or null
+		* @see locationChange event
+		*/
+		getLocation : function () {
+			return (registration.mockValue.location);
+		},
+		
+		/**
+		* Use this method to identify the most recent network status of the device. To receive events when a 
+		* change occurs, register an event listener for "network" events. Possible results include: 
+		*
+		* <table>
+		* <tr><th>value</th><th>description</th></tr>
+		* <tr><td>offline</td><td>no network connection</td></tr>
+		* <tr><td>wifi</td><td>network using a wifi antennae</td></tr>
+		* <tr><td>cell</td><td>network using a cellular antennae (such as 3G)</td></tr>
+		* <tr><td>unknown</td><td>network connection in unknown state</td></tr>
+		* </table>
+		*
+		* <br/>#side effects: will enable the antennae on device, using more battery
+		* <br/>#ORMMA Level: 2
+		*
+		* @returns {String} network status
+		* @see networkChange event
+		*/
+		getNetwork : function () {
+			return (registration.mockValue.network);
+		},
+		
+		/**
+		* Use this method to get the most recent orientation of the device. To receive events when a 
+		* change occurs, register an event listener for "orientation" events. Possible results include: 
+		*
+		* <table>
+		* <tr><th>value</th><th>description</th></tr>
+		* <tr><td>-1</td><td>device orientation unknown</td></tr>
+		* <tr><td>0</td><td>0 degrees (portrait)</td></tr>
+		* <tr><td>90</td><td>90 degrees (tilted clockwise to landscape)</td></tr>
+		* <tr><td>180</td><td>180 degrees (portrait upside down)</td></tr>
+		* <tr><td>270</td><td>270 degrees (tilted counter-clockwise to landscape)</td></tr>
+		* </table>
+		*
+		* <br/>#side effects: none
+		* <br/>#ORMMA Level: 2
+		*
+		* @returns {Integer} orientation degrees
+		* @see orientationChange event
+		*/
+		getOrientation : function () {
+			return (registration.mockValue.orientation);
+		},
+		
+		/**
+		* Use this method to get the current point width and height of the device. Point width (pt) 
+		* is preferred over pixel width (px) because of device screens with different DPI specs.  
+		*
+		* <br/>#side effects: none
+		* <br/>#ORMMA Level: 2
+		*
+		* @returns {Object} width and height
+		* @see screenSizeChange event
+		*/
+		getScreenSize : function () {
+			return (registration.mockValue.screensize);
+		},
+		
+		/**
+		* Use this method to retrieve the current shake properties.  
+		*
+		* <br/>#side effects: none
+		* <br/>#ORMMA Level: 2
+		*
+		* @returns {Object} interval and intensity
+		* @see shake event
+		*/
+		getShakeProperties : function () {
+			return (registration.mockValue.shakeproperties);
+		},
+		
+		/**
+		* Use this method to set the shake properties of the ORMMA object.  
+		*
+		* <br/>#side effects: none
+		* <br/>#ORMMA Level: 2
+		*
+		* @param {Object} props JSON { intensity, interval } 
+		* @see shake event
+		*/
+		setShakeProperties : function (props) {
+			registration.mockValue.shakeproperties = props;
+		}
 
     };
 
-    /*
-    * Throw event indicating that connection with ORMMA Container has initialized successfully 
-    */
-	var evt = document.createEvent('MessageEvent');
+/*
+* Initialization
+*/
+	//alert listeners that this file is loaded and connection with OrmmaController is successful
 	evt.initEvent('ormma', true, true, 'ready', null, 0, null, null);
     window.dispatchEvent(evt);
 	
-	/*
-	* Set time out to throw an error as a test
-	*/
-	window.setTimeout(throwError, 1000);
-	function throwError() {
-		var evt = document.createEvent('MessageEvent');
-		evt.initMessageEvent('error', true, true, 'test', null, 0, null, null);
-		window.dispatchEvent(evt);
-	}
+	//as a test, alert listeners of a test error to exercise their handlers
+	window.setTimeout(function () {
+		throwEvent('error', 'test');
+	}, 1000);
+		
 }());
