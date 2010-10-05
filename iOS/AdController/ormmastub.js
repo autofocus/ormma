@@ -36,6 +36,7 @@
 			this.mockValue[this.events[i]] = 0;
 			this.timer[this.events[i]] = null;
 		}
+		this.cacheRemaining = 9;
 	}
 	
 	/* instatiation of MockRegistration object, loaded event */
@@ -68,7 +69,8 @@
 			registration.hasListener[evt] = true;
 			window.addEventListener(evt, listener, false);
 			registration.timer[evt] = setInterval(function () {
-				throwEvent(evt, registration.mockValue[evt]++);
+				registration.mockValue[evt] = registration.mockValue[evt] + 1;
+				throwEvent(evt, registration.mockValue[evt]);
 			}, 500);
 		}
 	}
@@ -570,6 +572,82 @@
 		*/
 		setShakeProperties : function (props) {
 			registration.mockValue.shakeproperties = props;
+		},
+		
+		/**
+		* Use this method to get the available size of the local cache.
+		*
+		* <br/>#side effects: none
+		* <br/>#ORMMA Level: 3
+		* 
+		* @returns {Integer} number of bytes available 
+		*/
+		cacheRemaining : function () {
+			return (registration.cacheRemaining);
+		},
+		
+		/**
+		* This method returns no value and executes asynchronously, but the alias can be used 
+		* immediately in ad content. If the alias is referenced before the asset has loaded, 
+		* the object simply does not return to the web viewer until it has loaded. 
+		*
+		* <br/>#side effects: cache remaing decreases, possibly retiring other assets
+		* <br/>#ORMMA Level: 3
+		* 
+		* @param {String} alias name that ad developer will use to refer to asset URI  
+		* @param {String} uri actual URI of the asset 
+		* @see assetReady event	
+		*/
+		addAsset : function (alias, uri) {
+			registration.cacheRemaining = registration.cacheRemaining - 1;
+			if (registration.cacheRemaining < 0) {
+				registration.cacheRemaining = 0;
+				throwEvent('assetRetired', 'retired ' + alias);
+			}
+			throwEvent('assetReady', 'added ' + alias);
+		},
+		
+		/**
+		* This method returns no value and executes asynchronously. Usage rules 
+		* are the same as adding a single alias.
+		*
+		* <br/>#side effects: cache remaing decreases, possibly retiring other assets
+		* <br/>#ORMMA Level: 3
+		* 
+		* @param {Object} assets abstract array (aka standard JavaScript Object) of 
+		* alias/uri key-value pairs. 
+		* @see assetReady event	
+		*/
+		addAssets : function (assets) {
+			registration.cacheRemaining = 0;
+			throwEvent('assetReady', 'added all assets');
+		},
+
+		/**
+		* The method returns no value and executes asynchronously.
+		*
+		* <br/>#side effects: cache remaing increases
+		* <br/>#ORMMA Level: 3
+		* 
+		* @param {String} alias asset to remove 
+		* @see assetRemoved event	
+		*/
+		removeAsset : function (alias) {
+			registration.cacheRemaining = registration.cacheRemaining + 1;
+			throwEvent('assetRemoved', 'removed ' + alias);
+		},
+		
+		/**
+		* The method returns no value and executes asynchronously.
+		*
+		* <br/>#side effects: cache remaing increases
+		* <br/>#ORMMA Level: 3
+		* 
+		* @see assetRemoved event	
+		*/
+		removeAllAssets : function () {
+			registration.cacheRemaining = 9;
+			throwEvent('assetRemoved', 'removed all assets');
 		}
 
     };
