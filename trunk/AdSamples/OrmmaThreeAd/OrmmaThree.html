@@ -1,0 +1,31 @@
+<link href="ormmathree.css" rel="stylesheet" type="text/css"/>
+<script src="http://ormma.googlecode.com/svn/trunk/iOS/AdController/ormmastub.js" type="text/javascript" language="javascript"></script>
+<script src="ormmathree.js" type="text/javascript" language="javascript"></script>
+<div id="ad">
+<div id="interstitial">
+	<div id="background"><img id="backgroundimage" src="http://stage.media.crispadvertising.com/ormma/testing/img0.gif" alt="interstitial" /></div>
+    <table id="controltable" width="100%">
+        <tr>
+        	<td width="50%">Cache remaining:</td>
+            <td width="50%"><div id="cacheremaining"></div></td>
+        </tr>
+        <tr>
+            <td><a href="#" onclick="addAssetOnclick()">Add asset</a></td>
+            <td><div id="addassetresponse"></div></td>
+        </tr>
+        <tr>
+            <td><a href="#" onclick="addAssetsOnclick()">Add many assets</a></td>
+            <td><div id="addassetsresponse"></div></td>
+        </tr>
+        <tr>
+            <td><a href="#" onclick="removeAssetOnclick()">Remove last asset</a></td>
+            <td><div id="removeassetresponse"></div></td>
+        </tr>
+        <tr>
+            <td><a href="#" onclick="removeAllOnclick()">Remove all assets</a></td>
+            <td><div id="removeallresponse"></div></td>
+        </tr>
+    </table>
+</div>
+</div>
+<script type="text/javascript" language="javascript">initAd();</script>

@@ -1,0 +1,15 @@
+@charset "UTF-8";
+/* CSS Document */
+
+#interstitial {position:absolute; left:0px; top:0px; display:none}
+#controltable {
+	position:absolute;
+	left:2;
+	top:2px;
+	border:thin solid white;
+	width:296px;
+}
+#controltable tr td {color:white}
+#controltable tr td div {color:white}
+#controltable tr td a {color:white}
+img {border:none}
