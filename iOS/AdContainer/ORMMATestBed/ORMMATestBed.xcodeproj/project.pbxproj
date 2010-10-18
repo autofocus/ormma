@@ -15,6 +15,7 @@
 		2899E5220DE3E06400AC0155 /* ORMMATestBedViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* ORMMATestBedViewController.xib */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* ORMMATestBedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* ORMMATestBedViewController.m */; };
+		FAD3FA29126C9DCB00468F35 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD3FA28126C9DCB00468F35 /* libsqlite3.0.dylib */; };
 		FADF792C1247F2B2003F7C45 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADF792B1247F2B2003F7C45 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAE3A613124261FB00285B32 /* libORMMA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A610124261FB00285B32 /* libORMMA.a */; };
 		FAE3A614124261FB00285B32 /* ORMMA.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FAE3A611124261FB00285B32 /* ORMMA.bundle */; };
@@ -45,6 +46,7 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* ORMMATestBed_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMATestBed_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* ORMMATestBed-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ORMMATestBed-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		FAD3FA28126C9DCB00468F35 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
 		FADF792B1247F2B2003F7C45 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		FAE3A610124261FB00285B32 /* libORMMA.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libORMMA.a; sourceTree = "<group>"; };
 		FAE3A611124261FB00285B32 /* ORMMA.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ORMMA.bundle; sourceTree = "<group>"; };
@@ -82,6 +84,7 @@
 				FAE3A6DC124299F100285B32 /* SystemConfiguration.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				FADF792C1247F2B2003F7C45 /* CoreMotion.framework in Frameworks */,
+				FAD3FA29126C9DCB00468F35 /* libsqlite3.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,6 +153,7 @@
 				FAE3A6D3124299F100285B32 /* EventKit.framework */,
 				FAE3A6D5124299F100285B32 /* EventKitUI.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
+				FAD3FA28126C9DCB00468F35 /* libsqlite3.0.dylib */,
 				FAE3A6CF124299BB00285B32 /* libz.1.2.3.dylib */,
 				FAE3A6D7124299F100285B32 /* MessageUI.framework */,
 				FAE3A7EE12429AD800285B32 /* MobileCoreServices.framework */,

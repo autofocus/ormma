@@ -55,4 +55,7 @@
 - (NSString *)cachePathFromURL:(NSURL *)url;
 
 
++ (void)removeAllCachedResources;
+
+
 @end

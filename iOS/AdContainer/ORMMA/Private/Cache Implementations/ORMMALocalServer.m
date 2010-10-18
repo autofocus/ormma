@@ -13,6 +13,8 @@
 @interface ORMMALocalServer ()
 
 - (NSString *)resourcePathFromBaseURL:(NSURL *)url;
++ (void)removeObjectsInDirectory:(NSString *)directory;
++ (NSString *)rootDirectory;
 
 @end
 
@@ -97,6 +99,12 @@ NSString * const kORMMALocalServerDelegateKey = @"delegate";
 
 - (NSString *)cacheRoot
 {
+	return [ORMMALocalServer rootDirectory];
+}
+
+
++ (NSString *)rootDirectory
+{
 	// determine the root where our cache will be stored
     NSArray *systemPaths = NSSearchPathForDirectoriesInDomains( NSCachesDirectory, NSUserDomainMask, YES ); 
     NSString *basePath = [systemPaths objectAtIndex:0]; 
@@ -110,7 +118,65 @@ NSString * const kORMMALocalServerDelegateKey = @"delegate";
 
 
 #pragma mark -
-#pragma mark Cache Loading
+#pragma mark Cache Management
+
++ (void)removeAllCachedResources;
+{
+	// we've been asked to remove everything we've cached (usually for error
+	// recovery) so start walking our cache directory and start to recursively
+	// remove every file we find.
+	//
+	// NOTE: we're going to leave any files in the *root* directory as user
+	//       code cannot cache files to the root.
+	
+	BOOL isDirectory;
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSArray *list = [fm contentsOfDirectoryAtPath:[ORMMALocalServer rootDirectory] 
+											error:NULL];
+	for ( NSString *path in list )
+	{
+		if ( [fm fileExistsAtPath:path isDirectory:&isDirectory] )
+		{
+			// the object exists, do we care?
+			if ( isDirectory )
+			{
+				// it is a directory, process it
+				[self removeObjectsInDirectory:path];
+				
+				// we've processed the directory, remove it
+				[fm removeItemAtPath:path
+							   error:NULL];
+			}
+		}
+	}
+	
+}
+
+
++ (void)removeObjectsInDirectory:(NSString *)directory
+{
+	BOOL isDirectory;
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSArray *list = [fm contentsOfDirectoryAtPath:directory 
+											error:NULL];
+	for ( NSString *path in list )
+	{
+		if ( [fm fileExistsAtPath:path isDirectory:&isDirectory] )
+		{
+			// the object exists
+			if ( isDirectory )
+			{
+				// it is a directory, process it
+				[self removeObjectsInDirectory:path];
+			}
+			
+			// now remove the file/directory
+			[fm removeItemAtPath:path
+						  error:NULL];
+		}
+	}
+}
+
 
 - (void)cacheURL:(NSURL *)url
 	withDelegate:(id<ORMMALocalServerDelegate>)delegate;
