@@ -2,8 +2,9 @@
  * Used to store-and-forward off-line requests for URLs.
  */
 CREATE TABLE proxy_requests (
-   request      TEXT NOT NULL,  -- the URI to call
-   submitted_on TEXT NOT NULL   -- when the request was originally requested
+   request_number INTEGER NOT NULL PRIMARY KEY,                -- alias for rowid (used for row identity)
+   request        TEXT    NOT NULL,                            -- the URI to call
+   submitted_on   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP   -- when the request was originally requested
 );
 
 

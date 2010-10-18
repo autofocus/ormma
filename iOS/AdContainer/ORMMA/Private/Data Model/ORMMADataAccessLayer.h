@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "FMDatabase.h"
+#import "ORMMAStoreAndForwardRequest.h"
 
 
 @interface ORMMADataAccessLayer : NSObject 
@@ -23,5 +24,9 @@
 
 - (BOOL)open;
 - (void)close;
+
+- (void)storeRequest:(NSString *)request;
+- (ORMMAStoreAndForwardRequest *)getNextStoreAndForwardRequest;
+- (void)removeStoreAndForwardRequestWithRequestNumber:(NSNumber *)requestNumber;
 
 @end

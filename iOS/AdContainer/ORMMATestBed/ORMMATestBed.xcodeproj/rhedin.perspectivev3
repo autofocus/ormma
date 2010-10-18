@@ -328,7 +328,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>FAD3FA8E126CA7E600468F35</string>
+										<string>FAD3FADF126CB27800468F35</string>
 										<key>history</key>
 										<array>
 											<string>FAE3A5E512425ADE00285B32</string>
@@ -517,7 +517,7 @@
 						<key>Frame</key>
 						<string>{{0, 0}, {1278, 223}}</string>
 						<key>RubberWindowFrame</key>
-						<string>214 220 1278 753 0 0 1920 1178 </string>
+						<string>214 223 1278 753 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugCLIModule</string>
@@ -593,10 +593,10 @@
 							<key>Frame</key>
 							<string>{{624, 0}, {654, 236}}</string>
 							<key>RubberWindowFrame</key>
-							<string>214 220 1278 753 0 0 1920 1178 </string>
+							<string>214 223 1278 753 0 0 1920 1178 </string>
 						</dict>
 						<key>RubberWindowFrame</key>
-						<string>214 220 1278 753 0 0 1920 1178 </string>
+						<string>214 223 1278 753 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugSessionModule</string>
@@ -665,7 +665,7 @@
 		<string>/Users/rhedin/source/iOS/ORMMA/ORMMATestBed/ORMMATestBed.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>214 220 1278 753 0 0 1920 1178 </string>
+	<string>214 223 1278 753 0 0 1920 1178 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>

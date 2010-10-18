@@ -136,6 +136,59 @@
 
 
 #pragma mark -
+#pragma mark Store and Forwards
+
+- (void)storeRequest:(NSString *)request
+{
+	@synchronized( self )
+	{
+		if ( m_database != nil )
+		{
+			[m_database beginTransaction];
+			[m_database executeUpdate:@"INSERT INTO proxy_requests( request ) VALUES( ? )", request];
+			[m_database commit];
+		}
+	}
+}
+
+
+- (ORMMAStoreAndForwardRequest *)getNextStoreAndForwardRequest;
+{
+	ORMMAStoreAndForwardRequest *saf = nil;
+	@synchronized( self )
+	{
+		if ( m_database != nil )
+		{
+			FMResultSet *rs = [m_database executeQuery:@"SELECT * FROM proxy_requests ORDER BY created_on LIMIT 1"];
+			if ( [rs next] )
+			{
+				saf = [[[ORMMAStoreAndForwardRequest alloc] init] autorelease];
+				saf.requestNumber = [rs longForColumn:@"request_number"];
+				saf.request = [rs stringForColumn:@"request"];
+				saf.createdOn = [rs dateForColumn:@"created_on"];
+			}
+		}
+	}
+	return saf;
+}
+
+
+- (void)removeStoreAndForwardRequestWithRequestNumber:(NSNumber *)requestNumber;
+{
+	@synchronized( self )
+	{
+		if ( m_database != nil )
+		{
+			[m_database beginTransaction];
+			[m_database executeUpdate:@"DELETE FROM proxy_requests WHERE request_number = ?", requestNumber];
+			[m_database commit];
+		}
+	}
+}
+
+
+
+#pragma mark -
 #pragma mark Schema Management
 
 - (void)updateDatabaseSchemaForRecovery:(BOOL)recovery
@@ -276,12 +329,6 @@
 				[m_database beginTransaction];
 				NSLog( @"Executing SQL: %@", sql );
 				[m_database executeUpdate:sql];
-//				if ( ![m_database executeUpdate:sql] )
-//				{
-//					[m_database rollback];
-//					NSLog( @"ORMMA Database Error: %d: %@", [m_database lastErrorCode], [m_database lastErrorMessage] );
-//					return NO;
-//				}
 				[m_database commit];
 				
 				// now clear the SQL for the next loop

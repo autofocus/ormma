@@ -18,10 +18,10 @@
  *       321252/www.example.com/images/fg.png
  */
 CREATE TABLE creative (
-   hash          NUMBER NOT NULL,  -- the hash of the resource (also the directory name)
-   size          NUMBER NOT NULL,  -- the total size of all the resources in the directory
-   cached_on     TEXT   NOT NULL,  -- when the cache was originally created
-   last_accessed TEXT   NOT NULL,  -- when the cache was last accessed
+   hash          NUMBER NOT NULL,                            -- the hash of the resource (also the directory name)
+   size          NUMBER NOT NULL,                            -- the total size of all the resources in the directory
+   cached_on     TEXT   NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- when the cache was originally created
+   last_accessed TEXT   NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- when the cache was last accessed
    
    CONSTRAINT base_url_pk PRIMARY KEY( hash )
 );

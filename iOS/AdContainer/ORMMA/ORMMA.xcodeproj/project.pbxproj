@@ -84,6 +84,8 @@
 		FAD3FA4D126CA0B100468F35 /* 1.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3F9C7126C84B300468F35 /* 1.sql */; };
 		FAD3FAAB126CABD000468F35 /* 2.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3FAA9126CABB100468F35 /* 2.sql */; };
 		FAD3FAAC126CABD000468F35 /* 3.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3FAAA126CABB800468F35 /* 3.sql */; };
+		FAD3FACC126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD3FACA126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h */; };
+		FAD3FACD126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD3FACB126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m */; };
 		FADF791D1247F29B003F7C45 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADF791C1247F29B003F7C45 /* CoreMotion.framework */; };
 		FAE3A51F124159BE00285B32 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A51E124159BE00285B32 /* EventKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAE3A521124159BE00285B32 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A520124159BE00285B32 /* EventKitUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -185,6 +187,8 @@
 		FAD3F9C7126C84B300468F35 /* 1.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 1.sql; sourceTree = "<group>"; };
 		FAD3FAA9126CABB100468F35 /* 2.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 2.sql; sourceTree = "<group>"; };
 		FAD3FAAA126CABB800468F35 /* 3.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 3.sql; sourceTree = "<group>"; };
+		FAD3FACA126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAStoreAndForwardRequest.h; sourceTree = "<group>"; };
+		FAD3FACB126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAStoreAndForwardRequest.m; sourceTree = "<group>"; };
 		FADF791C1247F29B003F7C45 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		FAE3A51E124159BE00285B32 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
 		FAE3A520124159BE00285B32 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
@@ -353,6 +357,8 @@
 			children = (
 				FAD233D4126900A800921D13 /* ORMMADataAccessLayer.h */,
 				FAD233D5126900A800921D13 /* ORMMADataAccessLayer.m */,
+				FAD3FACA126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h */,
+				FAD3FACB126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m */,
 			);
 			path = "Data Model";
 			sourceTree = "<group>";
@@ -525,6 +531,7 @@
 				FAD233BE1268EF1B00921D13 /* FMDatabaseAdditions.h in Headers */,
 				FAD233C01268EF1B00921D13 /* FMResultSet.h in Headers */,
 				FAD233D6126900A800921D13 /* ORMMADataAccessLayer.h in Headers */,
+				FAD3FACC126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -646,6 +653,7 @@
 				FAD233BF1268EF1B00921D13 /* FMDatabaseAdditions.m in Sources */,
 				FAD233C11268EF1B00921D13 /* FMResultSet.m in Sources */,
 				FAD233D7126900A800921D13 /* ORMMADataAccessLayer.m in Sources */,
+				FAD3FACD126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

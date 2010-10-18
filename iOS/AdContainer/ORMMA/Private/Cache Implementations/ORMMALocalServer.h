@@ -52,9 +52,12 @@
 	 withDelegate:(id<ORMMALocalServerDelegate>)delegate;
 
 
+// determines the path to a specific cached url
 - (NSString *)cachePathFromURL:(NSURL *)url;
 
 
+// removes all currently cached resources EXCEPT those that the framework
+// itself stores
 + (void)removeAllCachedResources;
 
 
