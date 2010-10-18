@@ -14,6 +14,7 @@
 {
 @private
 	FMDatabase *m_database;
+	NSBundle *m_ormmaBundle;
 }
 
 // designated accessor for the singleton instance
