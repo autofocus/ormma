@@ -7,6 +7,22 @@
       ormma.addEventListener( "ready",       ORMMAReadyEventHandler );
       ormma.addEventListener( "stateChange", StateChangedEventHandler );
    }
+   
+   
+   function ExpandAd()
+   {
+      var initial = new ORMMADimensions();
+	  initial.x = 320 / 2;
+	  initial.y = 460 / 2;
+	  initial.width = 0;
+	  initial.height = 0;
+      var final = new ORMMADimensions();
+	  final.x = 0;
+	  final.y = 0;
+	  final.width = 320;
+	  final.height = 460;
+      ormma.expand( initial, final, "http://www.toyota.com" );
+   }
 
 
    function LocationChangedEventHandler( locationEvent )
@@ -29,20 +45,6 @@
 	  ts.innerHTML = locationEvent.timestamp;
    }
 
-   
-   function ORMMAReadyEventHandler()
-   {
-      // the ORMMA engine is ready to deal with us, so tell it to show the ad
-	  ormma.show();
-	  
-	  // now add some event listeners
-      ormma.addEventListener( "headingChange",     HeadingChangedEventHandler );
-      ormma.addEventListener( "locationChange",    LocationChangedEventHandler );
-      ormma.addEventListener( "orientationChange", OrientationChangedEventHandler );
-      ormma.addEventListener( "tiltChange",        TiltChangedEventHandler );
-      ormma.addEventListener( "rotationChange",    RotationChangedEventHandler );
-   }
-
 
    function HeadingChangedEventHandler( headingChangeEvent )
    {
@@ -53,6 +55,19 @@
 	  t.innerHTML = headingChangeEvent.trueHeading;
 	  a.innerHTML = headingChangeEvent.accuracy;
    }
+   
+   
+   function KeyboardChangedEventHandler( keyboardChangeEvent )
+   {
+      if ( keyboardChangeEvent.open )
+	  {
+	     // do something when the keyboard opens
+	  }
+	  else
+	  {
+	     // do something when the keyboard closes
+	  }
+   }
 
 
    function OrientationChangedEventHandler( orientationChangeEvent )
@@ -60,13 +75,29 @@
       var orientationSpan = document.getElementById( "orientation" );
 	  orientationSpan.innerHTML = orientationChangeEvent.orientation;
    }
+
+   
+   function ORMMAReadyEventHandler()
+   {
+      // the ORMMA engine is ready to deal with us, so tell it to show the ad
+	  ormma.show();
+	  
+	  // now add some event listeners
+      ormma.addEventListener( "headingChange",     HeadingChangedEventHandler );
+      ormma.addEventListener( "keyboardChange",    KeyboardChangedEventHandler );
+      ormma.addEventListener( "locationChange",    LocationChangedEventHandler );
+      ormma.addEventListener( "orientationChange", OrientationChangedEventHandler );
+      ormma.addEventListener( "tiltChange",        TiltChangedEventHandler );
+      ormma.addEventListener( "rotationChange",    RotationChangedEventHandler );
+      ormma.addEventListener( "screenSizeChange",  ScreenSizeChangedEventHandler );
+      ormma.addEventListener( "sizeChange",        SizeChangedEventHandler );
+   }
    
    
    function ResizeAd()
    {
-     // grow the screen
-     var d = new ORMMAResizeDimensions( 10, 0, 300, 250 );
-     ormma.resize( d );
+      // grow the screen
+      ormma.resize( 250, 320 );
 	  
 	  return false;
    }
@@ -110,6 +141,18 @@
    }
 
 
+   function ScreenSizeChangedEventHandler( screenSizeChangeEvent )
+   {
+      // size of screen has changed
+   }
+
+
+   function SizeChangedEventHandler( sizeChangeEvent )
+   {
+      // size of ad has changed
+   }
+
+
    function TiltChangedEventHandler( tiltEvent )
    {
       var x = document.getElementById( "accX" );
@@ -126,6 +169,8 @@
    <a href="javascript:ormma.hide();">Hide</a>
    &nbsp;&nbsp;
    <a href="javascript:ResizeAd();">Resize</a>
+   &nbsp;&nbsp;
+   <a href="javascript:ExpandAd();">Expand</a>
 </div>
 
 <div id="expanded" style="visibility=hidden;">

@@ -7,19 +7,17 @@
 //
 
 #import "ORMMAView.h"
-#import "DeferredObjectSelector.h"
 #import "ORMMAJavascriptBridge.h"
 #import "UIDevice-Hardware.h"
 #import "EventKit/EventKit.h"
-#import "FileSystemCache.h"
+#import "ORMMALocalServer.h"
 
 
 
 @interface ORMMAView () <UIWebViewDelegate,
 						 ORMMAJavascriptBridgeDelegate,
-						 FileSystemCacheDelegate>
+						 ORMMALocalServerDelegate>
 
-@property( nonatomic, retain ) UIView *originalParentView;
 @property( nonatomic, retain, readwrite ) NSError *lastError;
 @property( nonatomic, assign, readwrite ) ORMMAViewState currentState;
 
@@ -36,7 +34,11 @@
 	  fromBundle:(NSBundle *)bundle
 		  toPath:(NSString *)path;
 
+- (void)closeButtonPressed:(id)sender;
 - (void)blockingViewTouched:(id)sender;
+
+- (void)logFrame:(CGRect)frame
+			text:(NSString *)text;
 
 @end
 
@@ -50,16 +52,23 @@
 #pragma mark Constants
 
 NSString * const kAdContentToken    = @"<!--AD-CONTENT-->";
-NSString * const kCacheRootToken    = @"<!--CACHE-ROOT-->";
+
+NSString * const kAnimationKeyResize = @"resize";
+NSString * const kAnimationKeyExpand = @"expand";
+NSString * const kAnimationKeyCloseResized = @"closeResized";
+NSString * const kAnimationKeyCloseExpanded = @"closeExpanded";
+
+const CGFloat kCloseButtonHorizontalOffset = 5.0;
+const CGFloat kCloseButtonVerticalOffset = 5.0;
 
 
 
 #pragma mark -
 #pragma mark Properties
 
-@synthesize originalParentView = m_originalParentView;
 @synthesize ormmaDelegate = m_ormmaDelegate;
 @synthesize htmlStub = m_htmlStub;
+@synthesize baseURL = m_baseURL;
 @synthesize lastError = m_lastError;
 @synthesize currentState = m_currentState;
 
@@ -91,16 +100,13 @@ NSString * const kCacheRootToken    = @"<!--CACHE-ROOT-->";
 - (void)commonInitialization
 {
 	// setup our cache
-	m_cache = [FileSystemCache sharedInstance];
-	
+	m_localServer = [ORMMALocalServer sharedInstance];
+
 	// create our bridge object
 	m_javascriptBridge = [[ORMMAJavascriptBridge alloc] init];
 	m_javascriptBridge.bridgeDelegate = self;
 	
 	// it's up to the client to set any resizing policy for this container
-	
-	// store the original frame for later use if the ad should expand
-	m_unexpandedFrame = self.frame;
 	
 	// let's create a webview that will fill it's parent
 	CGRect webViewFrame = CGRectMake( 0, 
@@ -135,11 +141,11 @@ NSString * const kCacheRootToken    = @"<!--CACHE-ROOT-->";
 		[NSException raise:@"Invalid Build Detected"
 					format:@"Unable to find ORMMA.bundle. Make sure it is added to your resources!"];
 	}
-	NSBundle *ormmaBundle = [NSBundle bundleWithPath:path];
+	m_ormmaBundle = [[NSBundle bundleWithPath:path] retain];
 		
 	// setup the default HTML Stub
-	path = [ormmaBundle pathForResource:@"ORMMA_Standard_HTML_Stub"
-								 ofType:@"html"];
+	path = [m_ormmaBundle pathForResource:@"ORMMA_Standard_HTML_Stub"
+								   ofType:@"html"];
 	NSLog( @"Stub Path is: %@", path );
 	self.htmlStub = [NSString stringWithContentsOfFile:path
 											  encoding:NSUTF8StringEncoding
@@ -148,33 +154,32 @@ NSString * const kCacheRootToken    = @"<!--CACHE-ROOT-->";
 	// make sure the standard Javascript files are updated
 	[self copyFile:@"ORMMA_Abstraction_Layer_iOS"
 			ofType:@"js"
-		fromBundle:ormmaBundle
-			toPath:m_cache.cacheRoot];
+		fromBundle:m_ormmaBundle
+			toPath:m_localServer.cacheRoot];
 	[self copyFile:@"ORMMA_Javascript_API"
 			ofType:@"js"
-		fromBundle:ormmaBundle
-			toPath:m_cache.cacheRoot];
+		fromBundle:m_ormmaBundle
+			toPath:m_localServer.cacheRoot];
 }
 
 
 - (void)dealloc 
 {
 	// done with the cache
-	m_cache = nil;
+	m_localServer = nil;
 	
 	// we're done receiving device changes
 	[m_currentDevice endGeneratingDeviceOrientationNotifications];
 
 	// free up some memory
+	[m_baseURL release], m_baseURL = nil;
 	m_currentDevice = nil;
 	[m_lastError release], m_lastError = nil;
-//	[m_resizedWebView release], m_resizedWebView = nil;
 	[m_webView release], m_webView = nil;
 	[m_blockingView release], m_blockingView = nil;
 	m_ormmaDelegate = nil;
-	[m_deferredShowAnimationSelector release], m_deferredShowAnimationSelector = nil;
-	[m_deferredHideAnimationSelector release], m_deferredHideAnimationSelector = nil;
 	[m_htmlStub release], m_htmlStub = nil;
+	[m_ormmaBundle release], m_ormmaBundle = nil;
 	[m_javascriptBridge restoreServicesToDefaultState], [m_javascriptBridge release], m_javascriptBridge = nil;
     [super dealloc];
 }
@@ -204,6 +209,11 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	NSURL *url = [request URL];
 	NSLog( @"Verify Web View should load URL: %@", url );
+	if ( [request.URL isFileURL] )
+	{
+		// Direct access to the file system is disallowed
+		return NO;
+	}
 	if ( [m_javascriptBridge processURL:url
 							 forWebView:webView] )
 	{
@@ -251,7 +261,18 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		[webView stringByEvaluatingJavaScriptFromString:o];
 		
 		// add the various features the device supports, common to all iOS devices
-		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'email' );"];
+		if ( [MFMailComposeViewController canSendMail] )
+		{
+			[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'email' );"];
+		}
+		if ( NSClassFromString( @"MFMessageComposeViewController" ) != nil )
+		{
+			// SMS support does exist
+			if ( [MFMessageComposeViewController canSendText] ) 
+			{
+				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'sms' );"];
+			}
+		}
 		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'location' );"];
 		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'network' );"];
 		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'orientation' );"];
@@ -260,6 +281,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'tilt' );"];
 		
 		// now add the features that are available on specific devices
+		
 		NSInteger platformType = [m_currentDevice platformType];
 		switch ( platformType )
 		{
@@ -328,7 +350,10 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	// ads loaded by URL are assumed to be complete as-is, just display it
 	NSLog( @"Load Ad from URL: %@", url );
+	self.baseURL = url;
 	NSURLRequest *request = [NSURLRequest requestWithURL:url];
+	[m_localServer cacheURL:url
+			   withDelegate:self];
 	[m_webView loadRequest:request];
 }
 
@@ -342,15 +367,16 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	NSLog( @"Load Ad fragment: %@", htmlFragment );	
 	
 	// first check and see if we've already cached the url
-	NSString *path = [m_cache cachePathFromURL:baseURL];
+	NSString *path = [m_localServer cachePathFromURL:baseURL];
 	NSLog( @"Ad Cache Path is: %@", path );
 
 	// get the final HTML and write the file to the cache
 	NSString *html = [self processHTMLStubUsingFragment:htmlFragment];
 	NSLog( @"Full HTML is: %@", html );
-	[m_cache cacheHTML:html
-			   baseURL:(NSURL *)baseURL
-		  withDelegate:self];
+	self.baseURL = baseURL;
+	[m_localServer cacheHTML:html
+					 baseURL:baseURL
+				withDelegate:self];
 }
 
 
@@ -366,9 +392,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 - (NSString *)processHTMLStubUsingFragment:(NSString *)fragment
 {
 	// build the string
-	NSString *output = [self.htmlStub stringByReplacingOccurrencesOfString:kCacheRootToken
-																withString:m_cache.cacheRoot];
-	output = [output stringByReplacingOccurrencesOfString:kAdContentToken
+	NSString *output = [self.htmlStub stringByReplacingOccurrencesOfString:kAdContentToken
 											   withString:fragment];
 	return output;
 }
@@ -451,264 +475,228 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 - (void)closeAd:(UIWebView *)webView
 {
-	// the default ad may not be closed
+	// reality check
+	NSAssert( ( webView != nil ), @"Web View passed to close is NULL" );
+	
+	// if we're in the default state already, there is nothing to do
 	if ( self.currentState == ORMMAViewStateDefault )
 	{
 		// default ad
-		return;
-	}
-	// we can't close it if it's not open
-	if ( webView == nil )
-	{
+		NSLog( @"Ignoring close of default state" );
 		return;
 	}
 	
-	// closing the ad is effectively just restoring it to the default state,
-	// whether it had been resized or brought to full screen. To do this, we're
-	// basically going to reverse the steps we took to take it to the modified
-	// state.
-	//
-	// We need to determine the relative position of the original ad on the
-	// screen, then we need to animate to that size and location. Upon completion
-	// of the animation, we will then move ourselves back into the correct view
-	// hierarchy.
+	// Closing the ad refers to restoring the default state, whatever tasks
+	// need to be taken to achieve this state
 	
 	// Step 1: notify the app that we're starting
 	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(adWillClose:)] ) )
+		 ( [self.ormmaDelegate respondsToSelector:@selector(adWillClose:)] ) )
 	{
 		[self.ormmaDelegate adWillClose:self];
 	}
+	
+	// Step 2: closing the ad differs based on the current state
+	if ( self.currentState == ORMMAViewStateExpanded )
+	{
+		// Step 2a: we remove the close button and reverse the growth
+		[m_closeButton removeFromSuperview], m_closeButton = nil;
+		[UIView beginAnimations:kAnimationKeyCloseExpanded
+						context:nil];
+		[UIView setAnimationDuration:0.5];
+		[UIView setAnimationDelegate:self];
+		m_expandedView.frame = m_initialFrame;;
+		[UIView commitAnimations];
+	}
+	else
+	{
+		// Step 2b: the resized ad should animate back to the default size
+		[UIView beginAnimations:kAnimationKeyCloseResized
+						context:nil];
+		[UIView setAnimationDuration:0.5];
+		[UIView setAnimationDelegate:self];
+		self.frame = m_defaultFrame;
+		[UIView commitAnimations];
+	}
+	
+	[self logFrame:m_defaultFrame
+			  text:@"Frame Closed"];
+	[self logFrame:self.superview.frame
+			  text:@"Parent Frame"];
 
-	// Step 2: get the key window
+	// steps 3+ happens after the animation finishes
+}
+
+
+- (void)expandFrom:(CGRect)startingFrame
+				to:(CGRect)endingFrame
+		   withURL:(NSURL *)url
+		 inWebView:(UIWebView *)webView
+{
+	// NOTE: We cannot resize if we're in full screen mode
+	if ( self.currentState == ORMMAViewStateExpanded )
+	{
+		// Already Expanded
+		return;
+	}
+	
+	// when put into the expanded state, we are showing a URI in a completely
+	// new frame. This frame is attached directly to the key window at the
+	// initial location specified, and will animate to a new location.
+	
+	// Step 1: Notify the native app that we're preparing to resize
+	if ( ( self.ormmaDelegate != nil ) && 
+		 ( [self.ormmaDelegate respondsToSelector:@selector(adWillExpand:)] ) )
+	{
+		[self.ormmaDelegate adWillExpand:self];
+	}
+	
+	// Step 2: store the initial frame
+	m_initialFrame = CGRectMake( startingFrame.origin.x, 
+								 startingFrame.origin.y,
+								 startingFrame.size.width,
+								 startingFrame.size.height );
+	
+	// Step 3: get the key window
 	UIApplication *app = [UIApplication sharedApplication];
 	UIWindow *keyWindow = [app keyWindow];
 	
-	// Step 3: Account for Status Bar, if it's showing
-	CGFloat delta = 0;
-//	if ( ![app isStatusBarHidden] )
-//	{
-//		CGRect sbf = [app statusBarFrame];
-//		delta = sbf.size.height;
-//	}
+	// Step 4: create the new ad View
+	m_expandedView = [[UIWebView alloc] initWithFrame:startingFrame];
+	m_expandedView.clipsToBounds = YES;
+	m_expandedView.delegate = self;
+	m_expandedView.scalesPageToFit = YES;
+	NSURLRequest *request = [NSURLRequest requestWithURL:url];
+	[m_expandedView loadRequest:request];
+	[keyWindow addSubview:m_expandedView];
 	
-	// Step 3: find the original parent view
-	UIView *parentView = [keyWindow viewWithTag:m_parentTag];
+	// Step 5: Animate the new web view to the correct size and position
+	[UIView beginAnimations:kAnimationKeyExpand
+					context:nil];
+	[UIView setAnimationDuration:0.5];
+	[UIView setAnimationDelegate:self];
+	m_expandedView.frame = endingFrame;
+	[UIView commitAnimations];
+	
+	// Steps 6+ happens after the animation completes
+}
 
-	// Step 4: find out the translated location of the "default" ad
-	CGPoint translatedPoint = [parentView convertPoint:m_originalFrame.origin 
-												toView:keyWindow];
-	CGRect f = CGRectMake( translatedPoint.x, 
-						   ( translatedPoint.y + delta ), 
-						   self.frame.size.width, 
-						   self.frame.size.height );
-	NSLog( @"Start Resize Frame: ( %f, %f ) by ( %f x %f )", f.origin.x, f.origin.y, f.size.width, f.size.height );
-	NSLog( @"End Resize Frame: ( %f, %f ) by ( %f x %f )", m_originalFrame.origin.x, m_originalFrame.origin.y, m_originalFrame.size.width, m_originalFrame.size.height );
+
+- (void)resizeToWidth:(CGFloat)width
+			   height:(CGFloat)height
+			inWebView:(UIWebView *)webView
+{
+	// A resize action resizes the ad view in place without regard to the view 
+	// hierarcy. The ad will remain anchored in place at its origin, but will
+	// scale (up or down) to the width & height specified. Realistically, this
+	// means that it is enirely possible for the ad to be clipped by it's parent
+	// however this is as designed. If this is not desired, the user should use
+	// the expand action instead.
 	
-	// Step 5: animate the expanded ad to the size of the "default" ad
-	[UIView beginAnimations:@"restore"
+	// Step 1: verify that we can resize
+	if ( m_currentState == ORMMAViewStateExpanded )
+	{
+		// we can't resize an expanded ad
+		return;
+	}
+	
+	// Step 2: setup what we're resizing from
+	if ( m_currentState == ORMMAViewStateDefault )
+	{
+		// Step 2a: currently in default state, so store the original frame
+		m_defaultFrame = CGRectMake( self.frame.origin.x, 
+									 self.frame.origin.y,
+									 self.frame.size.width,
+									 self.frame.size.height );
+	}
+	else
+	{
+		// Step 2b: resizing a resized ad, are we going back to default?
+		if ( ( width == m_defaultFrame.size.width ) &&
+			 ( height == m_defaultFrame.size.height ) )
+		{
+			// returning to default state
+			[self closeAd:webView];
+			return;
+		}	
+	}
+	
+	// Step 3: determine the final frame
+	CGRect f = CGRectMake( self.frame.origin.x, 
+						   self.frame.origin.x, 
+						   width,
+						   height );
+	
+	// Step 4: animate to the new size
+	[UIView beginAnimations:kAnimationKeyResize
 					context:nil];
 	[UIView setAnimationDuration:0.5];
 	[UIView setAnimationDelegate:self];
 	self.frame = f;
 	[UIView commitAnimations];
+
+	[self logFrame:f 
+			  text:@"Resize Frame"];
 	
-	// steps 6+ happens after the animation finishes
+	// Steps 5+ occur when the animation completes
 }
 
 
-- (void)resizeTo:(CGRect)newFrame
-	   inWebView:(UIWebView *)webView
+- (void)sendEMailTo:(NSString *)to
+		withSubject:(NSString *)subject
+		   withBody:(NSString *)body
+			 isHTML:(BOOL)html
 {
-//	// NOTE: we can only expand the default view
-//	if ( webView != m_webView )
-//	{
-//		// not resizable
-//		return;
-//	}
-	
-	// NOTE: We cannot resize if we're in full screen mode
-	if ( self.currentState == ORMMAViewStateFullScreen )
+	// make sure that we can send email
+	if ( [MFMailComposeViewController canSendMail] )
 	{
-		// nothing to do
-		return;
-	}
-	
-	// the intent is to appear to the user that the current ad is resizing.
-	// this poses some interesting issues, specifically, since it's up to the 
-	// consuming application to place the ad view, we don't know where in the
-	// view hierarchy we are. Additionally, since many/most containing views
-	// may clip sub views to the parent's bounds, we can't just change our
-	// frame.
-	//
-	// to get around this we're going to basically "promote" the ad view to 
-	// the key window at an initial location that is identical relatve to the
-	// window. Additionally, we're going to save off the current parent's tag
-	// and set it to a known unique value so that we can find the original
-	// parent view again when we need to restore our state. We can't simply
-	// store the parent view since we don't know if the OS will release it or
-	// not.
-	//
-	// we're also going to add a blocking view to the window so that should the
-	// user attempt to touch outside the boundaries of the resized ad we will 
-	// automatically restore the ad to its default state.
-	
-	// Step 1: Notify the native app that we're preparing to resize
-	NSLog( @"Resize Step 1" );
-	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(adWillExpand:)] ) )
-	{
-		[self.ormmaDelegate adWillExpand:self];
-	}
-	
-	// Step 2: get the key window
-	NSLog( @"Resize Step 2" );
-	UIApplication *app = [UIApplication sharedApplication];
-	UIWindow *keyWindow = [app keyWindow];
-	
-	// Step 3: Account for Status Bar, if it's showing
-	NSLog( @"Resize Step 3" );
-	CGFloat delta = 0;
-	m_finalFrame = newFrame;
-	if ( ![app isStatusBarHidden] )
-	{
-		CGRect sbf = [app statusBarFrame];
-		delta = sbf.size.height;
-		m_finalFrame.origin.y += delta;
-	}
-	
-	// some actions are only necessary if we're in the default state
-	if ( self.currentState == ORMMAViewStateDefault )
-	{
-		// Step 4: Add a blocking View to the Key Window
-		NSLog( @"Resize Step 4" );
-		m_blockingView = [[UIButton buttonWithType:UIButtonTypeCustom] retain];
-		m_blockingView.frame = keyWindow.frame;
-		[m_blockingView addTarget:self
-						   action:@selector(blockingViewTouched:) 
-				 forControlEvents:UIControlEventTouchUpInside];
-		m_blockingView.backgroundColor = [UIColor clearColor];
-		[keyWindow addSubview:m_blockingView];
-		
-		// Step 5: Translate the position of the active web view into the 
-		//         coordinate system of the Key Window
-		NSLog( @"Resize Step 5" );
-		CGPoint translatedPoint = [[self superview] convertPoint:self.frame.origin 
-														  toView:keyWindow];
-		CGRect f = CGRectMake( translatedPoint.x, 
-							   translatedPoint.y, 
-							   self.frame.size.width, 
-							   self.frame.size.height );
-		
-		// Step 6: Save the original parent window's tag and generate a new one that
-		// we're sure is unique
-		NSLog( @"Resize Step 6" );
-		UIView *parentView = self.superview;
-		m_originalParentTag = parentView.tag;
-		do
+		MFMailComposeViewController *vc = [[[MFMailComposeViewController alloc] init] autorelease];
+		if ( to != nil )
 		{
-			// pick a random tag number
-			m_parentTag = 1 + ( arc4random() % 10051967 );
+			NSArray *recipients = [NSArray arrayWithObject:to];
+			[vc setToRecipients:recipients];
 		}
-		while ( [keyWindow viewWithTag:m_parentTag] != nil );
-		parentView.tag = m_parentTag;
-		
-		// Step 7: Disconnect the ad view from it's current parent (remembering
-		// that it will automatically be released when removeFromSuperview is
-		// called) and add it to the key window in the same relative location
-		// while saving the original frame
-		NSLog( @"Resize Step 7" );
-		m_originalFrame = self.frame;
-		self.frame = f;
-		[keyWindow addSubview:self];
-		
-		// make sure our state is updated
-		self.currentState = ORMMAViewStateResized;
-
-		NSLog( @"Start Resize Frame: ( %f, %f ) by ( %f x %f )", f.origin.x, f.origin.y, f.size.width, f.size.height );
+		if ( subject != nil )
+		{
+			[vc setSubject:subject];
+		}
+		if ( body != nil )
+		{
+			[vc setMessageBody:body 
+						isHTML:html];
+		}
+		vc.mailComposeDelegate = self;
+		[self.ormmaDelegate.parentViewController presentModalViewController:vc
+																   animated:YES];
 	}
-	NSLog( @"End Resize Frame: ( %f, %f ) by ( %f x %f )", m_finalFrame.origin.x, m_finalFrame.origin.y, m_finalFrame.size.width, m_finalFrame.size.height );
-
-	// Step 8: Animate the new web view to the correct size and position
-	NSLog( @"Resize Step 8" );
-	[UIView beginAnimations:@"resize"
-					context:nil];
-	[UIView setAnimationDuration:0.5];
-	[UIView setAnimationDelegate:self];
-	self.frame = m_finalFrame;
-	[UIView commitAnimations];
-	
-	// Steps 9+ happens after the animation completes
-	
-
-	// The following is an alternative replacement that uses two web views
-	// at the moment, there is no provision for specifying the source of the 
-	// second web view, so this is not yet operable.
-	
-//	// when we get a resize request, we want to give the user the "impression"
-//	// that we are resizing the current view, even though we're using two
-//	// different views.
-//	// When we do a resize, we get the key window and add a blocking view that 
-//	// fully covers it; then we add a new web view sized and positioned
-//	// "over" the active web view; finally we resize the new view to the
-//	// desired size and position.
-//	
-//	// Step 0: Notify the native app that we're starting
-//	if ( ( self.ormmaDelegate != nil ) && 
-//		( [self.ormmaDelegate respondsToSelector:@selector(adWillExpand:)] ) )
-//	{
-//		[self.ormmaDelegate adWillExpand:self];
-//	}
-//	
-//	// Step 1: Get the Key Window
-//	UIApplication *app = [UIApplication sharedApplication];
-//	UIWindow *keyWindow = [app keyWindow];
-//	
-//	// Step 2: Add a blocking View to the Key Window
-//	m_blockingView = [[UIView alloc] initWithFrame:keyWindow.frame];
-//	m_blockingView.userInteractionEnabled = NO;
-//	m_blockingView.backgroundColor = [UIColor clearColor];
-//	[keyWindow addSubview:m_blockingView];
-//	
-//	// Step 3: Translate the position of the active web view into the 
-//	//         coordinate system of the Key Window
-//	CGPoint translatedPoint = [[self superview] convertPoint:self.frame.origin 
-//													  toView:keyWindow];
-//	CGRect f = CGRectMake( translatedPoint.x, 
-//						   translatedPoint.y, 
-//						   self.frame.size.width, 
-//						   self.frame.size.height );
-//	m_finalFrame = newFrame;
-//	
-//	// Step 3a: Account for Status Bar, if it's showing
-//	CGFloat delta = 0;
-//	if ( ![app isStatusBarHidden] )
-//	{
-//		CGRect sbf = [app statusBarFrame];
-//		delta = sbf.size.height;
-//		m_finalFrame.origin.y += delta;
-//	}
-//	NSLog( @"Start Resize Frame: ( %f, %f ) by ( %f x %f )", f.origin.x, f.origin.y, f.size.width, f.size.height );
-//	NSLog( @"End Resize Frame: ( %f, %f ) by ( %f x %f )", m_finalFrame.origin.x, m_finalFrame.origin.y, m_finalFrame.size.width, m_finalFrame.size.height );
-//	
-//	// Step 4: Add a new web view to the Key Window using the translated frame
-//	m_resizedWebView = [[UIWebView alloc] initWithFrame:f];
-//	m_resizedWebView.backgroundColor = [UIColor clearColor];
-//	m_resizedWebView.clipsToBounds = YES;
-//	NSURLRequest *request = [NSURLRequest requestWithURL:url];
-//	m_resizedWebView.delegate = self;
-//	[m_resizedWebView loadRequest:request];
-//	[keyWindow addSubview:m_resizedWebView];
-//	
-//	// Step 5: Animate the new web view to the correct size and position
-//	[UIView beginAnimations:@"expanded"
-//					context:nil];
-//	[UIView setAnimationDuration:0.5];
-//	[UIView setAnimationDelegate:self];
-//	m_resizedWebView.frame = m_finalFrame;
-//	[UIView commitAnimations];
 }
 
+
+- (void)sendSMSTo:(NSString *)to
+		 withBody:(NSString *)body
+{
+	if ( NSClassFromString( @"MFMessageComposeViewController" ) != nil )
+	{
+		// SMS support does exist
+		if ( [MFMessageComposeViewController canSendText] ) 
+		{
+			// device can
+			MFMessageComposeViewController *vc = [[[MFMessageComposeViewController alloc] init] autorelease];
+			vc.messageComposeDelegate = self;
+			if ( to != nil )
+			{
+				NSArray *recipients = [NSArray arrayWithObject:to];
+				vc.recipients = recipients;
+			}
+			if ( body != nil )
+			{
+				vc.body = body;
+			}
+			[self.ormmaDelegate.parentViewController presentModalViewController:vc
+																	   animated:YES];
+		}
+	}
+}
 
 
 #pragma mark -
@@ -719,35 +707,15 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 				 context:(void *)context
 {
 	NSString *newState = @"unknown";
-	if ( [animationID isEqualToString:@"restore"] )
+	if ( [animationID isEqualToString:kAnimationKeyCloseExpanded] )
 	{
-		// finish the close function
-//		// Step 5: remove the expanded ad from the view hierarchy
-//		[m_resizedWebView removeFromSuperview], m_resizedWebView = nil;
-		
-		// Step 5: get the key window
-		UIApplication *app = [UIApplication sharedApplication];
-		UIWindow *keyWindow = [app keyWindow];
-
-		// Step 6: return the ad to the original view hierarchy
-		[self retain];
-		[self removeFromSuperview];
-		UIView *parentView = [keyWindow viewWithTag:m_parentTag];
-		[parentView addSubview:self];
-		CGRect f = CGRectMake( m_originalFrame.origin.x, 
-								 m_originalFrame.origin.y, 
-								 m_originalFrame.size.width, 
-								 m_originalFrame.size.height );
-		self.frame = f;
-		[self release];
-		f = parentView.frame;
+		// finish the close expanded function
 		
 		// Step 7: remove the blocker view from the view hierarcy
 		[m_blockingView removeFromSuperview], m_blockingView = nil;
 		
-		// Step 8: restore our saved tags
-		parentView.tag = m_originalParentTag;
-		m_parentTag = 0;
+		// Step 8: remove the expanded view
+		[m_expandedView removeFromSuperview], m_expandedView = nil;
 		
 		// step 9: now notify the app that we're done
 		if ( ( self.ormmaDelegate != nil ) && 
@@ -758,12 +726,32 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		
 		// Step 10: setup state changed event
 		newState = @"default";
+		
+		// Step 11: update our internal state
+		self.currentState = ORMMAViewStateDefault;
+	}
+	else if ( [animationID isEqualToString:kAnimationKeyCloseResized] )
+	{
+		// finish the close resized function
+		
+		// step 5: now notify the app that we're done
+		if ( ( self.ormmaDelegate != nil ) && 
+			( [self.ormmaDelegate respondsToSelector:@selector(adDidClose:)] ) )
+		{
+			[self.ormmaDelegate adDidClose:self];
+		}
+		
+		// Step 6: setup state changed event
+		newState = @"default";
+		
+		// Step 7: update our internal state
+		self.currentState = ORMMAViewStateDefault;
 	}
 	else
 	{
 		// finish the resize function
 
-		// Step 8: notify the app that we're done
+		// Step 6: notify the app that we're done
 		if ( ( self.ormmaDelegate != nil ) && 
 			( [self.ormmaDelegate respondsToSelector:@selector(adDidExpand:)] ) )
 		{
@@ -772,6 +760,47 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		
 		// Step 9: setup state changed event
 		newState = @"expanded";
+		
+		// Step 10: update our internal state
+		if ( [animationID isEqualToString:kAnimationKeyResize] )
+		{
+			self.currentState = ORMMAViewStateResized;
+		}
+		else
+		{
+			self.currentState = ORMMAViewStateExpanded;
+			
+			// now that we've expanded, also add the force close button
+			NSString *buttonImage = @"close";
+			if ( [UIScreen instancesRespondToSelector:@selector(scale)] ) 
+			{
+				CGFloat scale = [[UIScreen mainScreen] scale];
+				if ( scale > 1.0 ) 
+				{
+					buttonImage = @"close@2x";
+				}
+			}
+			NSString *imagePath = [m_ormmaBundle pathForResource:buttonImage
+														  ofType:@"png"];
+			NSLog( @"Close Button Image: %@", imagePath );
+			UIImage *image = [UIImage imageWithContentsOfFile:imagePath];
+			NSLog( @"Loaded Image: %@", image );
+			m_closeButton = [[UIButton buttonWithType:UIButtonTypeCustom] retain];
+			[m_closeButton setBackgroundImage:image
+									 forState:UIControlStateNormal];
+			[m_closeButton addTarget:self
+							  action:@selector(closeButtonPressed:)
+					forControlEvents:UIControlEventTouchUpInside];
+			CGFloat y = ( m_expandedView.frame.origin.y + kCloseButtonVerticalOffset );
+			CGFloat x = ( m_expandedView.frame.origin.x + m_expandedView.frame.size.width - ( 28 + kCloseButtonHorizontalOffset ) );
+			CGRect f = CGRectMake( x,
+								   y,
+								   28,
+								   28 );
+			[self logFrame:f text:@"Button Frame"];
+			m_closeButton.frame = f;
+			[m_expandedView.superview addSubview:m_closeButton];
+		}
 	}
 
 	// Final Step: send state changed event
@@ -792,18 +821,47 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 
 - (void)cachedBaseURL:(NSURL *)baseURL
-			   onPath:(NSString *)path
+				onURL:(NSURL *)url
+			   withId:(NSUInteger)creativeId
 {
-	// now show the cached file
-	NSURL *url = [NSURL fileURLWithPath:path];
-	NSURLRequest *request = [NSURLRequest requestWithURL:url];
-	[m_webView loadRequest:request];
+	if ( [self.baseURL isEqual:baseURL] )
+	{
+		// now show the cached file
+		m_creativeId = creativeId;
+		NSURLRequest *request = [NSURLRequest requestWithURL:url];
+		[m_webView loadRequest:request];
+	}
 }
 
 
 
 #pragma mark -
+#pragma mark Mail and SMS Composer Delegate
+
+- (void)mailComposeController:(MFMailComposeViewController*)controller 
+		  didFinishWithResult:(MFMailComposeResult)result 
+						error:(NSError*)error
+{
+	[self.ormmaDelegate.parentViewController dismissModalViewControllerAnimated:YES];
+}
+
+
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller 
+				 didFinishWithResult:(MessageComposeResult)result
+{
+	[self.ormmaDelegate.parentViewController dismissModalViewControllerAnimated:YES];
+}
+
+
+#pragma mark -
 #pragma mark General Actions
+
+- (void)closeButtonPressed:(id)sender
+{
+	// the user wants to close the expanded window
+	[self closeAd:m_expandedView];
+}
+
 
 - (void)blockingViewTouched:(id)sender
 {
@@ -863,7 +921,11 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 												   encoding:NSUTF8StringEncoding
 													  error:NULL];
 	
-	NSString *finalPath = [NSString stringWithFormat:@"%@/%@.%@", path, file, type];
+	// make sure path exists
+	
+	NSString *finalPath = [NSString stringWithFormat:@"%@/%@.%@", path, 
+																  file, 
+																  type];
 	NSLog( @"Final Path to JS: %@", finalPath );
 	NSError *error;
 	if ( ![contents writeToFile:finalPath
@@ -873,6 +935,19 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	{
 		NSLog( @"Unable to write file '%@', to '%@'. Error is: %@", sourcePath, finalPath, error );
 	}
+}
+
+
+
+
+- (void)logFrame:(CGRect)f
+			text:(NSString *)text
+{
+	NSLog( @"%@ :: ( %f, %f ) and ( %f x %f )", text,
+												f.origin.x,
+												f.origin.y,
+												f.size.width,
+												f.size.height );
 }
 
 @end

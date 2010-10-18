@@ -163,6 +163,58 @@ ORMMA.prototype.close = function()
 
 
 /**
+ * email requests that an email be sent using the specified properties.
+ *
+ * @param {to}      String, the recipient of the message
+ * @param {subject} Strng, the subject of the message
+ * @param {body}    String, the body of the message
+ * @param {html}    Boolean, true if the body is HTML, false otherwise
+ *
+ * @returns false (for use in links)
+ */
+ORMMA.prototype.email = function( to, subject, body, html )
+{
+	
+	ormmaNativeBridge.executeEMail( to, subject, body, html );
+	return false;
+}
+
+
+
+/**
+ * expand requests that the specified URL be loaded into a new view. The view
+ * will initially be located at initialDimensions and will animate to the
+ * location/size specified in finalDimensions.
+ *
+ * @param {initialDimensions} ORMMADimensions, the initial starting place of the
+ *                            new view.
+ * @param {finalDimensions} ORMMADimensions, the final location of the new view.
+ * @param {URL} String, the URL to load into the new view.
+ *
+ * @returns false (for use in links)
+ */
+ORMMA.prototype.expand = function( initialDimensions, finalDimensions, URL )
+{
+	ormmaNativeBridge.executeNativeExpand( initialDimensions, finalDimensions, URL );
+	return false;
+}
+
+
+
+/**
+ * getExpandProperties retrieves the properties to be used (or last used) when
+ * executing the expand function.
+ *
+ * @returns ORMMAExpandProperties, the properties.
+ */
+ORMMA.prototype.getExpandProperties = function()
+{
+	return ormmaNativeBridge.expandProperties;
+}
+
+
+
+/**
  * getHeading retrieves the last known heading.
  *
  * @returns ORMMAHeading, the heading.
@@ -182,6 +234,18 @@ ORMMA.prototype.getHeading = function()
 ORMMA.prototype.getLocation = function()
 {
 	return ormmaNativeBridge.location;
+}
+
+
+
+/**
+ * getMaxSize retrieves the maximum size to which the default ad may be resized.
+ *
+ * @returns ORMMASize, the size.
+ */
+ORMMA.prototype.getMaxSize = function()
+{
+	return ormmaNativeBridge.maxSize;
 }
 
 
@@ -221,7 +285,7 @@ ORMMA.prototype.getOrientation = function()
 /**
  * getResizeDimensions retrieves the current dimensions of the ad.
  *
- * @returns ORMMAResizeDimensions, the current resize dimensions.
+ * @returns ORMMADimensions, the current resize dimensions.
  */
 ORMMA.prototype.getResizeDimensions = function()
 {
@@ -245,7 +309,7 @@ ORMMA.prototype.getResizeProperties = function()
 /**
  * getScreenSize retrieves the current size (dimensions) of the screen in points.
  *
- * @returns ORMMAScreenSize, the current size of the screen.
+ * @returns ORMMASize, the current size of the screen.
  */
 ORMMA.prototype.getScreenSize = function()
 {
@@ -369,21 +433,30 @@ ORMMA.prototype.request = function( uri, display )
 /**
  * request requests that the ad be resized.
  *
- * @param {dimensions} ORMMADimensions, the new dimensions of the ad.
+ * @param {height} ORMMADimensions, the new dimensions of the ad.
+ * @param {height} ORMMADimensions, the new dimensions of the ad.
  *
  * @returns false (for use in links)
  */
-ORMMA.prototype.resize = function( dimensions )
+ORMMA.prototype.resize = function( height, width )
 {
-	// see if the properties are being changed
-	if ( arguments.length > 1 )
-	{
-		// they are, update the properties
-		ormmaNativeBridge.resizeProperties = arguments[1];
-	}
-	
-	// cal the resize function
-	ormmaNativeBridge.executeNativeResize( dimensions );
+	// call the resize function
+	ormmaNativeBridge.executeNativeResize( height, width );
+	return false;
+}
+
+
+
+/**
+ * setExpandProperties updates the properties to be used when expanding ads.
+ *
+ * @param {dimensions} ORMMAExpandProperties, the new properties to use.
+ *
+ * @returns false (for use in links)
+ */
+ORMMA.prototype.setExpandProperties = function( properties )
+{
+	ormmaNativeBridge.expandProperties = properties;
 	return false;
 }
 
@@ -433,13 +506,30 @@ ORMMA.prototype.show = function()
 
 
 /**
+ * sms requests that an SMS be sent using the specified properties.
+ *
+ * @param {to}      String, the recipient of the message
+ * @param {body}    String, the body of the message
+ *
+ * @returns false (for use in links)
+ */
+ORMMA.prototype.sms = function( to, subject )
+{
+	
+	ormmaNativeBridge.executeEMail( to, subject, body );
+	return false;
+}
+
+
+
+/**
  * supports retrieves a list of features that the device supports.
  *
  * @returns array, a list of Strings denoting each feature.
  */
-ORMMA.prototype.supports = function()
+ORMMA.prototype.supports = function( feature )
 {
-	return ormmaNativeBridge.supportedFeatures;
+	return ( ormmaNativeBridge.supportedFeatures.contains( feature ) );
 }
 
 
@@ -629,7 +719,7 @@ function ORMMAReadyEvent()
 function ORMMASizeChangeEvent()
 {
 	this.name = "sizeChange";
-	this.dimensions = new ORMMAResizeDimensions();
+	this.dimensions = new ORMMADimensions();
 	this.properties = new ORMMAResizeProperties();
 }
 
@@ -666,6 +756,21 @@ function ORMMATiltChangeEvent()
 
 
 /**
+ * ORMMAExpandProperties: contains properties used during ad resize. 
+ */
+function ORMMAExpandProperties() 
+{
+	this.transition = "default";
+	this.navigation = [ "close", "back", "forward", "refresh" ];
+	this.useBackground = false;
+	this.backgroundColor = "#FFFFFF";
+	this.backgroundOpacity = 0.0;
+	this.isModal = true;
+}
+
+
+
+/**
  * ORMMAHeading: contains heading (compass) information. 
  */
 function ORMMAHeading()
@@ -696,9 +801,9 @@ function ORMMALocation()
 
 
 /**
- * ORMMAResizeDimensions: contains the new origin and ad size for resize.
+ * ORMMADimensions: contains the new origin and ad size for resize.
  */
-function ORMMAResizeDimensions() 
+function ORMMADimensions() 
 {
 	this.x = -1;
 	this.y = -1;
@@ -731,19 +836,14 @@ function ORMMAResizeDimensions()
 function ORMMAResizeProperties() 
 {
 	this.transition = "default";
-	this.navigation = [ "close", "back", "forward", "refresh" ];
-	this.useBackground = false;
-	this.backgroundColor = "#FFFFFF";
-	this.backgroundOpacity = 0.0;
-	this.isModal = true;
 }
 
 
 
 /**
- * ORMMAScreenSize: contains the size of the screen.
+ * ORMMASize: contains the size in pixels of a view or screen.
  */
-function ORMMAScreenSize() 
+function ORMMASize() 
 {
 	this.height = 0;
 	this.width = 0;

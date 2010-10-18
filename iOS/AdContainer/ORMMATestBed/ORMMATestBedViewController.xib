@@ -44,7 +44,7 @@
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<object class="IBUIView" id="372658865">
 						<reference key="NSNextResponder" ref="774585933"/>
-						<int key="NSvFlags">274</int>
+						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{0, -50}, {320, 50}}</string>
 						<reference key="NSSuperview" ref="774585933"/>
 						<object class="NSColor" key="IBUIBackgroundColor">
@@ -55,7 +55,7 @@
 					</object>
 					<object class="IBUIView" id="905020425">
 						<reference key="NSNextResponder" ref="774585933"/>
-						<int key="NSvFlags">292</int>
+						<int key="NSvFlags">268</int>
 						<object class="NSMutableArray" key="NSSubviews">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<object class="IBUILabel" id="298388114">
@@ -86,13 +86,13 @@
 						<reference key="NSSuperview" ref="774585933"/>
 						<object class="NSColor" key="IBUIBackgroundColor">
 							<int key="NSColorSpace">1</int>
-							<bytes key="NSRGB">MSAwIDAAA</bytes>
+							<bytes key="NSRGB">MSAwIDAgMC41AA</bytes>
 						</object>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 					</object>
 					<object class="IBUIView" id="1039587668">
 						<reference key="NSNextResponder" ref="774585933"/>
-						<int key="NSvFlags">292</int>
+						<int key="NSvFlags">268</int>
 						<object class="NSMutableArray" key="NSSubviews">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<object class="IBUILabel" id="373662864">
@@ -117,13 +117,13 @@
 						<reference key="NSSuperview" ref="774585933"/>
 						<object class="NSColor" key="IBUIBackgroundColor">
 							<int key="NSColorSpace">1</int>
-							<bytes key="NSRGB">MC44MDAwMDAwMTE5IDEgMC40MDAwMDAwMDYAA</bytes>
+							<bytes key="NSRGB">MC44MDAwMDAwMTE5IDEgMC40MDAwMDAwMDYgMC41AA</bytes>
 						</object>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 					</object>
 					<object class="IBUIView" id="465451063">
 						<reference key="NSNextResponder" ref="774585933"/>
-						<int key="NSvFlags">292</int>
+						<int key="NSvFlags">268</int>
 						<object class="NSMutableArray" key="NSSubviews">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<object class="IBUILabel" id="1038027011">
@@ -148,7 +148,7 @@
 						<reference key="NSSuperview" ref="774585933"/>
 						<object class="NSColor" key="IBUIBackgroundColor">
 							<int key="NSColorSpace">1</int>
-							<bytes key="NSRGB">MCAxIDEAA</bytes>
+							<bytes key="NSRGB">MCAxIDEgMC41AA</bytes>
 						</object>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 					</object>

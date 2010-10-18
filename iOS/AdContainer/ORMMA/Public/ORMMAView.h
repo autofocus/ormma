@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MessageUI/MessageUI.h>
 
 
-@class DeferredObjectSelector;
 @class ORMMAJavascriptBridge;
-@class FileSystemCache;
+@class ORMMALocalServer;
 
 @protocol ORMMAViewDelegate;
 @protocol ORMMAJavascriptBridgeDelegate;
@@ -22,46 +22,39 @@ typedef enum ORMMAViewStateEnum
 {
 	ORMMAViewStateDefault = 0,
 	ORMMAViewStateResized,
-	ORMMAViewStateFullScreen
+	ORMMAViewStateExpanded
 } ORMMAViewState;
 
 
 
-@interface ORMMAView : UIView
+@interface ORMMAView : UIView <MFMailComposeViewControllerDelegate,
+							   MFMessageComposeViewControllerDelegate>
 {
 @private
-	UIWebView *m_webView;
-//	UIWebView *m_resizedWebView;
-	CGRect m_finalFrame;
-	UIButton *m_blockingView;
-	id<ORMMAViewDelegate> m_ormmaDelegate;
-	
-	ORMMAViewState m_currentState;
-	
-	NSString *m_htmlStub;
-	
-	CGRect m_unexpandedFrame;
-	UIView *m_originalParentView;
-	
-	BOOL m_adVisible;
-	
-	DeferredObjectSelector *m_deferredShowAnimationSelector;
-	DeferredObjectSelector *m_deferredHideAnimationSelector;
-	
-	ORMMAJavascriptBridge *m_javascriptBridge;
-	
 	UIDevice *m_currentDevice;
-	
-	FileSystemCache *m_cache;
-	
+	ORMMAJavascriptBridge *m_javascriptBridge;
+	id<ORMMAViewDelegate> m_ormmaDelegate;
+	NSString *m_htmlStub;
+	ORMMAViewState m_currentState;
+	ORMMALocalServer *m_localServer;
 	NSError *m_lastError;
+	BOOL m_adVisible;
+	NSBundle *m_ormmaBundle;
+
+	UIWebView *m_webView;
+	CGRect m_defaultFrame;
 	
-	NSInteger m_originalParentTag;
-	NSInteger m_parentTag;
-	CGRect m_originalFrame;
+	UIWebView *m_expandedView;
+	CGRect m_initialFrame;
+	UIButton *m_closeButton;
+	UIButton *m_blockingView;
+	
+	NSURL *m_baseURL;
+	NSUInteger m_creativeId;
 }
 @property( nonatomic, assign ) id<ORMMAViewDelegate> ormmaDelegate;
 @property( nonatomic, copy ) NSString *htmlStub;
+@property( nonatomic, copy ) NSURL *baseURL;
 @property( nonatomic, retain, readonly ) NSError *lastError;
 @property( nonatomic, assign, readonly ) ORMMAViewState currentState;
 
@@ -81,6 +74,12 @@ typedef enum ORMMAViewStateEnum
 
 
 @protocol ORMMAViewDelegate <NSObject>
+
+@required
+
+// retrieves the owning view controller
+- (UIViewController *)parentViewController;
+
 
 @optional
 

@@ -11,15 +11,19 @@
 function ORMMA_iOS_Abstraction_Layer() 
 {
 	this.version = "0.1";
+
 	this.location = new ORMMALocation();
+	this.keyboardOpen = false;
 	this.heading = new ORMMAHeading();
+	this.maxSize = new ORMMASize();
 	this.network = "unknown"; // unknown, offline, cell, wifi
 	this.orientation = -1;    // -1 = Unknown, 0 = Portrait, 90 = Landscape Right, 180 = Portrait Upside Down, 270 = Landscape Left
-	this.resizeDimensions = new ORMMAResizeDimensions();
+	this.resizeDimensions = new ORMMADimensions();
 	this.resizeProperties = new ORMMAResizeProperties();
-	this.pendingResizeDimensions = new ORMMAResizeDimensions();
-	this.screenSize = new ORMMAScreenSize();
-	this.baseScreenSize = new ORMMAScreenSize();
+	this.expandProperties = new ORMMAExpandProperties();
+	this.pendingResizeDimensions = new ORMMADimensions();
+	this.screenSize = new ORMMASize();
+	this.baseScreenSize = new ORMMASize();
 	this.visible = false;
 	this.state = "default";
 	this.supportedFeatures = new Array();
@@ -118,8 +122,8 @@ ORMMA_iOS_Abstraction_Layer.prototype.applicationReady = function()
  *       used by anything else.
  *
  * @param {command}  String, the command to execute.
- * @param {args1..n} String, Optional, additional arguments. Must be
- *                   in pairs (i.e. matching name-value pairs).
+ * @param {args1..n} String, Optional, additional arguments. Must be in pairs.
+ *                   (i.e. matching name-value pairs).
  *
  * @returns string, "OK"
  */
@@ -161,11 +165,10 @@ ORMMA_iOS_Abstraction_Layer.prototype.executeNativeCall = function( command )
  * NOTE: This function is called by the native code and is not intended to be
  *       used by anything else.
  *
- * @param {magneticHeading} magneticHeading Number, the magnetic heading in
- *                          degrees.
- * @param {trueHeading} Number, the true heading, in degrees.
- * @param {accuracy}    Number, how acccurate the heading may be.
- * @param {timestamp}   Date-Time, when the heading was taken.
+ * @param {magneticHeading} Number, the magnetic heading in degrees.
+ * @param {trueHeading}     Number, the true heading, in degrees.
+ * @param {accuracy}        Number, how acccurate the heading may be.
+ * @param {timestamp}       Date-Time, when the heading was taken.
  *
  * @returns string, "OK"
  */
@@ -182,6 +185,31 @@ ORMMA_iOS_Abstraction_Layer.prototype.headingChanged = function( magneticHeading
 	event.trueHeading = trueHeading;
 	event.accuracy = accuracy;
 	event.timestamp = timestamp;
+	ormma.fireListenersForEvent( event );
+	
+	// all done
+	return "OK";
+}
+
+
+
+/**
+ * keyboardChanged notifies the javascript API that the heading has changed.
+ *
+ * NOTE: This function is called by the native code and is not intended to be
+ *       used by anything else.
+ *
+ * @param {open} Boolean, true if keyboard is displayed, false otherwise.
+ *
+ * @returns string, "OK"
+ */
+ORMMA_iOS_Abstraction_Layer.prototype.keyboardChanged = function( open )
+{
+	this.heading.keyboardOpened = open;
+	
+	// send an event to everyone that cares
+	var event = new ORMMAKeyboardChangeEvent();
+	event.open = open;
 	ormma.fireListenersForEvent( event );
 	
 	// all done
@@ -500,6 +528,60 @@ ORMMA_iOS_Abstraction_Layer.prototype.executeNativeClose = function()
 
 
 /**
+ * executeNativeEMail requests that the native SDK send an email with the 
+ * specified properties.
+ *
+ * @param {to}      String, the recipient of the message
+ * @param {subject} Strng, the subject of the message
+ * @param {body}    String, the body of the message
+ * @param {html}    Boolean, true if the body is HTML, false otherwise
+ *
+ * @returns nothing.
+ */
+ORMMA_iOS_Abstraction_Layer.prototype.executeNativeEMail = function( to, subject, body, html )
+{
+	this.executeNativeCall( "email",
+						    "to", to,
+						    "subject", subject,
+						    "body", body,
+						    "html", ( html ? "Y" : "N" ) );
+}
+
+
+
+/**
+ * executeNativeExpand requests that the native SDK resize the current ad to
+ * the specified dimensions using a separate view.
+ *
+ * @param {dimensions} ORMMADimensions, the dimensions to use for the
+ *                     expand action.
+ *
+ * @returns nothing.
+ */
+ORMMA_iOS_Abstraction_Layer.prototype.executeNativeExpand = function( initialDimensions, finalDimensions, URL )
+{
+	this.pendingResizeDimensions = finalDimensions;
+	this.executeNativeCall( "expand", 
+						    "url", URL,
+						    "x1", initialDimensions.x, 
+						    "y1", initialDimensions.y,
+						    "w1", initialDimensions.width,
+						    "h1", initialDimensions.height,
+						    "x1", finalDimensions.x, 
+						    "y1", finalDimensions.y,
+						    "w1", finalDimensions.width,
+						    "h1", finalDimensions.height,
+						    "transition", this.expandProperties.transition,
+						    "navigation", this.expandProperties.navigation,
+						    "useBG",      this.expandProperties.useBackground,
+						    "bgColor",    this.expandProperties.backgroundColor,
+						    "bgOpacity",  this.expandProperties.backgroundOpacity,
+						    "modal",      this.expandProperties.isModal );
+}
+
+
+
+/**
  * executeNativeHide notifies the native SDK that the ad may be hidden.
  *
  * @returns nothing.
@@ -507,6 +589,22 @@ ORMMA_iOS_Abstraction_Layer.prototype.executeNativeClose = function()
 ORMMA_iOS_Abstraction_Layer.prototype.executeNativeHide = function()
 {
 	this.executeNativeCall( "hide" );
+}
+
+
+
+/**
+ * executeNativePhone requests that the native SDK call the specified phone 
+ * number.
+ *
+ * @param {phoneNumber} String, the phone number to dial
+ *
+ * @returns nothing.
+ */
+ORMMA_iOS_Abstraction_Layer.prototype.executeNativePhone = function( phoneNumber )
+{
+	this.executeNativeCall( "phone",
+						    "number", phoneNumber );
 }
 
 
@@ -544,27 +642,31 @@ ORMMA_iOS_Abstraction_Layer.prototype.executeNativeRequest = function( uri, disp
 
 /**
  * executeNativeResize requests that the native SDK resize the current ad to
- * the specified dimensions.
+ * the specified dimensions using the same ad view.
  *
- * @param {dimensions} ORMMADimensions, the dimensions to use for the
- *                     resize action.
+ * NOTE: this will modify the size of the ad in place. It is therefore possible
+ *       that the new ad may be clipped depending on the application's view
+ *       hierarchy.
+ *
+ * @param {height} Number, the new height of the ad.
+ * @param {width}  Number, the new width of the ad.
  *
  * @returns nothing.
  */
-ORMMA_iOS_Abstraction_Layer.prototype.executeNativeResize = function( dimensions )
+ORMMA_iOS_Abstraction_Layer.prototype.executeNativeResize = function( height, width )
 {
-	this.pendingResizeDimensions = dimensions;
+	// save pending resize
+	var d = new ORMMADimensions();
+	d.x = this.resizeDimensions.x;
+	d.y = this.resizeDimensions.y;
+	d.height = height;
+	d.width = width;
+	this.pendingResizeDimensions = d;
+
 	this.executeNativeCall( "resize", 
-						    "x", dimensions.x, 
-						    "y", dimensions.y,
-						    "w", dimensions.width,
-						    "h", dimensions.height,
-						    "transition", this.resizeProperties.transition,
-						    "navigation", this.resizeProperties.navigation,
-						    "useBG",      this.resizeProperties.useBackground,
-						    "bgColor",    this.resizeProperties.backgroundColor,
-						    "bgOpacity",  this.resizeProperties.backgroundOpacity,
-						    "modal",      this.resizeProperties.isModal );
+						    "w", width,
+						    "h", height,
+						    "transition", this.resizeProperties.transition );
 }
 
 
@@ -577,6 +679,24 @@ ORMMA_iOS_Abstraction_Layer.prototype.executeNativeResize = function( dimensions
 ORMMA_iOS_Abstraction_Layer.prototype.executeNativeShow = function()
 {
 	this.executeNativeCall( "show" );
+}
+
+
+
+/**
+ * executeNativeEMail requests that the native SDK send an SMS with the 
+ * specified properties.
+ *
+ * @param {to}      String, the recipient of the message
+ * @param {body}    String, the body of the message
+ *
+ * @returns nothing.
+ */
+ORMMA_iOS_Abstraction_Layer.prototype.executeNativeSMS = function( to, body )
+{
+	this.executeNativeCall( "sms",
+						    "to", to,
+						    "body", body );
 }
 
 
