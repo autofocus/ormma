@@ -59,9 +59,23 @@
 
 - (void)showAd:(UIWebView *)webView;
 - (void)hideAd:(UIWebView *)webView;
+
 - (void)closeAd:(UIWebView *)webView;
 
-- (void)resizeTo:(CGRect)newFrame
+- (void)resizeToWidth:(CGFloat)width
+			   height:(CGFloat)height
 	   inWebView:(UIWebView *)webView;
+
+- (void)expandFrom:(CGRect)initialFrameFrame
+				to:(CGRect)finalFrame
+		   withURL:(NSURL *)url
+	   inWebView:(UIWebView *)webView;
+
+- (void)sendEMailTo:(NSString *)to
+		withSubject:(NSString *)subject
+		   withBody:(NSString *)body
+			 isHTML:(BOOL)html;
+- (void)sendSMSTo:(NSString *)to
+		 withBody:(NSString *)body;
 
 @end

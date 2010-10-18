@@ -19,16 +19,18 @@
 - (BOOL)processCommand:(NSString *)command
 			parameters:(NSDictionary *)parameters
 			forWebView:(UIWebView *)webView;
-- (BOOL)processShowCommand:(NSDictionary *)parameters
-				forWebView:(UIWebView *)webView;
-- (BOOL)processHideCommand:(NSDictionary *)parameters
-				forWebView:(UIWebView *)webView;
 - (BOOL)processCloseCommand:(NSDictionary *)parameters
 				 forWebView:(UIWebView *)webView;
+- (BOOL)processExpandCommand:(NSDictionary *)parameters
+				  forWebView:(UIWebView *)webView;
+- (BOOL)processHideCommand:(NSDictionary *)parameters
+				forWebView:(UIWebView *)webView;
 - (BOOL)processResizeCommand:(NSDictionary *)parameters
 				  forWebView:(UIWebView *)webView;
 - (BOOL)processServiceCommand:(NSDictionary *)parameters
 				   forWebView:(UIWebView *)webView;
+- (BOOL)processShowCommand:(NSDictionary *)parameters
+				forWebView:(UIWebView *)webView;
 
 - (CGFloat)floatFromDictionary:(NSDictionary *)dictionary
 						forKey:(NSString *)key;
@@ -51,11 +53,17 @@ NSString * const ORMMACommandShow = @"show";
 NSString * const ORMMACommandHide = @"hide";
 NSString * const ORMMACommandClose = @"close";
 
+NSString * const ORMMACommandExpand = @"expand";
 NSString * const ORMMACommandResize = @"resize";
 
 NSString * const ORMMACommandAddAsset = @"addasset";
 NSString * const ORMMACommandRemoveAsset = @"removeasset";
 NSString * const ORMMACommandRemoveAllAssets = @"removeallassets";
+
+NSString * const ORMMACommandCalendar = @"calendar";
+NSString * const ORMMACommandEMail = @"email";
+NSString * const ORMMACommandPhone = @"phone";
+NSString * const ORMMACommandSMS = @"sms";
 
 NSString * const ORMMACommandService = @"service";
 
@@ -99,7 +107,14 @@ NSString * const ORMMACommandService = @"service";
 							   selector:@selector(reachabilityStateChanged:)
 								   name:kReachabilityChangedNotification
 								 object:nil];
-	}
+		[notificationCenter addObserver:self 
+							   selector:@selector(keyboardWillShow:) 
+								   name:UIKeyboardWillShowNotification
+								 object:nil];
+		[notificationCenter addObserver:self 
+							   selector:@selector(keyboardWillHide:) 
+								   name:UIKeyboardWillHideNotification
+								 object:nil];	}
 	return self;
 }
 
@@ -184,23 +199,23 @@ NSString * const ORMMACommandService = @"service";
 {
 	NSLog( @"Validating Command: %@", command );
 	BOOL processed = NO;
-	if ( [command isEqualToString:ORMMACommandShow] )
+	if ( [command isEqualToString:ORMMACommandClose] )
 	{
-		// process show
-		processed = [self processShowCommand:parameters
-							 forWebView:webView];
+		// process close
+		processed = [self processCloseCommand:parameters
+								   forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandExpand] )
+	{
+		// process hide
+		processed = [self processExpandCommand:parameters
+									forWebView:webView];
 	}
 	else if ( [command isEqualToString:ORMMACommandHide] )
 	{
 		// process hide
 		processed = [self processHideCommand:parameters
 							 forWebView:webView];
-	}
-	else if ( [command isEqualToString:ORMMACommandClose] )
-	{
-		// process close
-		processed = [self processCloseCommand:parameters
-							  forWebView:webView];
 	}
 	else if ( [command isEqualToString:ORMMACommandResize] )
 	{
@@ -210,9 +225,15 @@ NSString * const ORMMACommandService = @"service";
 	}
 	else if ( [command isEqualToString:ORMMACommandService] )
 	{
-		// process resize
+		// process service
 		processed = [self processServiceCommand:parameters
 								forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandShow] )
+	{
+		// process show
+		processed = [self processShowCommand:parameters
+								  forWebView:webView];
 	}
 	
 	if ( processed ) 
@@ -258,23 +279,61 @@ NSString * const ORMMACommandService = @"service";
 }
 
 
+- (BOOL)processExpandCommand:(NSDictionary *)parameters
+				  forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing EXPAND Command..." );
+	
+	// account for status bar, if needed
+	CGFloat yDelta = 0;
+	UIApplication *app = [UIApplication sharedApplication];
+	if ( !app.statusBarHidden )
+	{
+		yDelta = app.statusBarFrame.size.height;
+	}
+	
+	// get the location and bounds
+	CGFloat x1 = [self floatFromDictionary:parameters
+								   forKey:@"x1"];
+	CGFloat y1 = [self floatFromDictionary:parameters
+								   forKey:@"y1"];
+	CGFloat w1 = [self floatFromDictionary:parameters
+								   forKey:@"w1"];
+	CGFloat h1 = [self floatFromDictionary:parameters
+								   forKey:@"h1"];
+	CGFloat x2 = [self floatFromDictionary:parameters
+									forKey:@"x1"];
+	CGFloat y2 = [self floatFromDictionary:parameters
+									forKey:@"y1"];
+	CGFloat w2 = [self floatFromDictionary:parameters
+									forKey:@"w1"];
+	CGFloat h2 = [self floatFromDictionary:parameters
+									forKey:@"h1"];
+	NSString *urlString = [parameters valueForKey:@"url"];
+	NSURL *url = [NSURL URLWithString:urlString];
+	CGRect f1 = CGRectMake( x1, ( y1 + yDelta ), w1, h1 );
+	CGRect f2 = CGRectMake( x2, ( y2 + yDelta ), w2, h2 );
+	[self.bridgeDelegate expandFrom:f1
+								 to:f2
+							withURL:url
+						inWebView:webView];
+	return YES;
+}
+
+
 - (BOOL)processResizeCommand:(NSDictionary *)parameters
 				  forWebView:(UIWebView *)webView
 {
 	NSLog( @"Processing RESIZE Command..." );
 	
-	// get the location and bounds
-	CGFloat x = [self floatFromDictionary:parameters
-								   forKey:@"x"];
-	CGFloat y = [self floatFromDictionary:parameters
-								   forKey:@"y"];
+	// get the new bounds
 	CGFloat w = [self floatFromDictionary:parameters
 								   forKey:@"w"];
 	CGFloat h = [self floatFromDictionary:parameters
 								   forKey:@"h"];
-	CGRect f = CGRectMake( x, y, w, h );
-	[self.bridgeDelegate resizeTo:f
-						inWebView:webView];
+	[self.bridgeDelegate resizeToWidth:w
+								height:h
+							 inWebView:webView];
 	return YES;
 }
 
@@ -428,7 +487,6 @@ NSString * const ORMMACommandService = @"service";
 }
 
 
-
 #pragma mark -
 #pragma mark Notification Center Dispatch Methods
 
@@ -472,7 +530,21 @@ NSString * const ORMMACommandService = @"service";
 	{
 		state = @"wifi";
 	}
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.networkChanged( %@ );", state];
+	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.networkChanged( '%@' );", state];
+	[self.bridgeDelegate executeJavaScript:js];
+}
+
+
+- (void)keyboardWillShow:(NSNotification *)notification
+{
+	NSString *js = @"ormmaNativeBridge.keyboardChanged( true );";
+	[self.bridgeDelegate executeJavaScript:js];
+}
+
+
+- (void)keyboardWillHide:(NSNotification *)notification
+{
+	NSString *js = @"ormmaNativeBridge.keyboardChanged( false );";
 	[self.bridgeDelegate executeJavaScript:js];
 }
 
