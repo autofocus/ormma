@@ -275,7 +275,7 @@
 								<string>FAD28BB812381B2A00562D0B</string>
 								<string>FAD28BC012381B2A00562D0B</string>
 								<string>FAD28C5912381C3400562D0B</string>
-								<string>FA94AF60124A682600AE8ADB</string>
+								<string>FAD28C5D12381C8F00562D0B</string>
 								<string>FAAD1136125E5EF90079A082</string>
 								<string>1C37FBAC04509CD000000102</string>
 								<string>FAD3FA50126CA1E600468F35</string>
@@ -284,10 +284,10 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>31</integer>
-									<integer>30</integer>
-									<integer>29</integer>
-									<integer>28</integer>
+									<integer>8</integer>
+									<integer>7</integer>
+									<integer>1</integer>
+									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
@@ -308,7 +308,7 @@
 							<real>248</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>212 286 1343 890 0 0 1920 1178 </string>
+						<string>216 288 1343 890 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -326,7 +326,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>FAD28C4412381BE900562D0B</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>1.sql</string>
+								<string>ORMMALocalServer.h</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -334,11 +334,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>FAD28C4512381BE900562D0B</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>1.sql</string>
+										<string>ORMMALocalServer.h</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>FAD3FAC7126CADA900468F35</string>
+										<string>FAD3FAFE126CDEEF00468F35</string>
 										<key>history</key>
 										<array>
 											<string>FAD28C6612381DBA00562D0B</string>
@@ -364,15 +364,20 @@
 											<string>FAD233D8126900FD00921D13</string>
 											<string>FAD3F9C4126C848D00468F35</string>
 											<string>FAD3FA55126CA1E600468F35</string>
-											<string>FAD3FA56126CA1E600468F35</string>
-											<string>FAD3FA77126CA69300468F35</string>
 											<string>FAD3FA9A126CA89E00468F35</string>
-											<string>FAD3FAB3126CAC6300468F35</string>
-											<string>FAD3FAB5126CAC6300468F35</string>
 											<string>FAD3FAB6126CAC6300468F35</string>
-											<string>FAD3FAC4126CADA900468F35</string>
-											<string>FAD3FAC5126CADA900468F35</string>
-											<string>FAD3FAC6126CADA900468F35</string>
+											<string>FAD3FACE126CB0F800468F35</string>
+											<string>FAD3FAE8126CD75E00468F35</string>
+											<string>FAD3FAEA126CD75E00468F35</string>
+											<string>FAD3FAF5126CDEEF00468F35</string>
+											<string>FAD3FAF6126CDEEF00468F35</string>
+											<string>FAD3FAF7126CDEEF00468F35</string>
+											<string>FAD3FAF8126CDEEF00468F35</string>
+											<string>FAD3FAF9126CDEEF00468F35</string>
+											<string>FAD3FAFA126CDEEF00468F35</string>
+											<string>FAD3FAFB126CDEEF00468F35</string>
+											<string>FAD3FAFC126CDEEF00468F35</string>
+											<string>FAD3FAFD126CDEEF00468F35</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -388,7 +393,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {1073, 479}}</string>
 								<key>RubberWindowFrame</key>
-								<string>212 286 1343 890 0 0 1920 1178 </string>
+								<string>216 288 1343 890 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -413,7 +418,7 @@
 										<key>Frame</key>
 										<string>{{10, 27}, {1073, 338}}</string>
 										<key>RubberWindowFrame</key>
-										<string>212 286 1343 890 0 0 1920 1178 </string>
+										<string>216 288 1343 890 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -694,7 +699,7 @@
 		<string>/Users/rhedin/source/iOS/ORMMA/ORMMA/ORMMA.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>212 286 1343 890 0 0 1920 1178 </string>
+	<string>216 288 1343 890 0 0 1920 1178 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
