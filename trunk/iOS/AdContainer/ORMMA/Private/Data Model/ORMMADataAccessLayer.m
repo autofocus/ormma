@@ -6,6 +6,7 @@
 //  Copyright 2010 The Weather Channel. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "ORMMADataAccessLayer.h"
 #import "ORMMALocalServer.h"
 
@@ -17,6 +18,16 @@
 
 - (void)updateDatabaseSchemaForRecovery:(BOOL)recovery;
 - (BOOL)processSchemaFile:(NSString *)path;
+
+// opens the database
+- (BOOL)open;
+
+// closes the database
+- (void)close;
+
+
+- (void)handleDidBecomeActiveNotification:(NSNotification *)notification;
+- (void)handleDidResignActiveNotification:(NSNotification *)notification;
 
 @end
 
@@ -51,11 +62,6 @@
         if ( sharedInstance == nil )
 		{
 			sharedInstance = [[ORMMADataAccessLayer alloc] init];
-			
-			// open the database
-			[sharedInstance open];
-			
-			abort();
 		}
     }
     return sharedInstance;
@@ -66,6 +72,19 @@
 {
 	if ( ( self = [super init] ) )
 	{
+		// open the database
+		[self open];
+		
+		// listen for major device events
+		NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+		[nc addObserver:self
+			   selector:@selector(handleDidBecomeActiveNotification:)
+				   name:UIApplicationDidBecomeActiveNotification
+				 object:nil];
+		[nc addObserver:self
+			   selector:@selector(handleDidResignActiveNotification:)
+				   name:UIApplicationWillResignActiveNotification
+				 object:nil];
 	}
 	return self;
 }
@@ -73,6 +92,9 @@
 
 - (void)dealloc
 {
+	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+	[nc removeObserver:self];
+
 	// shutdown the database
 	[self close];
 	[super dealloc];
@@ -94,6 +116,34 @@
 
 
 #pragma mark -
+#pragma mark Notification Handlers
+
+- (void)handleDidBecomeActiveNotification:(NSNotification *)notification
+{
+	@synchronized( self )
+	{
+		// re-open the database connection if needed
+		NSLog( @"Caught Application Did Become Active-- restoring access to the ORMMA database..." );
+
+		[self open];
+	}
+}
+
+
+- (void)handleDidResignActiveNotification:(NSNotification *)notification
+{
+	@synchronized( self )
+	{
+		// close the database if needed
+		NSLog( @"Caught Application Did Resign Active-- closing access to the ORMMA database..." );
+		
+		[self close];
+	}
+}
+
+
+
+#pragma mark -
 #pragma mark Database Control
 
 - (BOOL)open
@@ -104,7 +154,7 @@
 	{
 		if ( m_database == nil )
 		{
-			m_database = [FMDatabase databaseWithPath:self.databasePath];
+			m_database = [[FMDatabase databaseWithPath:self.databasePath] retain];
 			opened = [m_database open];
 			if ( !opened )
 			{
@@ -115,6 +165,8 @@
 			
 			// the database is opened, update the schema if necessary
 			[self updateDatabaseSchemaForRecovery:NO];
+			
+			NSLog( @"ORMMA Database is open and ready for business." );
 		}
 	}
 	return opened;
@@ -127,12 +179,133 @@
 	{
 		if ( m_database != nil )
 		{
-			[m_database close];
-			[m_database release], m_database = nil;
+			[m_database close],	[m_database release], m_database = nil;
+
+			NSLog( @"ORMMA Database is closed." );
 		}
 	}
 }
 
+
+
+#pragma mark -
+#pragma mark Cache Management
+
+- (void)cacheCreative:(long)creativeId
+			   forURL:(NSURL *)url
+{
+	@synchronized( self )
+	{
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+		
+		// first see if the creative already exists
+		NSLog( @"Caching Creative: %lu from %@", creativeId, url );
+		BOOL exists = NO;
+		FMResultSet *rs = [m_database executeQuery:@"SELECT * FROM creatives WHERE hash = ?", [NSNumber numberWithLong:creativeId]];
+		if ( [rs next] )
+		{
+			// already exists
+			NSLog( @"Cache Entry already exists" );
+			exists = YES;
+		}
+		
+		[m_database beginTransaction];
+		if ( exists )
+		{
+			// already exists, just update the accessed date
+			NSLog( @"Updating existing cache entry" );
+			[m_database executeUpdate:@"UPDATE creatives SET last_accessed = CURRENT_TIMESTAMP"];
+		}
+		else
+		{
+			NSLog( @"Making new cache entry" );
+			[m_database executeUpdate:@"INSERT INTO creatives( hash ) VALUES( ? )", [NSNumber numberWithLong:creativeId]];
+		}
+		[m_database commit];
+		
+		NSLog( @"Creative caching complete." );
+	}
+}
+
+
+- (void)creativeAccessed:(long)creativeId
+{
+	@synchronized( self )
+	{
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+		
+		[m_database beginTransaction];
+		[m_database executeUpdate:@"UPDATE creatives SET last_accessed = CURRENT_TIMESTAMP"];
+		[m_database commit];
+	}
+}
+
+
+- (void)removeCreative:(long)creativeId
+{
+	@synchronized( self )
+	{
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+
+		[m_database beginTransaction];
+		[m_database executeUpdate:@"DELETE FROM creatives WHERE hash = ?", creativeId];
+		[m_database commit];
+	}
+}
+
+
+- (void)incrementCacheUsageForCreative:(long)creativeId
+									by:(unsigned long long)bytes;
+{
+	@synchronized( self )
+	{
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+
+		[m_database beginTransaction];
+		[m_database executeUpdate:@"UPDATE creatives SET size = size + ? WHERE hash = ?", bytes, creativeId];
+		[m_database commit];
+	}
+}
+
+
+- (void)decrementCacheUsageForCreative:(long)creativeId
+									by:(unsigned long long)bytes;
+{
+	@synchronized( self )
+	{
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+		
+		[m_database beginTransaction];
+		[m_database executeUpdate:@"UPDATE creatives SET size = size - ? WHERE hash = ?", bytes, creativeId];
+		[m_database commit];
+	}
+}
+
+
+- (void)truncateCacheUsageForCreative:(long)creativeId
+{
+	@synchronized( self )
+	{
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+		
+		[m_database beginTransaction];
+		[m_database executeUpdate:@"UPDATE creatives SET size = 0 WHERE hash = ?", creativeId];
+		[m_database commit];
+	}
+}
+
+
+- (void)removeAllCreatives
+{
+	@synchronized( self )
+	{
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+		
+		[m_database beginTransaction];
+		[m_database executeUpdate:@"DELETE FROM creatives"];
+		[m_database commit];
+	}
+}
 
 
 #pragma mark -
@@ -142,12 +315,11 @@
 {
 	@synchronized( self )
 	{
-		if ( m_database != nil )
-		{
-			[m_database beginTransaction];
-			[m_database executeUpdate:@"INSERT INTO proxy_requests( request ) VALUES( ? )", request];
-			[m_database commit];
-		}
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+		
+		[m_database beginTransaction];
+		[m_database executeUpdate:@"INSERT INTO proxy_requests( request ) VALUES( ? )", request];
+		[m_database commit];
 	}
 }
 
@@ -157,16 +329,15 @@
 	ORMMAStoreAndForwardRequest *saf = nil;
 	@synchronized( self )
 	{
-		if ( m_database != nil )
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+		
+		FMResultSet *rs = [m_database executeQuery:@"SELECT * FROM proxy_requests ORDER BY created_on LIMIT 1"];
+		if ( [rs next] )
 		{
-			FMResultSet *rs = [m_database executeQuery:@"SELECT * FROM proxy_requests ORDER BY created_on LIMIT 1"];
-			if ( [rs next] )
-			{
-				saf = [[[ORMMAStoreAndForwardRequest alloc] init] autorelease];
-				saf.requestNumber = [rs longForColumn:@"request_number"];
-				saf.request = [rs stringForColumn:@"request"];
-				saf.createdOn = [rs dateForColumn:@"created_on"];
-			}
+			saf = [[[ORMMAStoreAndForwardRequest alloc] init] autorelease];
+			saf.requestNumber = [rs longForColumn:@"request_number"];
+			saf.request = [rs stringForColumn:@"request"];
+			saf.createdOn = [rs dateForColumn:@"created_on"];
 		}
 	}
 	return saf;
@@ -177,12 +348,11 @@
 {
 	@synchronized( self )
 	{
-		if ( m_database != nil )
-		{
-			[m_database beginTransaction];
-			[m_database executeUpdate:@"DELETE FROM proxy_requests WHERE request_number = ?", requestNumber];
-			[m_database commit];
-		}
+		NSAssert( ( m_database != nil ), @"Database not open!" );
+		
+		[m_database beginTransaction];
+		[m_database executeUpdate:@"DELETE FROM proxy_requests WHERE request_number = ?", requestNumber];
+		[m_database commit];
 	}
 }
 

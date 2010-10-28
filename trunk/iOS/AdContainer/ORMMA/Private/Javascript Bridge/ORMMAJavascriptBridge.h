@@ -29,11 +29,11 @@
 	UIAccelerometer *m_accelerometer;
 	NSTimer *m_timer;
 	
-	BOOL m_accelerometerEnabled;
-	BOOL m_compassEnabled;
-	BOOL m_gyroscopeEnabled;
-	BOOL m_locationEnabled;
-	BOOL m_networkEnabled;
+	BOOL m_accelerometerEnableCount;
+	BOOL m_compassEnableCount;
+	BOOL m_gyroscopeEnableCount;
+	BOOL m_locationEnableCount;
+	BOOL m_networkEnableCount;
 }
 @property( nonatomic, assign ) id<ORMMAJavascriptBridgeDelegate> bridgeDelegate;
 @property( nonatomic, retain ) CMMotionManager *motionManager;
@@ -55,7 +55,10 @@
 
 @protocol ORMMAJavascriptBridgeDelegate
 
-- (void)executeJavaScript:(NSString *)javascript;
+@required
+- (void)applicationReadyNotificationRequestReceived;
+
+- (NSString *)executeJavaScript:(NSString *)javascript, ...;
 
 - (void)showAd:(UIWebView *)webView;
 - (void)hideAd:(UIWebView *)webView;
@@ -77,5 +80,7 @@
 			 isHTML:(BOOL)html;
 - (void)sendSMSTo:(NSString *)to
 		 withBody:(NSString *)body;
+
+- (CGRect)getAdFrameInWindowCoordinates;
 
 @end

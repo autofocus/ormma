@@ -49,20 +49,22 @@ typedef enum ORMMAViewStateEnum
 	UIButton *m_closeButton;
 	UIButton *m_blockingView;
 	
-	NSURL *m_baseURL;
-	NSUInteger m_creativeId;
+	NSURL *m_creativeURL;
+	long m_creativeId;
+	
+	BOOL m_applicationReady;
 }
 @property( nonatomic, assign ) id<ORMMAViewDelegate> ormmaDelegate;
 @property( nonatomic, copy ) NSString *htmlStub;
-@property( nonatomic, copy ) NSURL *baseURL;
+@property( nonatomic, copy ) NSURL *creativeURL;
 @property( nonatomic, retain, readonly ) NSError *lastError;
 @property( nonatomic, assign, readonly ) ORMMAViewState currentState;
 
 
-- (void)loadAd:(NSURL *)url;
+- (void)loadCreative:(NSURL *)url;
 
-- (void)loadHTMLAd:(NSString *)htmlFragment
-		   baseURL:(NSURL *)baseURL;
+- (void)loadHTMLCreative:(NSString *)htmlFragment
+			 creativeURL:(NSURL *)url;
 
 
 // used to force an ad to revert to its default state

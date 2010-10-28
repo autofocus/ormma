@@ -35,6 +35,8 @@
 		FA94AF65124A685900AE8ADB /* close@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FA94AF63124A684F00AE8ADB /* close@2x.png */; };
 		FAB6E05012402A6E00DF64C9 /* UIDevice-Hardware.h in Headers */ = {isa = PBXBuildFile; fileRef = FAB6E04E12402A6E00DF64C9 /* UIDevice-Hardware.h */; };
 		FAB6E05112402A6E00DF64C9 /* UIDevice-Hardware.m in Sources */ = {isa = PBXBuildFile; fileRef = FAB6E04F12402A6E00DF64C9 /* UIDevice-Hardware.m */; };
+		FAD19FC2127765C100CA9836 /* ormmaapi.js in Resources */ = {isa = PBXBuildFile; fileRef = FA4520661254F267004D2BED /* ormmaapi.js */; };
+		FAD19FC3127765C100CA9836 /* ormmaios.js in Resources */ = {isa = PBXBuildFile; fileRef = FA4520681254F382004D2BED /* ormmaios.js */; };
 		FAD232FE1268A93E00921D13 /* ORMMALocalServer.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD232FC1268A93E00921D13 /* ORMMALocalServer.h */; };
 		FAD232FF1268A93E00921D13 /* ORMMALocalServer.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD232FD1268A93E00921D13 /* ORMMALocalServer.m */; };
 		FAD233BC1268EF1B00921D13 /* FMDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD233B61268EF1B00921D13 /* FMDatabase.h */; };
@@ -78,9 +80,7 @@
 		FAD28C0712381B2A00562D0B /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BE212381B2A00562D0B /* SBJsonParser.m */; };
 		FAD28C0812381B2A00562D0B /* SBJsonWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BE312381B2A00562D0B /* SBJsonWriter.h */; };
 		FAD28C0912381B2A00562D0B /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BE412381B2A00562D0B /* SBJsonWriter.m */; };
-		FAD28C5F12381D9B00562D0B /* ORMMA_Abstraction_Layer_iOS.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C5B12381C8100562D0B /* ORMMA_Abstraction_Layer_iOS.js */; };
 		FAD28C6E12381DFF00562D0B /* ORMMA_Standard_HTML_Stub.html in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */; };
-		FAD28C7112381E3C00562D0B /* ORMMA_Javascript_API.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C6F12381E3500562D0B /* ORMMA_Javascript_API.js */; };
 		FAD3FA4D126CA0B100468F35 /* 1.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3F9C7126C84B300468F35 /* 1.sql */; };
 		FAD3FAAB126CABD000468F35 /* 2.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3FAA9126CABB100468F35 /* 2.sql */; };
 		FAD3FAAC126CABD000468F35 /* 3.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3FAAA126CABB800468F35 /* 3.sql */; };
@@ -609,8 +609,8 @@
 				FAD3FAAC126CABD000468F35 /* 3.sql in Resources */,
 				FA94AF64124A685900AE8ADB /* close.png in Resources */,
 				FA94AF65124A685900AE8ADB /* close@2x.png in Resources */,
-				FAD28C5F12381D9B00562D0B /* ORMMA_Abstraction_Layer_iOS.js in Resources */,
-				FAD28C7112381E3C00562D0B /* ORMMA_Javascript_API.js in Resources */,
+				FAD19FC2127765C100CA9836 /* ormmaapi.js in Resources */,
+				FAD19FC3127765C100CA9836 /* ormmaios.js in Resources */,
 				FAD28C6E12381DFF00562D0B /* ORMMA_Standard_HTML_Stub.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

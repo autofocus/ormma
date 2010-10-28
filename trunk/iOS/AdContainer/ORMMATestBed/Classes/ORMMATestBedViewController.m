@@ -124,8 +124,8 @@ typedef enum OTBAdAnimationDirectionEnum
 	
 	// refresh the ad
 	NSURL *url = [NSURL URLWithString:@"http://localhost/~rhedin/ad.html"];
-	[self.ormmaView loadHTMLAd:adFragment
-					   baseURL:url];
+	[self.ormmaView loadHTMLCreative:adFragment
+						 creativeURL:url];
 }
 
 

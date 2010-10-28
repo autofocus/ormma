@@ -22,9 +22,20 @@
 + (ORMMADataAccessLayer *)sharedInstance;
 
 
-- (BOOL)open;
-- (void)close;
+// for managing the cache
+- (void)removeAllCreatives;
+- (void)cacheCreative:(long)creativeId
+			   forURL:(NSURL *)url;
+- (void)creativeAccessed:(long)creativeId;
+- (void)removeCreative:(long)creativeId;
+- (void)incrementCacheUsageForCreative:(long)creativeId
+									by:(unsigned long long)bytes;
+- (void)decrementCacheUsageForCreative:(long)creativeId
+									by:(unsigned long long)bytes;
+- (void)truncateCacheUsageForCreative:(long)creativeId;
 
+
+// for store and forward requests
 - (void)storeRequest:(NSString *)request;
 - (ORMMAStoreAndForwardRequest *)getNextStoreAndForwardRequest;
 - (void)removeStoreAndForwardRequestWithRequestNumber:(NSNumber *)requestNumber;
