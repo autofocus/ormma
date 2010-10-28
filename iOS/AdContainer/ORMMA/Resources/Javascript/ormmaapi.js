@@ -7,42 +7,25 @@
 /******************************************************************/
 
 const ORMMA_UNKNOWN_VALUE = -1;
- 
-const ORMMA_ORIENTATION_UNKNOWN              = UNKNOWN_VALUE;
+
+const ORMMA_ORIENTATION_UNKNOWN              = ORMMA_UNKNOWN_VALUE;
 const ORMMA_ORIENTATION_PORTRAIT             = 0;
 const ORMMA_ORIENTATION_LANDSCAPE_RIGHT      = 90;
-const ORMMA_ORIENTATION_PORTRAIT_UPSIDE_DOWN = 190;
+const ORMMA_ORIENTATION_PORTRAIT_UPSIDE_DOWN = 180;
 const ORMMA_ORIENTATION_LANDSCAPE_LEFT       = 270;
- 
+
 const ORMMA_NETWORK_UNKNOWN = "unknown";
 const ORMMA_NETWORK_OFFLINE = "offline";
 const ORMMA_NETWORK_CELL    = "cell";
 const ORMMA_NETWORK_WIFI    = "wifi";
- 
+
 const ORMMA_STATE_UNKNOWN  = "unknown";
 const ORMMA_STATE_HIDDEN   = "hidden";
 const ORMMA_STATE_DEFAULT  = "default";
 const ORMMA_STATE_EXPANDED = "expanded";
- 
 
 
-/*************************************************************/
-/***************** ORMMA JSON PROPERTY NAMES *****************/
-/*************************************************************/
 
-const ORMMA_PROPERTY_HEIGHT = "height";
-const ORMMA_PROPERTY_WIDTH  = "width";
-const ORMMA_PROPERTY_X = "x";
-const ORMMA_PROPERTY_Y = "y";
-const ORMMA_PROPERTY_Z = "z";
-const ORMMA_PROPERTY_TRANSITION = "transition";
-const ORMMA_PROPERTY_LATITUDE = "lat";
-const ORMMA_PROPERTY_LONGITUDE = "lon";
-const ORMMA_PROPERTY_ACCURACY = "acc";
-const ORMMA_PROPERTY_INTENSITY = "intensity";
-const ORMMA_PROPERTY_INTERVAL = "interval";
-
- 
 /**
  * The main ad controller object
  * @namespace encapusaltes all methods of the ORMMA JavaScript API
@@ -55,52 +38,58 @@ window.Ormma = {
 	/**********************************************************************/
 	
 	/** stores the list of URLs and their aliases that have been cached */
-	aliases = { },
+	resourcesByURL : { },
+	
+	/** stores the list of URLs and their aliases that have been cached */
+	resourcesByAlias : { },
 	
 	/** stores the lask known amount of cache remaining */
-	cacheRemaining = ORMMA_UNKNOWN_VALUE,
-
+	cacheRemaining : ORMMA_UNKNOWN_VALUE,
+	
 	/** stores the current expand properties */
-	expandProperties = { },
-
+	expandProperties : { },
+	
 	/** stores the last known heading */
-	heading = ORMMA_UNKNOWN_VALUE,
+	heading : ORMMA_UNKNOWN_VALUE,
 	
 	/** stores the last known location */
-	location = { ORMMA_PROPERTY_LATITUDE  : ORMMA_UNKNOWN_VALUE, 
-		         ORMMA_PROPERTY_LONGITUDE : ORMMA_UNKNOWN_VALUE },
+	location : { lat  : ORMMA_UNKNOWN_VALUE, 
+				 lon : ORMMA_UNKNOWN_VALUE,
+				 acc : ORMMA_UNKNOWN_VALUE },
 	
 	/** stores the maximum size of the ad */
-	maxSize = { ORMMA_PROPERTY_HEIGHT : ORMMA_UNKNOWN_VALUE, 
-		        ORMMA_PROPERTY_WIDTH  : ORMMA_UNKNOWN_VALUE };
-
+	maxSize : { height : ORMMA_UNKNOWN_VALUE, 
+				width  : ORMMA_UNKNOWN_VALUE },
+	
 	/** stores the last known network state */
-	network = ORMMA_NETWORK_UNKNOWN,
+	network : ORMMA_NETWORK_UNKNOWN,
 	
 	/** stores the last known orientation */
-	orientation = ORMMA_UNKNOWN_VALUE,
+	orientation : ORMMA_UNKNOWN_VALUE,
 	
 	/** stores the current resize properties */
-	resizeProperties = { ORMMA_PROPERTY_TRANSITION : ORMMA_STATE_UNKNOWN },
+	resizeProperties : { transition : ORMMA_STATE_UNKNOWN },
 	
 	/** stores the current screen size */
-	screenSize = { ORMMA_PROPERTY_HEIGHT : ORMMA_UNKNOWN_VALUE, 
-		           ORMMA_PROPERTY_WIDTH  : ORMMA_UNKNOWN_VALUE },
+	screenSize : { height : ORMMA_UNKNOWN_VALUE,
+				   width  : ORMMA_UNKNOWN_VALUE },
 	
 	/** stores the current properties defining a shake */
-	shakeProperties = { },
+	shakeProperties : { intensity : 0, 
+						interval : 0 },
+	
 	
 	/** stores the last known size of the ad */
-	size = { ORMMA_PROPERTY_HEIGHT : ORMMA_UNKNOWN_VALUE, 
-			 ORMMA_PROPERTY_WIDTH  : ORMMA_UNKNOWN_VALUE },
+	size : { height : ORMMA_UNKNOWN_VALUE,  
+			 width  : ORMMA_UNKNOWN_VALUE },
 	
 	/** stores the last known display state */
-	state = ORMMA_STATE_UNKNOWN,
+	state : ORMMA_STATE_UNKNOWN,
 	
 	/** stores the list of features supported by the device */
-	supportedFeatures = [ ],
-
-
+	supportedFeatures : [ ],
+	
+	
 	
 	/**********************************************/
 	/***************** PUBLIC API *****************/
@@ -121,7 +110,7 @@ window.Ormma = {
 	 * @param {url} the URL to cache
 	 */
 	addAsset : function( url ) {
-		window.ormmaBridge.executeNativeAddAsset( url );
+		window.OrmmaBridge.executeNativeAddAsset( url );
 	},
 	
 	
@@ -139,7 +128,12 @@ window.Ormma = {
 	 * @param {Array} the list of URLs to cache
 	 */
 	addAssets : function( assets ) {
-		// TODO
+		var i;
+		for ( i = 0; i < assets.count; i++ )
+		{
+			this.addAsset( assets[i] );
+		}
+		return false;
 	},
 	
 	
@@ -171,6 +165,10 @@ window.Ormma = {
 	 */
 	addEventListener : function( evt, listener ) {
 		window.addEventListener( evt, listener, false );
+		
+		// notify the native API that the appropriate sensor should be 
+		// brough on-line
+		window.OrmmaBridge.enableNativeEventsForService( evt, true );
 	},
 	
 	
@@ -186,7 +184,7 @@ window.Ormma = {
 	 * @throws resizeChange
 	 */
 	close : function() {
-		window.ormmaBridge.executeNativeClose();
+		window.OrmmaBridge.executeNativeClose();
 	},
 	
 	
@@ -201,7 +199,8 @@ window.Ormma = {
 	 * <br/>#ORMMA Level: 1
 	 */
 	createEvent : function( date, title, body ) {
-		// TODO
+		window.OrmmaBridge.executeNativeCalendar( date, title, body );
+		return false;
 	},
 	
 	
@@ -227,9 +226,9 @@ window.Ormma = {
 	 * @throws stateChange
 	 * @throws resizeChange 
 	 */
-	expand : function( initialDimensions, finalDimensions, URL ) {
-		// TODO
-		window.ormmaBridge.executeNativeExpand(  );
+	expand : function( initialDimensions, finalDimensions, url ) {
+		window.OrmmaBridge.executeNativeExpand( initialDimensions, finalDimensions, url );
+		return false;
 	},
 	
 	
@@ -246,7 +245,8 @@ window.Ormma = {
 	 * @returns the alias name
 	 */
 	getAssetURL : function ( url ) {
-		// TODO
+		var url = resourcesByURL[url];
+		return url;
 	},
 	
 	
@@ -344,7 +344,7 @@ window.Ormma = {
 	 * <br/>#side effects: none
 	 * <br/>#ORMMA Level: 2
 	 *
-	 * @returns {JSON} {lat, long, acc} location information.
+	 * @returns {JSON} {lat, lon, acc} location information.
 	 */
 	getLocation : function() {
 		return this.location;
@@ -390,8 +390,19 @@ window.Ormma = {
 	 * @returns {Number} the last known orientation.
 	 */
 	getOrientation : function() {
-		return this.orientation;
-	}
+		if ( Ormma.orientation == 0 ) {
+			return ORMMA_ORIENTATION_PORTRAIT;
+		}
+		else if ( Ormma.orientation == 90 ) {
+			return ORMMA_ORIENTATION_LANDSCAPE_RIGHT;
+		}
+		else if ( Ormma.orientation == 180 ) {
+			return ORMMA_ORIENTATION_PORTRAIT_UPSIDE_DOWN;
+		}
+		
+		// must be Landscape left
+		return ORMMA_ORIENTATION_LANDSCAPE_LEFT;
+	},
 	
 	
 	/**
@@ -484,7 +495,33 @@ window.Ormma = {
 	 * @throws resizeChange
 	 */
 	hide : function() {
-		window.ormmaBridge.executeNativeHide();
+		window.OrmmaBridge.executeNativeHide();
+	},
+	
+	
+	/**
+	 * Determines if the current orientation is landscape.
+	 *
+	 * <br/>#side effects: none
+	 * <br/>#ORMMA Level: Extension, not part of spec
+	 * 
+	 * @returns true if in landscape orientation, false otherwise
+	 */
+	isLandscape : function() {
+		return ( ( this.orientation == 90 ) || ( this.orientation == 270 ) );
+	},
+	
+	
+	/**
+	 * Determines if the current orientation is portrait.
+	 *
+	 * <br/>#side effects: none
+	 * <br/>#ORMMA Level: Extension, not part of spec
+	 * 
+	 * @returns true if in portait orientation, false otherwise
+	 */
+	isPortrait : function() {
+		return ( !this.isLandscape() );
 	},
 	
 	
@@ -501,25 +538,37 @@ window.Ormma = {
 	 * @param {String} phone number to dial.
 	 */
 	makeCall : function( number ) {
-		window.ormmaBridge.executeNativeHide( number );
-	},
-	
-	
-	open : function() {
+		window.OrmmaBridge.executeNativeHide( number );
+		return false;
 	},
 	
 	
 	/**
-	 * Use this method to remove all cached resources for the current creative.
+	 * Use this method to open a new browser window to an external web page.
 	 *
-	 * <br/>#side effects: use of this function will affect ALL resources for
-	 *                     the current creative.
+	 * NOTE: it is up to the implementation to whether to launch an external
+	 *       browser.
+	 *
+	 * <br/>#side effects: none.
+	 * <br/>#ORMMA Level: 1
+	 * 
+	 * @param {String} phone number to dial.
+	 */
+	open : function( url ) {
+		window.OrmmaBridge.executeNativeOpen( url );
+	},
+	
+	
+	/**
+	 * Removes all assets for the current creative from the cache. 
+	 *
+	 * <br/>#side effects: once called, no cached creatives will be accessible.
 	 * <br/>#ORMMA Level: 3
 	 *
 	 * @throws assetRemoved
 	 */
 	removeAllAssets : function() {
-		window.ormmaBridge.executeNativeRemoveAllAssets();
+		window.OrmmaBridge.executeNativeRemoveAllAssets();
 	},
 	
 	
@@ -530,12 +579,16 @@ window.Ormma = {
 	 * <br/>#side effects: none.
 	 * <br/>#ORMMA Level: 3
 	 *
-	 * @param {Array} list of assets to remove.
+	 * @param {String} alias to remove.
 	 *
 	 * @throws assetRemoved
 	 */
-	removeAsset : function( url ) {
-		window.ormmaBridge.executeNativeRemoveAsset( url );
+	removeAsset : function( alias ) {
+		var url = resourcesByAlias[alias];
+		if ( url != null )
+		{
+			window.OrmmaBridge.executeNativeRemoveAsset( url );
+		}
 	},
 	
 	
@@ -551,7 +604,12 @@ window.Ormma = {
 	 * @throws assetRemoved
 	 */
 	removeAssets : function( assets ) {
-		// TODO
+		var i;
+		for ( i = 0; i < assets.count; i++ )
+		{
+			this.removeAsset( assets[i] );
+		}
+		return false;
 	},
 	
 	
@@ -568,6 +626,11 @@ window.Ormma = {
 	 * @param {Function} listener (optional) function to be removed 
 	 */    
 	removeEventListener : function( evt, listener ) {
+		// notify the native API that the appropriate sensor should be 
+		// brough on-line
+		window.OrmmaBridge.enableNativeEventsForService( evt, false );
+		
+		// now remove the actual listener
 		window.removeEventListener( evt, listener, false );
 	},
 	
@@ -589,7 +652,7 @@ window.Ormma = {
 	 * @throws response
 	 */
 	request : function( uri, display ) {
-		window.ormmaBridge.executeNativeRequest( uri, display );
+		window.OrmmaBridge.executeNativeRequest( uri, display );
 		return false;
 	},
 	
@@ -602,13 +665,14 @@ window.Ormma = {
 	 * <br/>#side effects: changes state
 	 * <br/>#ORMMA Level: 1
 	 * 
-	 * @param {Integer} height the height in pixels
 	 * @param {Integer} width the width in pixels 
+	 * @param {Integer} height the height in pixels
 	 * @throws resizeChange
 	 * @throws stateChange
 	 */
-	resize : function( height, width ) {
-		// TODO
+	resize : function( width, height ) {
+		window.OrmmaBridge.executeNativeResize( width, height );
+		return false;
 	},
 	
 	
@@ -621,9 +685,14 @@ window.Ormma = {
 	 *
 	 * <br/>#side effects: none
 	 * <br/>#ORMMA Level: 1
+	 * 
+	 * @param {String} recipient of the email 
+	 * @param {String} subject for the email
+	 * @param {String} body of the email
 	 */
-	sendMail : function() {
-		// TODO
+	sendMail : function( recipient, subject, body ) {
+		window.OrmmaBridge.executeNativeEmail( recipient, subject, body, false );
+		return false;
 	},
 	
 	
@@ -636,9 +705,13 @@ window.Ormma = {
 	 *
 	 * <br/>#side effects: none
 	 * <br/>#ORMMA Level: 1
+	 * 
+	 * @param {String} recipient of the SMS
+	 * @param {String} body of the SMS
 	 */
 	sendSMS : function() {
-		// TODO
+		window.OrmmaBridge.executeNativeSMS( recipient, body );
+		return false;
 	},
 	
 	/**
@@ -653,7 +726,7 @@ window.Ormma = {
 	 * @see expand
 	 */
 	setExpandProperties : function( properties ) {
-		window.ormmaBridge.expandProperties = properties;
+		window.OrmmaBridge.expandProperties = properties;
 	},
 	
 	
@@ -668,19 +741,28 @@ window.Ormma = {
 	 * viewer, for more info @see properties object.
 	 */
 	setResizeProperties : function( properties ) {
-		window.ormmaBridge.resizeProperties = properties;
-	},
-	
-	
-	setShakeProperties : function() {
-		// TODO
+		window.OrmmaBridge.resizeProperties = properties;
 	},
 	
 	
 	/**
-	 * This method has no return value and is executed asynchronously (so always
-	 * listen for a result event before taking action instead of assuming the
-	 * change has occurred).
+	 * Use this method to set the ads resize properties.
+	 *
+	 * <br/>#side effects: none
+	 * <br/>#ORMMA Level: 2
+	 * 
+	 * @param {JSON} {intensity,interval} the shake properties.
+	 */
+	setShakeProperties : function( properties ) {
+		window.OrmmaBridge.shakeProperties = properties;
+	},
+	
+	
+	/**
+	 * Use this method to notify the native SDK that the ad is ready to be
+	 * displayed to the user. This method has no return value and is executed
+	 * asynchronously (so always listen for a result event before taking action
+	 * instead of assuming the change has occurred).
 	 *
 	 * <br/>#side effects: changes the state value.
 	 * <br/>#ORMMA Level: 1
@@ -688,7 +770,8 @@ window.Ormma = {
 	 * @throws stateChange 
 	 */
 	show : function () {
-		// TODO
+		window.OrmmaBridge.executeNativeShow();
+		return false;
 	},
 	
 	

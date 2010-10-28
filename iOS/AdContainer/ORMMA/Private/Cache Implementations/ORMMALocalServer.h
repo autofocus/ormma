@@ -17,12 +17,26 @@
 
 @required
 
-- (void)cacheFailed:(NSURL *)baseURL
+// called if a cache function fails
+- (void)cacheFailed:(NSURL *)url
 		  withError:(NSError *)error;
 
-- (void)cachedBaseURL:(NSURL *)baseURL
-				onURL:(NSURL *)url
-			   withId:(NSUInteger)creativeId;
+// called when a creative has been cached
+- (void)cachedCreative:(NSURL *)baseURL
+				 onURL:(NSURL *)url
+				withId:(long)creativeId;
+
+// called when a resource has been cached
+- (void)cachedResource:(NSURL *)url
+		   forCreative:(long)creativeId;
+
+// called when a resource has been cached
+- (void)cachedResourceRetired:(NSURL *)url
+				  forCreative:(long)creativeId;
+
+// called when a resource has been cached
+- (void)cachedResourceRemoved:(NSURL *)url
+				  forCreative:(long)creativeId;
 
 @end
 
@@ -53,7 +67,23 @@
 
 
 // determines the path to a specific cached url
-- (NSString *)cachePathFromURL:(NSURL *)url;
+//- (NSString *)cachePathFromURL:(NSURL *)url;
+
+
+// adds a new resource to the cache for the specified creative
+- (void)cacheResourceForCreative:(NSUInteger)creativeId
+						   named:(NSString *)url
+					withDelegate:(id<ORMMALocalServerDelegate>)delegate;
+
+// removes a specific resource from the cache for the specified creative
+- (void)removeCachedResourceForCreative:(NSUInteger)creativeId
+								  named:(NSString *)url
+						   withDelegate:(id<ORMMALocalServerDelegate>)delegate;
+
+// removes all cached resources for the specified creative
+- (void)removeAllCachedResourcesForCreative:(NSUInteger)creativeId
+							   withDelegate:(id<ORMMALocalServerDelegate>)delegate;
+
 
 
 // removes all currently cached resources EXCEPT those that the framework

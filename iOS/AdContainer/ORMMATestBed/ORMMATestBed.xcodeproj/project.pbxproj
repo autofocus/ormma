@@ -15,10 +15,10 @@
 		2899E5220DE3E06400AC0155 /* ORMMATestBedViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* ORMMATestBedViewController.xib */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* ORMMATestBedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* ORMMATestBedViewController.m */; };
+		FAD19EDE127726CE00CA9836 /* libORMMA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD19EDB127726CE00CA9836 /* libORMMA.a */; };
+		FAD19EDF127726CE00CA9836 /* ORMMA.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FAD19EDC127726CE00CA9836 /* ORMMA.bundle */; };
 		FAD3FA29126C9DCB00468F35 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD3FA28126C9DCB00468F35 /* libsqlite3.0.dylib */; };
 		FADF792C1247F2B2003F7C45 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADF792B1247F2B2003F7C45 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		FAE3A613124261FB00285B32 /* libORMMA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A610124261FB00285B32 /* libORMMA.a */; };
-		FAE3A614124261FB00285B32 /* ORMMA.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FAE3A611124261FB00285B32 /* ORMMA.bundle */; };
 		FAE3A6CC124299A500285B32 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A6CB124299A500285B32 /* CFNetwork.framework */; };
 		FAE3A6D0124299BB00285B32 /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A6CF124299BB00285B32 /* libz.1.2.3.dylib */; };
 		FAE3A6D4124299F100285B32 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A6D3124299F100285B32 /* EventKit.framework */; };
@@ -46,11 +46,11 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* ORMMATestBed_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMATestBed_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* ORMMATestBed-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ORMMATestBed-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		FAD19EDB127726CE00CA9836 /* libORMMA.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libORMMA.a; sourceTree = "<group>"; };
+		FAD19EDC127726CE00CA9836 /* ORMMA.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ORMMA.bundle; sourceTree = "<group>"; };
+		FAD19EDD127726CE00CA9836 /* ORMMAView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAView.h; sourceTree = "<group>"; };
 		FAD3FA28126C9DCB00468F35 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
 		FADF792B1247F2B2003F7C45 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
-		FAE3A610124261FB00285B32 /* libORMMA.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libORMMA.a; sourceTree = "<group>"; };
-		FAE3A611124261FB00285B32 /* ORMMA.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ORMMA.bundle; sourceTree = "<group>"; };
-		FAE3A612124261FB00285B32 /* ORMMAView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAView.h; sourceTree = "<group>"; };
 		FAE3A6CB124299A500285B32 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		FAE3A6CF124299BB00285B32 /* libz.1.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.3.dylib; path = usr/lib/libz.1.2.3.dylib; sourceTree = SDKROOT; };
 		FAE3A6D3124299F100285B32 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
@@ -76,7 +76,6 @@
 				FAE3A6D4124299F100285B32 /* EventKit.framework in Frameworks */,
 				FAE3A6D6124299F100285B32 /* EventKitUI.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
-				FAE3A613124261FB00285B32 /* libORMMA.a in Frameworks */,
 				FAE3A6D0124299BB00285B32 /* libz.1.2.3.dylib in Frameworks */,
 				FAE3A6D8124299F100285B32 /* MessageUI.framework in Frameworks */,
 				FAE3A7EF12429AD800285B32 /* MobileCoreServices.framework in Frameworks */,
@@ -85,6 +84,7 @@
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				FADF792C1247F2B2003F7C45 /* CoreMotion.framework in Frameworks */,
 				FAD3FA29126C9DCB00468F35 /* libsqlite3.0.dylib in Frameworks */,
+				FAD19EDE127726CE00CA9836 /* libORMMA.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,8 +115,8 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				FAD19EDA127726CE00CA9836 /* ORMMA */,
 				080E96DDFE201D6D7F000001 /* Classes */,
-				FAE3A60B124261AE00285B32 /* ORMMA */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
@@ -165,12 +165,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		FAE3A60B124261AE00285B32 /* ORMMA */ = {
+		FAD19EDA127726CE00CA9836 /* ORMMA */ = {
 			isa = PBXGroup;
 			children = (
-				FAE3A610124261FB00285B32 /* libORMMA.a */,
-				FAE3A611124261FB00285B32 /* ORMMA.bundle */,
-				FAE3A612124261FB00285B32 /* ORMMAView.h */,
+				FAD19EDB127726CE00CA9836 /* libORMMA.a */,
+				FAD19EDC127726CE00CA9836 /* ORMMA.bundle */,
+				FAD19EDD127726CE00CA9836 /* ORMMAView.h */,
 			);
 			path = ORMMA;
 			sourceTree = "<group>";
@@ -226,8 +226,8 @@
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				2899E5220DE3E06400AC0155 /* ORMMATestBedViewController.xib in Resources */,
-				FAE3A614124261FB00285B32 /* ORMMA.bundle in Resources */,
 				FAE3A9701242D9DF00285B32 /* Ad.html in Resources */,
+				FAD19EDF127726CE00CA9836 /* ORMMA.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

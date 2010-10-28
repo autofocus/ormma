@@ -6,6 +6,7 @@
 //  Copyright 2010 The Weather Channel. All rights reserved.
 //
 
+#import <MessageUI/MessageUI.h>
 #import "ORMMAJavascriptBridge.h"
 #import "Reachability.h"
 
@@ -31,9 +32,36 @@
 				   forWebView:(UIWebView *)webView;
 - (BOOL)processShowCommand:(NSDictionary *)parameters
 				forWebView:(UIWebView *)webView;
+- (BOOL)processOpenCommand:(NSDictionary *)parameters
+				forWebView:(UIWebView *)webView;
+- (BOOL)processRequestCommand:(NSDictionary *)parameters
+				   forWebView:(UIWebView *)webView;
+- (BOOL)processCalendarCommand:(NSDictionary *)parameters
+					forWebView:(UIWebView *)webView;
+- (BOOL)processCameraCommand:(NSDictionary *)parameters
+				  forWebView:(UIWebView *)webView;
+- (BOOL)processEMailCommand:(NSDictionary *)parameters
+				 forWebView:(UIWebView *)webView;
+- (BOOL)processPhoneCommand:(NSDictionary *)parameters
+				 forWebView:(UIWebView *)webView;
+- (BOOL)processSMSCommand:(NSDictionary *)parameters
+			   forWebView:(UIWebView *)webView;
+- (BOOL)processAddAssetCommand:(NSDictionary *)parameters
+					forWebView:(UIWebView *)webView;
+- (BOOL)processRemoveAssetCommand:(NSDictionary *)parameters
+					   forWebView:(UIWebView *)webView;
+- (BOOL)processRemoveAllAssetsCommand:(NSDictionary *)parameters
+						   forWebView:(UIWebView *)webView;
 
 - (CGFloat)floatFromDictionary:(NSDictionary *)dictionary
 						forKey:(NSString *)key;
+- (CGFloat)floatFromDictionary:(NSDictionary *)dictionary
+						forKey:(NSString *)key
+				   withDefault:(CGFloat)defaultValue; 
+- (NSString *)requiredStringFromDictionary:(NSDictionary *)dictionary
+									forKey:(NSString *)key;
+- (BOOL)booleanFromDictionary:(NSDictionary *)dictionary
+					   forKey:(NSString *)key;
 
 @end
 
@@ -61,9 +89,13 @@ NSString * const ORMMACommandRemoveAsset = @"removeasset";
 NSString * const ORMMACommandRemoveAllAssets = @"removeallassets";
 
 NSString * const ORMMACommandCalendar = @"calendar";
+NSString * const ORMMACommandCamera = @"camera";
 NSString * const ORMMACommandEMail = @"email";
 NSString * const ORMMACommandPhone = @"phone";
 NSString * const ORMMACommandSMS = @"sms";
+
+NSString * const ORMMACommandOpen = @"open";
+NSString * const ORMMACommandRequest = @"request";
 
 NSString * const ORMMACommandService = @"service";
 
@@ -235,12 +267,71 @@ NSString * const ORMMACommandService = @"service";
 		processed = [self processShowCommand:parameters
 								  forWebView:webView];
 	}
+	else if ( [command isEqualToString:ORMMACommandAddAsset] )
+	{
+		// process show
+		processed = [self processAddAssetCommand:parameters
+									  forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandRemoveAsset] )
+	{
+		// process show
+		processed = [self processRemoveAssetCommand:parameters
+										 forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandRemoveAllAssets] )
+	{
+		// process show
+		processed = [self processRemoveAllAssetsCommand:parameters
+											 forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandOpen] )
+	{
+		// process show
+		processed = [self processOpenCommand:parameters
+								  forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandRequest] )
+	{
+		// process show
+		processed = [self processRequestCommand:parameters
+									 forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandCalendar] )
+	{
+		// process show
+		processed = [self processCalendarCommand:parameters
+									  forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandCamera] )
+	{
+		// process show
+		processed = [self processCameraCommand:parameters
+									forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandEMail] )
+	{
+		// process show
+		processed = [self processEMailCommand:parameters
+								   forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandPhone] )
+	{
+		// process show
+		processed = [self processPhoneCommand:parameters
+								   forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandSMS] )
+	{
+		// process show
+		processed = [self processSMSCommand:parameters
+								 forWebView:webView];
+	}
 	
 	if ( processed ) 
 	{
 		// notify JS that we've completed the last request
-		NSString *js = @"ormmaNativeBridge.nativeCallComplete(); return 'OK';";
-		[self.bridgeDelegate executeJavaScript:js];
+		[self.bridgeDelegate executeJavaScript:@"window.OrmmaBridge.nativeCallComplete();"];
 		NSLog( @"Processing complete." );
 	}
 	else
@@ -292,25 +383,52 @@ NSString * const ORMMACommandService = @"service";
 		yDelta = app.statusBarFrame.size.height;
 	}
 	
-	// get the location and bounds
-	CGFloat x1 = [self floatFromDictionary:parameters
-								   forKey:@"x1"];
-	CGFloat y1 = [self floatFromDictionary:parameters
-								   forKey:@"y1"];
-	CGFloat w1 = [self floatFromDictionary:parameters
-								   forKey:@"w1"];
-	CGFloat h1 = [self floatFromDictionary:parameters
-								   forKey:@"h1"];
-	CGFloat x2 = [self floatFromDictionary:parameters
-									forKey:@"x1"];
-	CGFloat y2 = [self floatFromDictionary:parameters
-									forKey:@"y1"];
-	CGFloat w2 = [self floatFromDictionary:parameters
-									forKey:@"w1"];
-	CGFloat h2 = [self floatFromDictionary:parameters
-									forKey:@"h1"];
+	// ok, to make it easy on the client, we don't require them to give us all
+	// the values all the time.
+	// basicallly we're going to take the current real frame information from
+	// the ad (translated to window space coordinates) and set both the initial
+	// and final values to this information. Then for each data point we receive
+	// from the client, we override the appropriate value.
+	// this allows the client to say things like "using the current ad position,
+	// expand the ad's height to 300px"
+	CGRect f = [self.bridgeDelegate getAdFrameInWindowCoordinates];
+	CGFloat x1 = f.origin.x;
+	CGFloat y1 = f.origin.y;
+	CGFloat w1 = f.size.width;
+	CGFloat h1 = f.size.height;
+	CGFloat x2 = x1;
+	CGFloat y2 = y1;
+	CGFloat w2 = w1;
+	CGFloat h2 = h1;	
+	
+	// now get the sizes as specified by the creative
+	x1 = [self floatFromDictionary:parameters
+								   forKey:@"x1"
+							   withDefault:x1];
+	y1 = [self floatFromDictionary:parameters
+								   forKey:@"y1"
+							   withDefault:y1];
+	w1 = [self floatFromDictionary:parameters
+								   forKey:@"w1"
+							   withDefault:w1];
+	h1 = [self floatFromDictionary:parameters
+								   forKey:@"h1"
+							   withDefault:h1];
+	x2 = [self floatFromDictionary:parameters
+									forKey:@"x2"
+							   withDefault:x2];
+	y2 = [self floatFromDictionary:parameters
+									forKey:@"y2"
+							   withDefault:y2];
+	w2 = [self floatFromDictionary:parameters
+									forKey:@"w2"
+							   withDefault:w2];
+	h2 = [self floatFromDictionary:parameters
+									forKey:@"h2"
+							   withDefault:h2];
 	NSString *urlString = [parameters valueForKey:@"url"];
 	NSURL *url = [NSURL URLWithString:urlString];
+	NSLog( @"Expanding from ( %f, %f ) ( %f x %f ) to ( %f, %f ) ( %f x %f ) showing %@", x1, y1, w1, h1, x2, y2, w2, h2, url );
 	CGRect f1 = CGRectMake( x1, ( y1 + yDelta ), w1, h1 );
 	CGRect f2 = CGRectMake( x2, ( y2 + yDelta ), w2, h2 );
 	[self.bridgeDelegate expandFrom:f1
@@ -338,20 +456,139 @@ NSString * const ORMMACommandService = @"service";
 }
 
 
+- (BOOL)processAddAssetCommand:(NSDictionary *)parameters
+					forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing ADD ASSET Command..." );
+	return YES;
+}
+
+
+- (BOOL)processRemoveAssetCommand:(NSDictionary *)parameters
+					   forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing REMOVE ASSET Command..." );
+	return YES;
+}
+
+
+- (BOOL)processRemoveAllAssetsCommand:(NSDictionary *)parameters
+						   forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing REMOVE ALL ASSETS Command..." );
+	return YES;
+}
+
+	
+- (BOOL)processOpenCommand:(NSDictionary *)parameters
+				forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing OPEN Command..." );
+	return YES;
+}
+
+
+- (BOOL)processRequestCommand:(NSDictionary *)parameters
+				   forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing REQUEST Command..." );
+	return YES;
+}
+
+
+- (BOOL)processCalendarCommand:(NSDictionary *)parameters
+					forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing CALENDAR Command..." );
+	return YES;
+}
+
+
+- (BOOL)processCameraCommand:(NSDictionary *)parameters
+				  forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing CAMERA Command..." );
+	return YES;
+}
+
+
+- (BOOL)processEMailCommand:(NSDictionary *)parameters
+				 forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing EMAIL Command..." );
+	NSString *to = [self requiredStringFromDictionary:parameters 
+											   forKey:@"to"];
+	NSString *subject = [self requiredStringFromDictionary:parameters 
+													forKey:@"subject"];
+	NSString *body = [self requiredStringFromDictionary:parameters 
+												 forKey:@"body"];
+	BOOL html = [self booleanFromDictionary:parameters 
+									 forKey:@"html"];
+	if ( ( body != nil ) && 
+		 ( to != nil ) && 
+		 ( subject != nil ) )
+	{
+		[self.bridgeDelegate sendEMailTo:to
+							 withSubject:subject
+								withBody:body
+								  isHTML:html];
+	}
+	return YES;
+}
+
+
+- (BOOL)processPhoneCommand:(NSDictionary *)parameters
+				 forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing PHONE Command..." );
+	return YES;
+}
+
+
+- (BOOL)processSMSCommand:(NSDictionary *)parameters
+			   forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing SMS Command..." );
+	
+	NSString *to = [self requiredStringFromDictionary:parameters 
+											   forKey:@"to"];
+	NSString *body = [self requiredStringFromDictionary:parameters 
+												 forKey:@"body"];
+	if ( ( body != nil ) && 
+		 ( to != nil ) )
+	{
+		[self.bridgeDelegate sendSMSTo:to
+							  withBody:body];
+	}
+	return YES;
+}
+
+
 - (BOOL)processServiceCommand:(NSDictionary *)parameters
 				   forWebView:(UIWebView *)webView
 {
 	NSLog( @"Processing SERVICE Command..." );
 	
 	// determine the desired service and state
-	NSString *service = [parameters valueForKey:@"name"];
+	NSString *eventName = [parameters valueForKey:@"name"];
 	NSString *desiredState = [parameters valueForKey:@"enabled"];
 	BOOL enabled = ( [@"yes" isEqualToString:desiredState] );
 	
-	if ( [@"tiltChange" isEqualToString:service] ) // accelerometer
+	if ( [@"ready" isEqualToString:eventName] ) // application ready
 	{
 		if ( enabled )
 		{
+			// client is requesting notification when the app is ready
+			// if we're ready at the point this is registered, just go ahead
+			// and fire the event
+			[self.bridgeDelegate applicationReadyNotificationRequestReceived];
+		}
+	}	
+	else if ( [@"tiltChange" isEqualToString:eventName] ) // accelerometer
+	{
+		if ( enabled )
+		{
+			m_accelerometerEnableCount++;
 			if ( m_accelerometer == nil )
 			{
 				m_accelerometer = [[UIAccelerometer sharedAccelerometer] retain];
@@ -361,44 +598,71 @@ NSString * const ORMMACommandService = @"service";
 		}
 		else
 		{
-			m_accelerometer.delegate = nil, [m_accelerometer release], m_accelerometer = nil;
+			if ( m_accelerometerEnableCount > 0 )
+			{
+				m_accelerometerEnableCount--;
+				if ( m_accelerometerEnableCount == 0 )
+				{
+					m_accelerometer.delegate = nil, [m_accelerometer release], m_accelerometer = nil;
+				}
+			}
 		}
-		m_accelerometerEnabled = enabled;
 	}
-	else if ( [@"headingChange" isEqualToString:service] ) // compass
+	else if ( [@"headingChange" isEqualToString:eventName] ) // compass
 	{
 		if ( [CLLocationManager headingAvailable] )
 		{
 			if ( enabled )
 			{
-				[m_locationManager startUpdatingHeading];
+				m_compassEnableCount++;
+				if ( m_compassEnableCount == 1 )
+				{
+					[m_locationManager startUpdatingHeading];
+				}
 			}
 			else
 			{
-				[m_locationManager stopUpdatingHeading];
+				if ( m_compassEnableCount > 0 )
+				{
+					m_compassEnableCount--;
+					if ( m_compassEnableCount == 0 )
+					{
+						[m_locationManager stopUpdatingHeading];
+					}
+				}
 			}
-			m_compassEnabled = enabled;
 		}
 	}
-	else if ( [@"locationChange" isEqualToString:service] ) // Location Based Services
+	else if ( [@"locationChange" isEqualToString:eventName] ) // Location Based Services
 	{
 		if ( [CLLocationManager locationServicesEnabled] )
 		{
 			if ( enabled )
 			{
-				[m_locationManager startUpdatingLocation];
+				m_locationEnableCount++;
+				if ( m_locationEnableCount == 1 )
+				{
+					[m_locationManager startUpdatingLocation];
+				}
 			}
 			else
 			{
-				[m_locationManager stopUpdatingLocation];
+				if ( m_locationEnableCount > 0 )
+				{
+					m_locationEnableCount++;
+					if ( m_locationEnableCount == 0 )
+					{
+						[m_locationManager stopUpdatingLocation];
+					}
+				}
 			}
-			m_locationEnabled = enabled;
 		}
 	}
-	else if ( [@"networkChange" isEqualToString:service] ) // Reachability / Network
+	else if ( [@"networkChange" isEqualToString:eventName] ) // Reachability / Network
 	{
 		if ( enabled )
 		{
+			m_networkEnableCount++;
 			if ( self.reachability == nil )
 			{
 				self.reachability = [Reachability reachabilityForInternetConnection];
@@ -407,17 +671,24 @@ NSString * const ORMMACommandService = @"service";
 		}
 		else
 		{
-			[self.reachability stopNotifier];
-			self.reachability = nil;
+			if ( m_networkEnableCount > 0 )
+			{
+				m_networkEnableCount--;
+				if ( m_networkEnableCount == 0 )
+				{
+					[self.reachability stopNotifier];
+					self.reachability = nil;
+				}
+			}
 		}
-		m_networkEnabled = enabled;
 	}
-	else if ( [@"rotationChange" isEqualToString:service] ) // gyroscope
+	else if ( [@"rotationChange" isEqualToString:eventName] ) // gyroscope
 	{
 		if ( self.motionManager != nil )
 		{
 			if ( enabled )
 			{
+				m_gyroscopeEnableCount++;
 				if ( m_timer == nil )
 				{
 					m_timer = [NSTimer scheduledTimerWithTimeInterval:0.1 
@@ -430,9 +701,15 @@ NSString * const ORMMACommandService = @"service";
 			}
 			else
 			{
-				[self.motionManager stopGyroUpdates];
+				if ( m_gyroscopeEnableCount > 0 )
+				{
+					m_gyroscopeEnableCount--;
+					if ( m_gyroscopeEnableCount == 0 )
+					{
+						[self.motionManager stopGyroUpdates];
+					}
+				}
 			}
-			m_gyroscopeEnabled = enabled;
 		}
 	}
 	
@@ -446,43 +723,43 @@ NSString * const ORMMACommandService = @"service";
 - (void)restoreServicesToDefaultState
 {
 	// accelerometer monitoring
-	if ( m_accelerometerEnabled )
+	if ( m_accelerometerEnableCount > 0 )
 	{
 		m_accelerometer.delegate = nil, [m_accelerometer release], m_accelerometer = nil;
-		m_accelerometerEnabled = NO;
+		m_accelerometerEnableCount = 0;
 	}
 	
 	// compass monitoring
-	if ( m_compassEnabled )
+	if ( m_compassEnableCount > 0 )
 	{
 		[m_locationManager stopUpdatingHeading];
-		m_compassEnabled = NO;
+		m_compassEnableCount = 0;
 	}
 	
 	// gyroscope monitoring
-	if ( m_gyroscopeEnabled )
+	if ( m_gyroscopeEnableCount > 0 )
 	{
 		[m_timer invalidate], m_timer = nil;
 		[self.motionManager stopGyroUpdates];
-		m_gyroscopeEnabled = NO;
+		m_gyroscopeEnableCount = 0;
 	}
 	
 	// location monitoring
-	if ( m_locationEnabled )
+	if ( m_locationEnableCount > 0 )
 	{
 		[m_locationManager stopUpdatingLocation];
-		m_locationEnabled = NO;
+		m_locationEnableCount = 0;
 	}
 	
 	// network monitoring
-	if ( m_networkEnabled )
+	if ( m_networkEnableCount > 0 )
 	{
 		if ( self.reachability != nil )
 		{
 			[self.reachability stopNotifier];
 			self.reachability = nil;
 		}
-		m_networkEnabled = NO;
+		m_networkEnableCount = 0;
 	}
 }
 
@@ -513,7 +790,7 @@ NSString * const ORMMACommandService = @"service";
 			orientationAngle = -1;
 			break;
 	}
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.orientationChanged( %i );", orientationAngle];
+	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.orientationChanged( %i );", orientationAngle];
 	[self.bridgeDelegate executeJavaScript:js];
 }
 
@@ -530,21 +807,21 @@ NSString * const ORMMACommandService = @"service";
 	{
 		state = @"wifi";
 	}
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.networkChanged( '%@' );", state];
+	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.networkChanged( '%@' );", state];
 	[self.bridgeDelegate executeJavaScript:js];
 }
 
 
 - (void)keyboardWillShow:(NSNotification *)notification
 {
-	NSString *js = @"ormmaNativeBridge.keyboardChanged( true );";
+	NSString *js = @"window.OrmmaBridge.keyboardChanged( true );";
 	[self.bridgeDelegate executeJavaScript:js];
 }
 
 
 - (void)keyboardWillHide:(NSNotification *)notification
 {
-	NSString *js = @"ormmaNativeBridge.keyboardChanged( false );";
+	NSString *js = @"window.OrmmaBridge.keyboardChanged( false );";
 	[self.bridgeDelegate executeJavaScript:js];
 }
 
@@ -559,7 +836,7 @@ NSString * const ORMMACommandService = @"service";
 	NSLog( @"Acceleration Data Available: %f, %f, %f", acceleration.x,
 													   acceleration.y,
 													   acceleration.z );
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.acceleration( %f, %f, %f );", acceleration.x,
+	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.acceleration( %f, %f, %f );", acceleration.x,
 																								acceleration.y,
 																								acceleration.z];
 	[self.bridgeDelegate executeJavaScript:js];
@@ -576,7 +853,7 @@ NSString * const ORMMACommandService = @"service";
 	NSLog( @"Gyroscope Data Available: %f, %f, %f", data.rotationRate.x, 
 													data.rotationRate.y, 
 													data.rotationRate.z );
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.rotation( %f, %f, %f );", data.rotationRate.x, 
+	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.rotation( %f, %f, %f );", data.rotationRate.x, 
 																							data.rotationRate.y, 
 																							data.rotationRate.z];
 	[self.bridgeDelegate executeJavaScript:js];
@@ -603,15 +880,10 @@ NSString * const ORMMACommandService = @"service";
 																							ts,
 																							newLocation.speed,
 																							newLocation.course );
-	NSString *jsFormat = @"ormmaNativeBridge.locationChanged( %f, %f, %f, %f, %f, '%@', %f, %f );";
+	NSString *jsFormat = @"window.OrmmaBridge.locationChanged( %f, %f, %f );";
 	NSString *js = [NSString stringWithFormat:jsFormat, newLocation.coordinate.latitude, 
 														newLocation.coordinate.longitude, 
-														newLocation.altitude,
-														newLocation.horizontalAccuracy,
-														newLocation.verticalAccuracy,
-														ts,
-														newLocation.speed,
-														newLocation.course];
+														newLocation.horizontalAccuracy];
 	NSLog( @"JS: %@", js );
 	[self.bridgeDelegate executeJavaScript:js];
 }
@@ -642,7 +914,7 @@ NSString * const ORMMACommandService = @"service";
 	[formatter setTimeStyle:NSDateFormatterFullStyle];
 	[formatter setDateStyle:NSDateFormatterFullStyle];
 	NSString *headingTimestamp = [formatter stringFromDate:newHeading.timestamp];;
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.headingChanged( %f, %f, %f, '%@' );", newHeading.magneticHeading,
+	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.headingChanged( %f, %f, %f, '%@' );", newHeading.magneticHeading,
 																									    newHeading.trueHeading,
 																									    newHeading.headingAccuracy,
 																									    headingTimestamp];
@@ -676,8 +948,51 @@ monitoringDidFailForRegion:(CLRegion *)region
 - (CGFloat)floatFromDictionary:(NSDictionary *)dictionary
 						forKey:(NSString *)key
 {
+	return [self floatFromDictionary:dictionary
+							  forKey:key
+						 withDefault:0.0];
+}
+
+
+- (CGFloat)floatFromDictionary:(NSDictionary *)dictionary
+						forKey:(NSString *)key
+				   withDefault:(CGFloat)defaultValue
+{
 	NSString *stringValue = [dictionary valueForKey:key];
+	if ( stringValue == nil )
+	{
+		return defaultValue;
+	}
 	CGFloat value = [stringValue floatValue];
+	return value;
+}
+
+
+- (BOOL)booleanFromDictionary:(NSDictionary *)dictionary
+					   forKey:(NSString *)key
+{
+	NSString *stringValue = [dictionary valueForKey:key];
+	BOOL value = [@"Y" isEqualToString:stringValue] || [@"y" isEqualToString:stringValue];
+	return value;
+}
+
+
+- (NSString *)requiredStringFromDictionary:(NSDictionary *)dictionary
+									forKey:(NSString *)key
+{
+	NSString *value = [dictionary objectForKey:key];
+	if ( value == nil )
+	{
+		// error
+		NSLog( @"Missing required parameter: %@", key );
+		return nil;
+	}
+	value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	if ( value.length == 0 )
+	{
+		NSLog( @"Missing required parameter: %@", key );
+		return nil;
+	}
 	return value;
 }
 

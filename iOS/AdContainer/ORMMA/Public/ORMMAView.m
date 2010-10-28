@@ -40,6 +40,12 @@
 - (void)logFrame:(CGRect)frame
 			text:(NSString *)text;
 
+- (NSString *)usingWebView:(UIWebView *)webView
+		 executeJavascript:(NSString *)javascript, ...;
+
+- (NSString *)usingWebView:(UIWebView *)webView
+		 executeJavascript:(NSString *)javascript
+			   withVarArgs:(va_list)varargs;
 @end
 
 
@@ -68,7 +74,7 @@ const CGFloat kCloseButtonVerticalOffset = 5.0;
 
 @synthesize ormmaDelegate = m_ormmaDelegate;
 @synthesize htmlStub = m_htmlStub;
-@synthesize baseURL = m_baseURL;
+@synthesize creativeURL = m_creativeURL;
 @synthesize lastError = m_lastError;
 @synthesize currentState = m_currentState;
 
@@ -152,11 +158,11 @@ const CGFloat kCloseButtonVerticalOffset = 5.0;
 												 error:NULL];
 	
 	// make sure the standard Javascript files are updated
-	[self copyFile:@"ORMMA_Abstraction_Layer_iOS"
+	[self copyFile:@"ormmaapi"
 			ofType:@"js"
 		fromBundle:m_ormmaBundle
 			toPath:m_localServer.cacheRoot];
-	[self copyFile:@"ORMMA_Javascript_API"
+	[self copyFile:@"ormmaios"
 			ofType:@"js"
 		fromBundle:m_ormmaBundle
 			toPath:m_localServer.cacheRoot];
@@ -172,7 +178,7 @@ const CGFloat kCloseButtonVerticalOffset = 5.0;
 	[m_currentDevice endGeneratingDeviceOrientationNotifications];
 
 	// free up some memory
-	[m_baseURL release], m_baseURL = nil;
+	[m_creativeURL release], m_creativeURL = nil;
 	m_currentDevice = nil;
 	[m_lastError release], m_lastError = nil;
 	[m_webView release], m_webView = nil;
@@ -243,7 +249,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// if they do not exist, then assume we're good to display
 	// otherwise wait for the creative to notify us that its done.
 	NSLog( @"Web View Finished Loading" );
-	NSString *result = [webView stringByEvaluatingJavaScriptFromString:@"typeof ormma"];
+	NSString *result = [self usingWebView:webView executeJavascript:@"typeof window.Ormma"];
+
 	NSLog( @"Testing Web View for ORMMA: %@", result );
 	if ( [result isEqualToString:@"object"] )
 	{
@@ -251,34 +258,32 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		// setup the screen size
 		UIScreen *screen = [UIScreen mainScreen];
 		CGSize screenSize = screen.bounds.size;	
-		NSString *bss = [NSString stringWithFormat:@"ormmaNativeBridge.setBaseScreenSize( %f, %f );", screenSize.width, screenSize.height];
-		[webView stringByEvaluatingJavaScriptFromString:bss];
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.setBaseScreenSize( %f, %f );", screenSize.width, screenSize.height];
 		
 		// setup orientation
 		UIDeviceOrientation orientation = m_currentDevice.orientation;
 		NSInteger angle = [self angleFromOrientation:orientation];
-		NSString *o = [NSString stringWithFormat:@"ormmaNativeBridge.orientation = %i;", angle];
-		[webView stringByEvaluatingJavaScriptFromString:o];
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.orientationChanged( %i );", angle];
 		
 		// add the various features the device supports, common to all iOS devices
 		if ( [MFMailComposeViewController canSendMail] )
 		{
-			[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'email' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'email' );"];
 		}
 		if ( NSClassFromString( @"MFMessageComposeViewController" ) != nil )
 		{
 			// SMS support does exist
 			if ( [MFMessageComposeViewController canSendText] ) 
 			{
-				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'sms' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'sms' );"];
 			}
 		}
-		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'location' );"];
-		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'network' );"];
-		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'orientation' );"];
-		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'shake' );"];
-		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'size' );"];
-		[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'tilt' );"];
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'location' );"];
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'network' );"];
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'orientation' );"];
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'shake' );"];
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'size' );"];
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'tilt' );"];
 		
 		// now add the features that are available on specific devices
 		
@@ -286,21 +291,30 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		switch ( platformType )
 		{
 			case UIDevice1GiPhone:
-				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'phone' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
 				break;
 			case UIDevice3GiPhone:
-				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'phone' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
 				break;
 			case UIDevice3GSiPhone:
-				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'phone' );"];
-				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'heading' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'heading' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
 				break;
 			case UIDevice4iPhone:
-				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'phone' );"];
-				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'rotation' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
+				break;
+			case UIDevice1GiPad:
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
 				break;
 			case UIDevice4GiPod:
-				[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'rotation' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
+				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
 				break;
 			default:
 				break;
@@ -310,12 +324,12 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		Class eventStore = NSClassFromString( @"EKEventStore" );
 		if ( eventStore != nil )
 		{
-			[webView stringByEvaluatingJavaScriptFromString:@"ormmaNativeBridge.addFeature( 'calendar' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'calendar' );"];
 		}
 		
 		// let the ad know it can start work
-		NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.applicationReady();"];
-		[webView stringByEvaluatingJavaScriptFromString:js];
+		m_applicationReady = YES;
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.applicationReady();"];
 	}
 	else
 	{
@@ -346,11 +360,14 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 #pragma mark -
 #pragma mark Ad Loading
 
-- (void)loadAd:(NSURL *)url
+- (void)loadCreative:(NSURL *)url
 {
+	// reset our state
+	m_applicationReady = NO;
+	
 	// ads loaded by URL are assumed to be complete as-is, just display it
 	NSLog( @"Load Ad from URL: %@", url );
-	self.baseURL = url;
+	self.creativeURL = url;
 	NSURLRequest *request = [NSURLRequest requestWithURL:url];
 	[m_localServer cacheURL:url
 			   withDelegate:self];
@@ -358,24 +375,23 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 }
 
 
-- (void)loadHTMLAd:(NSString *)htmlFragment
-		   baseURL:(NSURL *)baseURL
+- (void)loadHTMLCreative:(NSString *)htmlFragment
+			 creativeURL:(NSURL *)url
 {
+	// reset our state
+	m_applicationReady = NO;
+	
 	// ads loaded by HTML fragment are assumed to need a wrapper
 	// so we use the specified HTML stub and inject what we need into it
 	// and write everything to the filesystem in our cache.
-	NSLog( @"Load Ad fragment: %@", htmlFragment );	
-	
-	// first check and see if we've already cached the url
-	NSString *path = [m_localServer cachePathFromURL:baseURL];
-	NSLog( @"Ad Cache Path is: %@", path );
+	//NSLog( @"Load Ad fragment: %@", htmlFragment );	
 
 	// get the final HTML and write the file to the cache
 	NSString *html = [self processHTMLStubUsingFragment:htmlFragment];
-	NSLog( @"Full HTML is: %@", html );
-	self.baseURL = baseURL;
+	//NSLog( @"Full HTML is: %@", html );
+	self.creativeURL = url;
 	[m_localServer cacheHTML:html
-					 baseURL:baseURL
+					 baseURL:url
 				withDelegate:self];
 }
 
@@ -393,7 +409,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	// build the string
 	NSString *output = [self.htmlStub stringByReplacingOccurrencesOfString:kAdContentToken
-											   withString:fragment];
+																withString:fragment];
 	return output;
 }
 
@@ -415,9 +431,50 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 #pragma mark -
 #pragma mark Javascript Bridge Delegate
 
-- (void)executeJavaScript:(NSString *)javascript
+- (void)applicationReadyNotificationRequestReceived
 {
-	[m_webView stringByEvaluatingJavaScriptFromString:javascript];
+	NSLog( @"Application registered for Ready Notification" );
+	if ( m_applicationReady )
+	{
+		NSLog( @"Application already ready, resending notification." );
+		[self executeJavaScript:@"window.OrmmaBridge.applicationReady();"];
+	}
+}
+
+
+- (NSString *)executeJavaScript:(NSString *)javascript, ...
+{
+	va_list args;
+	va_start( args, javascript );
+	NSString *result = [self usingWebView:m_webView
+						executeJavascript:javascript
+							  withVarArgs:args];
+	va_end( args );
+	return result;
+}
+
+
+- (NSString *)usingWebView:(UIWebView *)webView
+		 executeJavascript:(NSString *)javascript, ...
+{
+	// handle variable argument list
+	va_list args;
+	va_start( args, javascript );
+	NSString *result = [self usingWebView:webView
+						executeJavascript:javascript
+							  withVarArgs:args];
+	va_end( args );
+	return result;
+}
+
+
+- (NSString *)usingWebView:(UIWebView *)webView
+		 executeJavascript:(NSString *)javascript
+			   withVarArgs:(va_list)args
+{
+	NSString *js = [[[NSString alloc] initWithFormat:javascript arguments:args] autorelease];
+	NSLog( @"Executing Javascript: %@", js );
+	return [webView stringByEvaluatingJavaScriptFromString:js];
 }
 
 
@@ -442,8 +499,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	
 	// notify the ad view that the state has changed
 	NSLog( @"STATE CHANGE TO default" );
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.stateChanged( 'default' );"];
-	[m_webView stringByEvaluatingJavaScriptFromString:js];
+	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.stateChanged( 'default' );"];
+	[self executeJavaScript:js];
 }
 
 
@@ -468,8 +525,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	
 	// notify the ad view that the state has changed
 	NSLog( @"STATE CHANGE TO hidden" );
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.stateChanged( 'hidden' );"];
-	[m_webView stringByEvaluatingJavaScriptFromString:js];
+	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.stateChanged( 'hidden' );"];
+	[self executeJavaScript:js];
 }
 
 
@@ -699,6 +756,14 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 }
 
 
+- (CGRect)getAdFrameInWindowCoordinates
+{
+	CGRect frame = [self convertRect:self.frame toView:self.window];
+	return frame;
+}
+
+
+
 #pragma mark -
 #pragma mark Animation View Delegate
 
@@ -719,7 +784,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		
 		// step 9: now notify the app that we're done
 		if ( ( self.ormmaDelegate != nil ) && 
-			( [self.ormmaDelegate respondsToSelector:@selector(adDidClose:)] ) )
+			 ( [self.ormmaDelegate respondsToSelector:@selector(adDidClose:)] ) )
 		{
 			[self.ormmaDelegate adDidClose:self];
 		}
@@ -753,7 +818,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 		// Step 6: notify the app that we're done
 		if ( ( self.ormmaDelegate != nil ) && 
-			( [self.ormmaDelegate respondsToSelector:@selector(adDidExpand:)] ) )
+			 ( [self.ormmaDelegate respondsToSelector:@selector(adDidExpand:)] ) )
 		{
 			[self.ormmaDelegate adDidExpand:self];
 		}
@@ -805,8 +870,13 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 	// Final Step: send state changed event
 	NSLog( @"STATE CHANGE TO %@", newState );
-	NSString *js = [NSString stringWithFormat:@"ormmaNativeBridge.stateChanged( '%@' );", newState];
-	[m_webView stringByEvaluatingJavaScriptFromString:js];
+	[self executeJavaScript:@"window.OrmmaBridge.stateChanged( '%@' );", newState];
+	
+	// Notify the ad of it's current size
+	CGFloat w = self.frame.size.width;
+	CGFloat h = self.frame.size.height;
+	NSLog( @"AD RESIZED TO %f x %f", w, h );
+	[self executeJavaScript:@"window.OrmmaBridge.sizeChanged( %f, %f );", w, h];
 }
 
 
@@ -820,17 +890,41 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 }
 
 
-- (void)cachedBaseURL:(NSURL *)baseURL
-				onURL:(NSURL *)url
-			   withId:(NSUInteger)creativeId
+- (void)cachedCreative:(NSURL *)creativeURL
+				 onURL:(NSURL *)url
+				withId:(long)creativeId
 {
-	if ( [self.baseURL isEqual:baseURL] )
+	if ( [self.creativeURL isEqual:creativeURL] )
 	{
 		// now show the cached file
 		m_creativeId = creativeId;
 		NSURLRequest *request = [NSURLRequest requestWithURL:url];
 		[m_webView loadRequest:request];
 	}
+}
+
+
+- (void)cachedResource:(NSURL *)url
+		   forCreative:(long)creativeId
+{
+	if ( creativeId == m_creativeId )
+	{
+		// TODO
+	}
+}
+
+
+- (void)cachedResourceRetired:(NSURL *)url
+				  forCreative:(long)creativeId
+{
+	// TODO
+}
+
+
+- (void)cachedResourceRemoved:(NSURL *)url
+				  forCreative:(long)creativeId
+{
+	// TODO
 }
 
 
@@ -916,7 +1010,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	NSString *sourcePath = [bundle pathForResource:file
 											ofType:type];
-	NSLog( @"Path to source JS: %@", sourcePath );
+	NSAssert( ( sourcePath != nil ), @"Source for file copy does not exist." );
 	NSString *contents = [NSString stringWithContentsOfFile:sourcePath
 												   encoding:NSUTF8StringEncoding
 													  error:NULL];
