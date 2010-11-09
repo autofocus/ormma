@@ -234,6 +234,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -271,21 +273,19 @@
 							<array>
 								<string>0867D691FE84028FC02AAC07</string>
 								<string>FAD28BB712381B2A00562D0B</string>
-								<string>FAD233D31269007700921D13</string>
-								<string>FAD28BB812381B2A00562D0B</string>
-								<string>FAD28BBD12381B2A00562D0B</string>
-								<string>FAD28BC012381B2A00562D0B</string>
 								<string>FAD28C5912381C3400562D0B</string>
 								<string>FAD28C5D12381C8F00562D0B</string>
-								<string>FAD28C5A12381C3F00562D0B</string>
+								<string>1C37FBAC04509CD000000102</string>
+								<string>FAC9732F12886BB4001567EB</string>
+								<string>FAC9733012886BB4001567EB</string>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>25</integer>
+									<integer>37</integer>
+									<integer>22</integer>
 									<integer>21</integer>
-									<integer>17</integer>
-									<integer>0</integer>
+									<integer>20</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
@@ -306,7 +306,7 @@
 							<real>248</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>283 372 1191 793 0 0 1920 1178 </string>
+						<string>300 264 1191 793 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -317,14 +317,12 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>FAD28C4412381BE900562D0B</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>ormmaios.js</string>
+								<string>ORMMA_Standard_JS_Stub.html</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -332,22 +330,18 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>FAD28C4512381BE900562D0B</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>ormmaios.js</string>
+										<string>ORMMA_Standard_JS_Stub.html</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>FA05F5941279F59600DF7D5F</string>
+										<string>FAC973731288A6C5001567EB</string>
 										<key>history</key>
 										<array>
-											<string>FAD28C6612381DBA00562D0B</string>
-											<string>FAB6E0471240293700DF64C9</string>
-											<string>FAB6E0481240293700DF64C9</string>
 											<string>FAE3A5171241576F00285B32</string>
 											<string>FAE3A5BA124176B600285B32</string>
 											<string>FAE3A8D81242A20400285B32</string>
 											<string>FAE3A8EE1242A25300285B32</string>
 											<string>FAE3AD0712467D0400285B32</string>
-											<string>FA94AF79124A6B5F00AE8ADB</string>
 											<string>FAD233211268B11100921D13</string>
 											<string>FAD233221268B11100921D13</string>
 											<string>FAD233D8126900FD00921D13</string>
@@ -356,26 +350,42 @@
 											<string>FAD3FAF5126CDEEF00468F35</string>
 											<string>FAD3FAF6126CDEEF00468F35</string>
 											<string>FAD3FAF7126CDEEF00468F35</string>
-											<string>FAD3FB07126D075B00468F35</string>
 											<string>FAD3FB08126D075B00468F35</string>
 											<string>FA35E69D126E2AED00861634</string>
 											<string>FA35E69E126E2AED00861634</string>
 											<string>FA35E6DA126E42E000861634</string>
 											<string>FA35E6DC126E42E000861634</string>
 											<string>FA35E6EA126E484600861634</string>
-											<string>FAD19F9012775C9B00CA9836</string>
 											<string>FAD19FE712776A9A00CA9836</string>
-											<string>FAD1A05F12777B6E00CA9836</string>
-											<string>FA05F296127875E300DF7D5F</string>
-											<string>FA05F297127875E300DF7D5F</string>
 											<string>FA05F4B41279BEE300DF7D5F</string>
-											<string>FA05F5111279D37700DF7D5F</string>
-											<string>FA05F5701279F43600DF7D5F</string>
-											<string>FA05F5711279F43600DF7D5F</string>
-											<string>FA05F5721279F43600DF7D5F</string>
-											<string>FA05F5871279F53100DF7D5F</string>
-											<string>FA05F5921279F59600DF7D5F</string>
-											<string>FA05F5931279F59600DF7D5F</string>
+											<string>FA83BE4F12803EA500616718</string>
+											<string>FA83BE5112803EA500616718</string>
+											<string>FACCB0D41283290900B65BD6</string>
+											<string>FACCB0D51283290900B65BD6</string>
+											<string>FACCB0EE12833A7200B65BD6</string>
+											<string>FACA41CD128720A200261A12</string>
+											<string>FACA41D7128721E200261A12</string>
+											<string>FACA41EE1287278400261A12</string>
+											<string>FACA435C1287555B00261A12</string>
+											<string>FACA439B1287596D00261A12</string>
+											<string>FACA439C1287596D00261A12</string>
+											<string>FACA43A3128759DB00261A12</string>
+											<string>FACA43A4128759DB00261A12</string>
+											<string>FACA43C912875BEA00261A12</string>
+											<string>FACA440F1287618F00261A12</string>
+											<string>FACA443F1287658200261A12</string>
+											<string>FACA4454128769E500261A12</string>
+											<string>FACA4455128769E500261A12</string>
+											<string>FACA448D12877DC000261A12</string>
+											<string>FACA44B4128781D700261A12</string>
+											<string>FACA44C6128782CF00261A12</string>
+											<string>FACA44C7128782CF00261A12</string>
+											<string>FAC970A712882BF8001567EB</string>
+											<string>FAC970A812882BF8001567EB</string>
+											<string>FAC971DC1288422D001567EB</string>
+											<string>FAC973171288682E001567EB</string>
+											<string>FAC9733112886BB4001567EB</string>
+											<string>FAC973181288682E001567EB</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -389,18 +399,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {921, 747}}</string>
+								<string>{{0, 0}, {921, 444}}</string>
 								<key>RubberWindowFrame</key>
-								<string>283 372 1191 793 0 0 1920 1178 </string>
+								<string>300 264 1191 793 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>747pt</string>
+							<string>444pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>0pt</string>
+							<string>303pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -414,7 +424,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {921, 270}}</string>
+										<string>{{10, 27}, {921, 276}}</string>
+										<key>RubberWindowFrame</key>
+										<string>300 264 1191 793 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -430,9 +442,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {921, -27}}</string>
-										<key>RubberWindowFrame</key>
-										<string>283 372 1191 793 0 0 1920 1178 </string>
+										<string>{{10, 27}, {921, 197}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXProjectFindModule</string>
@@ -470,7 +480,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {1073, 255}}</string>
+										<string>{{10, 27}, {921, 223}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -498,11 +508,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>FA05F4731279B7B800DF7D5F</string>
+				<string>FAC9730B1288665B001567EB</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>FA05F4741279B7B800DF7D5F</string>
+				<string>FAC9730C1288665B001567EB</string>
 				<string>FAD28C4412381BE900562D0B</string>
-				<string>FA05F4751279B7B800DF7D5F</string>
+				<string>FAC9730D1288665B001567EB</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -697,7 +707,7 @@
 		<string>/Users/rhedin/source/iOS/ORMMA/ORMMA/ORMMA.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>283 372 1191 793 0 0 1920 1178 </string>
+	<string>300 264 1191 793 0 0 1920 1178 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>

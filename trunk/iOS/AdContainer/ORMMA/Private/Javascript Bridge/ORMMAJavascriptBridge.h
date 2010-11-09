@@ -65,14 +65,21 @@
 
 - (void)closeAd:(UIWebView *)webView;
 
+- (void)openBrowser:(UIWebView *)webView
+	  withUrlString:(NSString *)urlString
+		 enableBack:(BOOL)back
+	  enableForward:(BOOL)forward
+	  enableRefresh:(BOOL)refresh;
+
 - (void)resizeToWidth:(CGFloat)width
 			   height:(CGFloat)height
 	   inWebView:(UIWebView *)webView;
 
-- (void)expandFrom:(CGRect)initialFrameFrame
-				to:(CGRect)finalFrame
-		   withURL:(NSURL *)url
-	   inWebView:(UIWebView *)webView;
+- (void)expandTo:(CGRect)newFrame
+		 withURL:(NSURL *)url
+	   inWebView:(UIWebView *)webView
+   blockingColor:(UIColor *)blockingColor
+ blockingOpacity:(CGFloat)blockingOpacity;
 
 - (void)sendEMailTo:(NSString *)to
 		withSubject:(NSString *)subject

@@ -95,6 +95,8 @@ typedef enum OTBAdAnimationDirectionEnum
 	
 	// set the delegate
 	self.ormmaView.ormmaDelegate = self;
+	CGSize maxSize = { 320, 250 };
+	self.ormmaView.maxSize = maxSize;
 }
 
 
@@ -115,7 +117,7 @@ typedef enum OTBAdAnimationDirectionEnum
 
 - (void)viewWillAppear:(BOOL)animated
 {
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"Ad"
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"ormma-test-ad-level-1"
 													 ofType:@"html"];
 	NSLog( @"Ad Path is: %@", path );
 	NSString *adFragment = [NSString stringWithContentsOfFile:path
@@ -161,6 +163,12 @@ typedef enum OTBAdAnimationDirectionEnum
 #pragma mark -
 #pragma mark ORMMA Delegate
 
+- (UIViewController *)ormmaViewController
+{
+	return self;
+}
+
+
 // Called if an ad fails to load
 - (void)adFailedToLoad:(ORMMAView *)adView
 {
@@ -170,21 +178,16 @@ typedef enum OTBAdAnimationDirectionEnum
 
 // Called just before to an ad is displayed
 - (void)adWillShow:(ORMMAView *)adView
-		 isDefault:(BOOL)defaultAd
 {
 	NSLog( @"ORMAView Delegate Call: adWillShow" );
 	
 	// let's animate our ad on-screen
-	if ( defaultAd )
-	{
-		[self animateAd:kAnimateOnScreen];
-	}
+	[self animateAd:kAnimateOnScreen];
 }
 
 
 // Called just after to an ad is displayed
 - (void)adDidShow:(ORMMAView *)adView
-		isDefault:(BOOL)defaultAd
 {
 	NSLog( @"ORMAView Delegate Call: adDidShow" );
 }
@@ -192,23 +195,63 @@ typedef enum OTBAdAnimationDirectionEnum
 
 // Called just before to an ad is Hidden
 - (void)adWillHide:(ORMMAView *)adView
-		 isDefault:(BOOL)defaultAd
 {
 	NSLog( @"ORMAView Delegate Call: adWillHide" );
 	
 	// let's animate our ad off-screen
-	if ( defaultAd )
-	{
-		[self animateAd:kAnimateOffScreen];
-	}
+	[self animateAd:kAnimateOffScreen];
 }
 
 
 // Called just after to an ad is Hidden
 - (void)adDidHide:(ORMMAView *)adView
-		isDefault:(BOOL)defaultAd
 {
 	NSLog( @"ORMAView Delegate Call: adDidHide" );
+}
+
+
+// Called after the ad is resized in place to allow the parent application to
+// animate things if desired.
+- (void)willResizeAd:(ORMMAView *)adView
+			  toSize:(CGSize)size
+{
+	NSLog( @"ORMAView Delegate Call: willResizeAd" );
+	[UIView beginAnimations:@"Resizing"
+					context:nil];
+	[UIView setAnimationDuration:0.5];
+
+	// we need to reposition the on screen elements
+	CGRect lf = m_locationBarView.frame;
+	CGRect cf = m_contentAreaView.frame;
+	
+	if ( size.height > 50 )
+	{
+		// we're expanding
+		lf.origin.y += 200;
+		cf.origin.y += 200;
+		cf.size.height -= 200;
+	}
+	else
+	{
+		// we're closing
+		lf.origin.y -= 200;
+		cf.origin.y -= 200;
+		cf.size.height += 200;
+	}
+	
+	m_locationBarView.frame = lf;
+	m_contentAreaView.frame = cf;
+}
+
+
+// Called after the ad is resized in place to allow the parent application to
+// animate things if desired.
+- (void)didResizeAd:(ORMMAView *)adView
+			 toSize:(CGSize)size
+{
+	NSLog( @"ORMAView Delegate Call: didResizeAd" );
+
+	[UIView commitAnimations];
 }
 
 

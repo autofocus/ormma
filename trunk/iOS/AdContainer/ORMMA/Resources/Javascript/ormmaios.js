@@ -12,10 +12,6 @@ window.OrmmaBridge = {
 	
 	cacheRemaining : ORMMA_UNKNOWN_VALUE,
 	
-	resizeDimensions : { x      : ORMMA_UNKNOWN_VALUE, 
-						 y      : ORMMA_UNKNOWN_VALUE, 
-						 height : ORMMA_UNKNOWN_VALUE, 
-						 width  : ORMMA_UNKNOWN_VALUE },
 	landscapeScreenSize : { height : ORMMA_UNKNOWN_VALUE, 
 							width  : ORMMA_UNKNOWN_VALUE },
 	portraitScreenSize : { height : ORMMA_UNKNOWN_VALUE, 
@@ -52,14 +48,24 @@ window.OrmmaBridge = {
 	executeNativeCall : function( command ) {
 		// build iOS command
 		var bridgeCall = "ormma://" + command;
+		var value;
+		var firstArg = true;
 		for ( var i = 1; i < arguments.length; i += 2 ) {
-			if ( i == 1 ) {
+			value = arguments[i + 1];
+			if ( value == null ) {
+				// no value, ignore the property
+				continue;
+			}
+			
+			// add the correct separator to the name/value pairs
+			if ( firstArg ) {
 				bridgeCall += "?";
+				firstArg = false;
 			}
 			else {
 				bridgeCall += "&";
 			}
-			bridgeCall += arguments[i] + "=" + escape( arguments[i + 1] );
+			bridgeCall += arguments[i] + "=" + escape( value );
 		}
 		
 		// add call to queue
@@ -165,6 +171,24 @@ window.OrmmaBridge = {
 		// send an event to everyone that cares
 		this.sendOrmmaEvent( "ready", null );
 		return "OK";
+	},
+	
+	
+	/**
+	 * Used to fire an Error Event.
+	 *
+	 * NOTE: This function is called by the native code and is not intended to be
+	 *       used by anything else.
+	 *
+	 * @returns string, "OK" (needed for Objective-C / JS Interface)
+	 */
+	fireError : function( message, action ) {
+		// build our data object
+		var data = { message : message,
+					 action : action };
+		
+		// send an event to everyone that cares
+		this.sendOrmmaEvent( "error", data );
 	},
 	
 	
@@ -325,6 +349,24 @@ window.OrmmaBridge = {
 	
 	
 	/**
+	 * Notifies the Javascript API of the maximum allows size of the ad to use
+	 * when resizing.
+	 *
+	 * NOTE: This function is called by the native code and is not intended to
+	 *       be used by anything else.
+	 *
+	 * @param {w} Number, the maximum width of the ad.
+	 * @param {h} Number, the maximum height of the ad.
+	 *
+	 * @returns string, "OK" (needed for Objective-C / JS Interface)
+	 */
+	setMaxSize : function( w, h ) {
+		window.Ormma.maxSize.height = h;
+		window.Ormma.maxSize.width = w;
+	},
+	
+	
+	/**
 	 * Notifies the Javascript API of the current size of the ad.
 	 *
 	 * NOTE: This function is called by the native code and is not intended to
@@ -411,9 +453,9 @@ window.OrmmaBridge = {
      */
 	executeNativeCalendar : function( date, title, body) {
 		this.executeNativeCall( "calendar",
-							   "date", date,
-							   "title", title,
-							   "body", body );
+							    "date", date,
+							    "title", title,
+							    "body", body );
 	},
 	
 	
@@ -422,11 +464,8 @@ window.OrmmaBridge = {
      *
      * @returns nothing.
      */
-	executeNativeCalendar : function( date, title, body) {
-		this.executeNativeCall( "camera",
-							   "date", date,
-							   "title", title,
-							   "body", body );
+	executeNativeCamera : function( date, title, body) {
+		this.executeNativeCall( "camera" );
 	},
 	
 	
@@ -454,10 +493,10 @@ window.OrmmaBridge = {
      */
     executeNativeEMail : function( to, subject, body, html ) {
 		this.executeNativeCall( "email",
-		        			   "to", to,
-						       "subject", subject,
-						       "body", body,
-						       "html", ( html ? "Y" : "N" ) );
+		        			    "to", to,
+						        "subject", subject,
+						        "body", body,
+						        "html", ( html ? "Y" : "N" ) );
     },
 	
 	
@@ -466,61 +505,39 @@ window.OrmmaBridge = {
      * Requests that the native SDK resize the current ad to the specified
 	 * dimensions using a separate view.
      *
-     * @param {initialDimensions} JSON: {x,y,w,h}, the initial dimensions to use
-     *                            for the expand action.
-     * @param {finalDimensions} JSON: {x,y,w,h}, the final dimensions to use for
-     *                          the expand action.
+     * @param {finalDimensions} JSON: { x, y, w, h }, the final dimensions to
+     *                          use for the expand action.
      * @param {url} String, the URL to display.
      *
      * @returns nothing.
      */
-    executeNativeExpand : function( initialDimensions, finalDimensions, url ) {
+    executeNativeExpand : function( finalDimensions, url ) {
 		try {
-			var cmd = "this.executeNativeCall( 'expand', 'url', '" + url + "'";
-			if ( initialDimensions != null ) {
-				if ( ( typeof initialDimensions.x != "undefined" ) && ( initialDimensions.x != null ) ) {
-					cmd += ", 'x1', '" + initialDimensions.x + "'";
-				}
-				if ( ( typeof initialDimensions.y != "undefined" ) && ( initialDimensions.y != null ) ) {
-					cmd += ", 'y1', '" + initialDimensions.y + "'";
-				}
-				if ( ( typeof initialDimensions.width != "undefined" ) && ( initialDimensions.width != null ) ) {
-					cmd += ", 'w1', '" + initialDimensions.width + "'";
-				}
-				if ( ( typeof initialDimensions.height != "undefined" ) ( initialDimensions.height != null ) ) {
-					cmd += ", 'h1', '" + initialDimensions.height + "'";
-				}
+			var cmd = "this.executeNativeCall( 'expand'";
+			if ( url != null ) {
+				cmd += ", 'url', '" + url + "'";
 			}
 			if ( ( typeof finalDimensions.x != "undefined" ) && ( finalDimensions.x != null ) ) {
-				cmd += ", 'x2', '" + finalDimensions.x + "'";
+				cmd += ", 'x', '" + finalDimensions.x + "'";
 			}
 			if ( ( typeof finalDimensions.y != "undefined" ) && ( finalDimensions.y != null ) ) {
-				cmd += ", 'y2', '" + finalDimensions.y + "'";
+				cmd += ", 'y', '" + finalDimensions.y + "'";
 			}
 			if ( ( typeof finalDimensions.width != "undefined" ) && ( finalDimensions.width != null ) ) {
-				cmd += ", 'w2', '" + finalDimensions.width + "'";
+				cmd += ", 'w', '" + finalDimensions.width + "'";
 			}
 			if ( ( typeof finalDimensions.height != "undefined" ) && ( finalDimensions.height != null ) ) {
-				cmd += ", 'h2', '" + finalDimensions.height + "'";
+				cmd += ", 'h', '" + finalDimensions.height + "'";
 			}
 			var props = window.Ormma.expandProperties;
-			if ( ( typeof props.transition != "undefined" ) && ( props.transition != null ) ) {
-				cmd += ", 'transition', '" + this.expandProperties.transition + "'";
-			}
-			if ( ( typeof props.navigation != "undefined" ) && ( props.navigation != null ) ) {
-				cmd += ", 'navigation', '" + this.expandProperties.navigation + "'";
-			}
 			if ( ( typeof props.useBackground != "undefined" ) && ( props.useBackground != null ) ) {
-				cmd += ", 'useBG', '" + this.expandProperties.useBackground + "'";
+				cmd += ", 'useBG', '" + props.useBackground + "'";
 			}
 			if ( ( typeof props.backgroundColor != "undefined" ) && ( props.backgroundColor != null ) ) {
-				cmd += ", 'bgColor', '" + this.expandProperties.backgroundColor + "'";
+				cmd += ", 'bgColor', '" + props.backgroundColor + "'";
 			}
 			if ( ( typeof props.backgroundOpacity != "undefined" ) && ( props.backgroundOpacity != null ) ) {
-				cmd += ", 'bgOpacity', '" + this.expandProperties.backgroundOpacity + "'";
-			}
-			if ( ( typeof props.isModal != "undefined" ) && ( props.isModal != null ) ) {
-				cmd += ", 'modal', '" + this.expandProperties.isModal + "'";
+				cmd += ", 'bgOpacity', '" + props.backgroundOpacity + "'";
 			}
 			cmd += " );";
 			eval( cmd );
@@ -548,9 +565,53 @@ window.OrmmaBridge = {
      *
      * @returns nothing.
      */
-	executeNativeOpen : function( url ) {
+	executeNativeOpen : function( url, navigation ) {
+		// the navigation parameter is an array, break it into its parts
+		var back = false;
+		var forward = false;
+		var refresh = false;
+		if ( navigation == null ) {
+			back = true;
+			forward = true;
+			refresh = true;
+		}
+		else {
+			for ( var i = 0; i < navigation.length; i++ ) {
+				if ( ( navigation[i] == "none" ) && ( i > 0 ) ) {
+					// error
+					self.sendOrmmaEvent( "none must be the only navigation element present.", "open" );
+					return;
+				}
+				else if ( navigation[i] == "all" ) {
+					if ( i > 0 ) {
+						// error
+						self.sendOrmmaEvent( "none must be the only navigation element present.", "open" );
+						return;
+					}
+					
+					// ok
+					back = true;
+					forward = true;
+					refresh = true;
+				}
+				else if ( navigation[i] == "back" ) {
+					back = true;
+				}
+				else if ( navigation[i] == "forward" ) {
+					forward = true;
+				}
+				else if ( navigation[i] == "" ) {
+					refresh = true;
+				}
+			}
+		}
+		
+		
 		this.executeNativeCall( "open",
-							   "url", url );
+							    "url", url,
+							    "back", ( back ? "Y" : "N" ),
+							    "forward", ( forward ? "Y" : "N" ),
+							    "refresh", ( refresh ? "Y" : "N" ) );
 	},
 	
 	
@@ -627,16 +688,21 @@ window.OrmmaBridge = {
      * @returns nothing.
      */
     executeNativeResize : function( width, height ) {
-		try {
-		var cmd = "this.executeNativeCall( 'resize', 'w', " + width + ", 'h', " + height;
-		if ( window.Ormma.resizeProperties.transition != null ) {
-			cmd += ", 'transition', '" + window.Ormma.resizeProperties.transition + "'";
+		if ( width > window.Ormma.maxSize.width ) {
+			var data = { message : "Unable to resize creative width to " + width + "] which is larger than maximum allowed width of " + window.Ormma.maxSize.width + ".",
+				         action : "resize" };
+			this.sendOrmmaEvent( "error", data );
+			return;
 		}
-		cmd += " );";
-		eval( cmd );
-		} catch ( e ) {
-			alert( "executeNativeResize: " + e + " for command: " + cmd );
+		if ( height > window.Ormma.maxSize.height ) {
+			var data = { message : "Unable to resize creative height to " + height + " which is larger than maximum allowed height of [" +  window.Ormma.maxSize.height + ".",
+				action : "resize" };
+			this.sendOrmmaEvent( "error", data );
+			return;
 		}
+		
+		// ok to perform the resize
+		this.executeNativeCall( "resize", "w", width, "h", height );
     },
 	
 	
