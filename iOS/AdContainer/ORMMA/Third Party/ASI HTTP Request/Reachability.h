@@ -1,6 +1,6 @@
 /*
  
- File: Reachability.h
+ File: ASIReachability.h
  Abstract: Basic demonstration of how to use the SystemConfiguration Reachablity APIs.
  
  Version: 2.0.4ddg

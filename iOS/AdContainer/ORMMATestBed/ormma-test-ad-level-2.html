@@ -1,0 +1,325 @@
+<!-- Define our styles -->
+<style>
+   #banner { 
+      position:absolute; 
+      left:0px; 
+      top:0px;
+      clip:rect( 0, 300, 50, 0 ); 
+      display:none; 
+   }
+
+   #bannerdata {
+      position:absolute; 
+      left:75px; 
+      top:-2px;
+      color:green;
+   }
+
+
+   #browser {
+      position:absolute;
+      left:25px;
+      top:13px;
+   }
+
+
+   #larger {
+      position:absolute;
+      left:65px;
+      top:13px;
+   }
+
+   #expand {
+      position:absolute;
+      left:220px;
+      top:11px;
+   }
+
+   #hide {
+      position:absolute;
+      left:255px;
+      top:14px;
+   }
+
+   #resizedad { 
+      position:absolute; 
+      left:0px; 
+      top:0px;
+      clip:rect( 0, 300, 250, 0 ); 
+      display:none;
+   }
+
+   #resizedata {
+      position:absolute; 
+      left:15px; 
+      top:15px;
+      color:green;
+   }
+
+   #smaller {
+      position:absolute;
+      left:260px;
+      top:5px;
+   }
+
+   #expandedad { 
+      position:absolute; 
+      left:0px; 
+      top:0px;
+      clip:rect( 0, 300, 250, 0 ); 
+      display:none;
+   }
+
+   #expanddata {
+      position:absolute; 
+      left:15px; 
+      top:15px;
+      color:green;
+   }
+
+   #shrink {
+      position:absolute;
+      left:255px;
+      top:5px;
+   }
+
+   img { 
+      border:none 
+   }
+</style>
+
+<!-- Setup our Javascript -->
+<script language="javascript">
+
+   /**
+    * Handles ORMMA errors.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+   function handleErrorEvent( evt ) {
+      var err = evt.data;
+      var msg = "ORMMA ERROR ";
+	  if ( err.action != null ) {
+	     // error caused by an action	
+	     msg += "caused by action '" + err.action + "', ";
+      }
+      msg += "Message: " + err.message;
+	  alert( msg );
+   }
+
+
+   /**
+    * Handles whenever the state changes.
+    *
+    * @requires Ormma
+    */
+   function handleStateChangeEvent( evt ) {
+	  var newState = evt.data;
+	  if ( newState === 'default' ) {
+	     showDefault();
+      }
+	  else if ( newState === 'resized' ) {
+	     showResized();
+      }
+   }
+
+
+   /**
+    * Handles Compass Events
+	*
+	* @requires Ormma
+	*/
+   function HeadingChangedEventHandler( headingChangeEvent )
+   {
+      var h = document.getElementById( "heading" );
+	  h.innerHTML = headingChangeEvent.data;
+   }
+
+
+   /**
+    * Handles Location Based Service Events
+	*
+	* @Requires Ormma
+	*/
+   function LocationChangedEventHandler( locationEvent )
+   {
+      var lattitude = document.getElementById( "lattitude" );
+      var longitude = document.getElementById( "longitude" );
+      var horizontalAccuracy = document.getElementById( "accuracy" );
+	  lattitude.innerHTML = locationEvent.data.lat;
+	  longitude.innerHTML = locationEvent.data.lon;
+	  accuracy.innerHTML = locationEvent.data.acc;
+   }
+
+
+   /**
+    * Handles Orientation Changes
+	*
+	* @Requires Ormma
+	*/
+   function OrientationChangedEventHandler( orientationChangeEvent )
+   {
+      var orientationSpan = document.getElementById( "orientation" );
+	  orientationSpan.innerHTML = orientationChangeEvent.data;
+   }
+
+
+   /**
+    * Handles notifications that the ORMMA SDK is fully open for business.
+    *
+    * @requires Ormma
+    */
+   function ORMMAReady() {
+      //  start listening for state changes
+      Ormma.addEventListener( 'error', handleErrorEvent );
+      window.Ormma.addEventListener( "headingChange",     HeadingChangedEventHandler );
+      window.Ormma.addEventListener( "locationChange",    LocationChangedEventHandler );
+      window.Ormma.addEventListener( "orientationChange", OrientationChangedEventHandler );
+      window.Ormma.addEventListener( "rotationChange",    RotationChangedEventHandler );
+      window.Ormma.addEventListener( "stateChange",       handleStateChangeEvent );
+      window.Ormma.addEventListener( "tiltChange",        TiltChangedEventHandler );
+	  
+	  // determine our current state
+	  var newState = Ormma.getState();
+	  if ( newState === 'default' ) {
+		 showDefault();
+      }
+	  else {
+	     alert( "Unknown state '" + newState + "' at ORMMA Ready!" );
+	  }
+   }
+
+
+   /**
+    * Notifies the SDK that the default ad wishes to be resized.
+    *
+    * @requires Ormma
+    */
+   function resizeLarger() {
+	  // add a special listener for size changes, to make sure it's firing
+	  Ormma.resize( 320, 250 );
+   }
+
+
+   /**
+    * Notifies the SDK that the resized ad wishes to return to the default state.
+    *
+    * @requires Ormma
+    */
+   function resizeSmaller() {
+	  Ormma.close();
+   }
+
+
+   /**
+    * Handles Gyroscope Data.
+	*
+	* @requires Ormma
+	*/
+   function RotationChangedEventHandler( rotationEvent )
+   {
+      var x = document.getElementById( "gyroX" );
+      var y = document.getElementById( "gyroY" );
+      var z = document.getElementById( "gyroZ" );
+	  x.innerHTML = rotationEvent.data.x;
+	  y.innerHTML = rotationEvent.data.y;
+	  z.innerHTML = rotationEvent.data.z;
+   }
+   
+   
+   /**
+    * Causes the appropriate elements for the "default" state to be displayed.
+	*
+	* @requires: Ormma
+	*/
+   function showDefault() {
+         banner.style.display = 'block';
+         resizedad.style.display = 'none';
+   }
+   
+   
+   /**
+    * Causes the appropriate elements for the "resized" state to be displayed.
+	*
+	* @requires: Ormma
+	*/
+   function showResized() {
+         banner.style.display = 'none';
+         resizedad.style.display = 'block';
+         updateResizedAd();
+   }
+
+
+   /**
+    * Handles Accelerometer Events
+	*
+	* @requires: Ormma
+	*/
+   function TiltChangedEventHandler( tiltEvent )
+   {
+      var x = document.getElementById( "accX" );
+      var y = document.getElementById( "accY" );
+      var z = document.getElementById( "accZ" );
+	  x.innerHTML = tiltEvent.data.x;
+	  y.innerHTML = tiltEvent.data.y;
+	  z.innerHTML = tiltEvent.data.z;
+   }
+
+
+   /**
+    * Helper that updates the contents of the resized state.
+    *
+    * @requires Ormma
+    */
+   function updateResizedAd() {
+      var state = document.getElementById( 'resizestate' );
+      var screensize = document.getElementById( 'resizescreensize' );
+      var maxsize = document.getElementById( 'resizemaxsize' );
+      var size = document.getElementById( 'resizesize' );
+      var text = document.getElementById( 'resizetext' );
+
+      // update the ad contentx
+      state.innerHTML = Ormma.getState();	
+      screensize.innerHTML = buildSizeText( Ormma.getScreenSize() );	
+      maxsize.innerHTML = buildSizeText( Ormma.getMaxSize() );	
+      size.innerHTML = buildSizeText( Ormma.getSize() );	
+      text.innerHTML = resizeText;
+   }
+</script>
+
+<!-- The actual creative -->
+<div id='ad'>
+   <!-- The standard banner ad state (default state) -->
+   <div id='banner'>
+      <img src="http://localhost/images/300x50-solid.png"
+           alt="banner advertisement" />
+      <div id='larger'>
+         <img src="http://localhost/images/resize-larger.png"
+              alt="resize"
+              onclick="resizeLarger();" />
+      </div>
+   </div>
+
+
+   <!-- The resized ad (resized state) -->
+   <div id='resizedad'>
+      <img src="http://localhost/images/300x250-solid.png"
+           alt="resized ad" />
+      <div id='smaller'>
+         <img src="http://localhost/images/resize-smaller.png"
+              alt="close"
+              onclick="resizeSmaller();" />
+      </div>
+      <div id='resizedata'>
+         Orientation: <span id="orientation"></span><br>
+         Acc: X: <span id="accX"></span>, Y: <span id="accY"></span>, Z: <span id="accZ"></span><br>
+         Gyro: X: <span id="gyroX"></span>, Y: <span id="gyroY"></span>, Z: <span id="gyroZ"></span><br>
+         Heading: <span id="heading"></span><br><br><br><br>
+         Latitude: <span id="lattitude"></span><br>
+         Longitude: <span id="longitude"></span><br>
+         Accuracy:<span id="accuracy"></span><br>
+      </div>
+   </div>
+</div>

@@ -9,6 +9,7 @@
 #import <MessageUI/MessageUI.h>
 #import "ORMMAJavascriptBridge.h"
 #import "Reachability.h"
+#import "UIColor-Expanded.h"
 
 
 
@@ -386,55 +387,69 @@ NSString * const ORMMACommandService = @"service";
 	// ok, to make it easy on the client, we don't require them to give us all
 	// the values all the time.
 	// basicallly we're going to take the current real frame information from
-	// the ad (translated to window space coordinates) and set both the initial
-	// and final values to this information. Then for each data point we receive
-	// from the client, we override the appropriate value.
-	// this allows the client to say things like "using the current ad position,
-	// expand the ad's height to 300px"
+	// the ad (translated to window space coordinates) and set the final frame
+	// to this information. Then for each data point we receive from the client,
+	// we override the appropriate value. this allows the client to say things
+	// like "using the current ad position, expand the ad's height to 300px"
 	CGRect f = [self.bridgeDelegate getAdFrameInWindowCoordinates];
-	CGFloat x1 = f.origin.x;
-	CGFloat y1 = f.origin.y;
-	CGFloat w1 = f.size.width;
-	CGFloat h1 = f.size.height;
-	CGFloat x2 = x1;
-	CGFloat y2 = y1;
-	CGFloat w2 = w1;
-	CGFloat h2 = h1;	
+	CGFloat x = f.origin.x;
+	CGFloat y = f.origin.y;
+	CGFloat w = f.size.width;
+	CGFloat h = f.size.height;
 	
 	// now get the sizes as specified by the creative
-	x1 = [self floatFromDictionary:parameters
-								   forKey:@"x1"
-							   withDefault:x1];
-	y1 = [self floatFromDictionary:parameters
-								   forKey:@"y1"
-							   withDefault:y1];
-	w1 = [self floatFromDictionary:parameters
-								   forKey:@"w1"
-							   withDefault:w1];
-	h1 = [self floatFromDictionary:parameters
-								   forKey:@"h1"
-							   withDefault:h1];
-	x2 = [self floatFromDictionary:parameters
-									forKey:@"x2"
-							   withDefault:x2];
-	y2 = [self floatFromDictionary:parameters
-									forKey:@"y2"
-							   withDefault:y2];
-	w2 = [self floatFromDictionary:parameters
-									forKey:@"w2"
-							   withDefault:w2];
-	h2 = [self floatFromDictionary:parameters
-									forKey:@"h2"
-							   withDefault:h2];
+	x = [self floatFromDictionary:parameters
+						   forKey:@"x"
+					  withDefault:x];
+	y = [self floatFromDictionary:parameters
+						   forKey:@"y"
+					  withDefault:y];
+	w = [self floatFromDictionary:parameters
+						   forKey:@"w"
+					  withDefault:w];
+	h = [self floatFromDictionary:parameters
+						   forKey:@"h"
+					  withDefault:h];
+	
+	BOOL useBG = [self booleanFromDictionary:parameters
+									  forKey:@"useBG"];
+	UIColor *blockerColor = [UIColor blackColor];
+	CGFloat bgOpacity = 0.20;
+	if ( useBG )
+	{
+		NSString *value = [parameters objectForKey:@"bgColor"];
+		if ( value != nil ) 
+		{
+			value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			if ( value.length > 0 )
+			{
+				// we have what "should" be a color
+				if ( [value hasPrefix:@"#"] ) 
+				{
+					// hex color
+					blockerColor = [UIColor colorWithName:[value substringFromIndex:1]];
+				}
+				else
+				{
+					// assume it's a named color
+					blockerColor = [UIColor colorWithName:value];
+				}
+			}
+		}
+		bgOpacity = [self floatFromDictionary:parameters
+									   forKey:@"bgOpacity"
+								  withDefault:1.0];
+	}
+	
 	NSString *urlString = [parameters valueForKey:@"url"];
 	NSURL *url = [NSURL URLWithString:urlString];
-	NSLog( @"Expanding from ( %f, %f ) ( %f x %f ) to ( %f, %f ) ( %f x %f ) showing %@", x1, y1, w1, h1, x2, y2, w2, h2, url );
-	CGRect f1 = CGRectMake( x1, ( y1 + yDelta ), w1, h1 );
-	CGRect f2 = CGRectMake( x2, ( y2 + yDelta ), w2, h2 );
-	[self.bridgeDelegate expandFrom:f1
-								 to:f2
-							withURL:url
-						inWebView:webView];
+	NSLog( @"Expanding to ( %f, %f ) ( %f x %f ) showing %@", x, y, w, h, url );
+	CGRect newFrame = CGRectMake( x, ( y + yDelta ), w, h );
+	[self.bridgeDelegate expandTo:newFrame
+						  withURL:url
+						inWebView:webView
+					blockingColor:blockerColor
+				  blockingOpacity:bgOpacity];
 	return YES;
 }
 
@@ -484,6 +499,19 @@ NSString * const ORMMACommandService = @"service";
 				forWebView:(UIWebView *)webView
 {
 	NSLog( @"Processing OPEN Command..." );
+	NSString *url = [self requiredStringFromDictionary:parameters 
+												forKey:@"url"];
+	BOOL back = [self booleanFromDictionary:parameters
+									 forKey:@"back"];
+	BOOL forward = [self booleanFromDictionary:parameters
+										forKey:@"back"];
+	BOOL refresh = [self booleanFromDictionary:parameters
+										forKey:@"back"];
+	[self.bridgeDelegate openBrowser:webView 
+					   withUrlString:url 
+						  enableBack:back 
+					   enableForward:forward 
+					   enableRefresh:refresh];
 	return YES;
 }
 

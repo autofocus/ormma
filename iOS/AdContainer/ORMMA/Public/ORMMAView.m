@@ -11,6 +11,8 @@
 #import "UIDevice-Hardware.h"
 #import "EventKit/EventKit.h"
 #import "ORMMALocalServer.h"
+#import "ORMMAWebBrowserViewController.h"
+
 
 
 
@@ -20,6 +22,7 @@
 
 @property( nonatomic, retain, readwrite ) NSError *lastError;
 @property( nonatomic, assign, readwrite ) ORMMAViewState currentState;
+@property( nonatomic, retain ) ORMMAWebBrowserViewController *webBrowser;
 
 
 - (void)commonInitialization;
@@ -29,7 +32,7 @@
 
 - (NSInteger)angleFromOrientation:(UIDeviceOrientation)orientation;
 
-- (void)copyFile:(NSString *)file
++ (void)copyFile:(NSString *)file
 		  ofType:(NSString *)type
 	  fromBundle:(NSBundle *)bundle
 		  toPath:(NSString *)path;
@@ -46,6 +49,27 @@
 - (NSString *)usingWebView:(UIWebView *)webView
 		 executeJavascript:(NSString *)javascript
 			   withVarArgs:(va_list)varargs;
+
+
+- (void)injectJavaScriptIntoWebView:(UIWebView *)webView;
+- (void)injectORMMAJavaScriptIntoWebView:(UIWebView *)webView;
+- (void)injectORMMAStateIntoWebView:(UIWebView *)webView;
+- (void)injectJavaScriptFile:(NSString *)fileName
+				 intoWebView:(UIWebView *)webView;
+
+- (void)fireAdWillShow;
+- (void)fireAdDidShow;
+- (void)fireAdWillHide;
+- (void)fireAdDidHide;
+- (void)fireAdWillClose;
+- (void)fireAdDidClose;
+- (void)fireAdWillResizeToSize:(CGSize)size;
+- (void)fireAdDidResizeToSize:(CGSize)size;
+- (void)fireAdWillExpandToFrame:(CGRect)frame;
+- (void)fireAdDidExpandToFrame:(CGRect)frame;
+- (void)fireAppShouldSuspend;
+- (void)fireAppShouldResume;
+
 @end
 
 
@@ -55,17 +79,21 @@
 
 
 #pragma mark -
+#pragma mark Statics
+
+static ORMMALocalServer *s_localServer;
+static NSBundle *s_ormmaBundle;
+static NSString *s_standardHTMLStub;
+static NSString *s_standardJSStub;
+
+
+#pragma mark -
 #pragma mark Constants
 
 NSString * const kAdContentToken    = @"<!--AD-CONTENT-->";
 
-NSString * const kAnimationKeyResize = @"resize";
 NSString * const kAnimationKeyExpand = @"expand";
-NSString * const kAnimationKeyCloseResized = @"closeResized";
 NSString * const kAnimationKeyCloseExpanded = @"closeExpanded";
-
-const CGFloat kCloseButtonHorizontalOffset = 5.0;
-const CGFloat kCloseButtonVerticalOffset = 5.0;
 
 
 
@@ -77,11 +105,78 @@ const CGFloat kCloseButtonVerticalOffset = 5.0;
 @synthesize creativeURL = m_creativeURL;
 @synthesize lastError = m_lastError;
 @synthesize currentState = m_currentState;
+@synthesize maxSize = m_maxSize;
+@synthesize webBrowser = m_webBrowser;
 
 
 
 #pragma mark -
 #pragma mark Initializers / Memory Management
+
++ (void)initialize
+{
+	// setup autorelease pool since this will be called outside of one
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	// setup our cache
+	s_localServer = [ORMMALocalServer sharedInstance];
+	
+	// access our bundle
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"ORMMA"
+													 ofType:@"bundle"];
+	if ( path == nil )
+	{
+		[NSException raise:@"Invalid Build Detected"
+					format:@"Unable to find ORMMA.bundle. Make sure it is added to your resources!"];
+	}
+	s_ormmaBundle = [[NSBundle bundleWithPath:path] retain];
+	
+	// setup the default HTML Stub
+	path = [s_ormmaBundle pathForResource:@"ORMMA_Standard_HTML_Stub"
+								   ofType:@"html"];
+	NSLog( @"HTML Stub Path is: %@", path );
+	s_standardHTMLStub = [[NSString stringWithContentsOfFile:path
+												   encoding:NSUTF8StringEncoding
+													  error:NULL] retain];
+	
+	// setup the default HTML Stub
+	path = [s_ormmaBundle pathForResource:@"ORMMA_Standard_JS_Stub"
+								   ofType:@"html"];
+	NSLog( @"JS Stub Path is: %@", path );
+	s_standardJSStub = [[NSString stringWithContentsOfFile:path
+												   encoding:NSUTF8StringEncoding
+													  error:NULL] retain];
+	
+	// load the Public Javascript API
+	[self copyFile:@"ormmaapi"
+			ofType:@"js"
+		fromBundle:s_ormmaBundle
+			toPath:s_localServer.cacheRoot];
+//	path = [s_ormmaBundle pathForResource:@"ormmaapi"
+//								   ofType:@"js"];
+//	NSLog( @"Public API Path is: %@", path );
+//	NSString *js = [NSString stringWithContentsOfFile:path
+//											 encoding:NSUTF8StringEncoding
+//												error:NULL];
+//	s_publicAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
+	
+	// load the Native Javascript API
+	[self copyFile:@"ormmaios"
+			ofType:@"js"
+		fromBundle:s_ormmaBundle
+			toPath:s_localServer.cacheRoot];
+//	path = [s_ormmaBundle pathForResource:@"ormmaios"
+//								   ofType:@"js"];
+//	NSLog( @"Native API Path is: %@", path );
+//	js = [NSString stringWithContentsOfFile:path
+//								   encoding:NSUTF8StringEncoding
+//									  error:NULL];
+//	s_nativeAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
+	
+	// done with autorelease pool
+	[pool drain];
+}
+
 
 - (id)initWithCoder:(NSCoder *)coder
 {
@@ -105,9 +200,6 @@ const CGFloat kCloseButtonVerticalOffset = 5.0;
 
 - (void)commonInitialization
 {
-	// setup our cache
-	m_localServer = [ORMMALocalServer sharedInstance];
-
 	// create our bridge object
 	m_javascriptBridge = [[ORMMAJavascriptBridge alloc] init];
 	m_javascriptBridge.bridgeDelegate = self;
@@ -129,51 +221,30 @@ const CGFloat kCloseButtonVerticalOffset = 5.0;
 	// register ourselves to recieve any delegate calls
 	m_webView.delegate = self;
 	
+	// the web view should be transparent
+	m_webView.backgroundColor = [UIColor clearColor];
+	
 	// add the web view to the main view
 	[self addSubview:m_webView];
 	
-	// start listening for notifications
+	// make sure our view is also transparent
+	self.backgroundColor = [UIColor clearColor];
 	
 	// let the OS know that we care about receiving various notifications
 	m_currentDevice = [UIDevice currentDevice];
 	[m_currentDevice beginGeneratingDeviceOrientationNotifications];
 	m_currentDevice.proximityMonitoringEnabled = NO; // enable as-needed to conserve power
-
-	// access our bundle
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"ORMMA"
-													 ofType:@"bundle"];
-	if ( path == nil )
-	{
-		[NSException raise:@"Invalid Build Detected"
-					format:@"Unable to find ORMMA.bundle. Make sure it is added to your resources!"];
-	}
-	m_ormmaBundle = [[NSBundle bundleWithPath:path] retain];
-		
-	// setup the default HTML Stub
-	path = [m_ormmaBundle pathForResource:@"ORMMA_Standard_HTML_Stub"
-								   ofType:@"html"];
-	NSLog( @"Stub Path is: %@", path );
-	self.htmlStub = [NSString stringWithContentsOfFile:path
-											  encoding:NSUTF8StringEncoding
-												 error:NULL];
 	
-	// make sure the standard Javascript files are updated
-	[self copyFile:@"ormmaapi"
-			ofType:@"js"
-		fromBundle:m_ormmaBundle
-			toPath:m_localServer.cacheRoot];
-	[self copyFile:@"ormmaios"
-			ofType:@"js"
-		fromBundle:m_ormmaBundle
-			toPath:m_localServer.cacheRoot];
+	// setup default maximum size based on our current frame size
+	self.maxSize = self.frame.size;
+	
+	// set our initial state
+	self.currentState = ORMMAViewStateDefault;
 }
 
 
 - (void)dealloc 
 {
-	// done with the cache
-	m_localServer = nil;
-	
 	// we're done receiving device changes
 	[m_currentDevice endGeneratingDeviceOrientationNotifications];
 
@@ -185,8 +256,8 @@ const CGFloat kCloseButtonVerticalOffset = 5.0;
 	[m_blockingView release], m_blockingView = nil;
 	m_ormmaDelegate = nil;
 	[m_htmlStub release], m_htmlStub = nil;
-	[m_ormmaBundle release], m_ormmaBundle = nil;
 	[m_javascriptBridge restoreServicesToDefaultState], [m_javascriptBridge release], m_javascriptBridge = nil;
+	[m_webBrowser release], m_webBrowser = nil;
     [super dealloc];
 }
 
@@ -202,9 +273,9 @@ didFailLoadWithError:(NSError *)error
 	NSLog( @"Failed to load URL into Web View" );
 	self.lastError = error;
 	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(adFailedToLoad:)] ) )
+		( [self.ormmaDelegate respondsToSelector:@selector(failureLoadingAd:)] ) )
 	{
-		[self.ormmaDelegate adFailedToLoad:self];
+		[self.ormmaDelegate failureLoadingAd:self];
 	}
 }
 
@@ -244,109 +315,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 	// we've finished loading the URL
-	
-	// check for the existence of the ORMMA objects
-	// if they do not exist, then assume we're good to display
-	// otherwise wait for the creative to notify us that its done.
-	NSLog( @"Web View Finished Loading" );
-	NSString *result = [self usingWebView:webView executeJavascript:@"typeof window.Ormma"];
-
-	NSLog( @"Testing Web View for ORMMA: %@", result );
-	if ( [result isEqualToString:@"object"] )
-	{
-		// we are ORMMA enabled
-		// setup the screen size
-		UIScreen *screen = [UIScreen mainScreen];
-		CGSize screenSize = screen.bounds.size;	
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.setBaseScreenSize( %f, %f );", screenSize.width, screenSize.height];
-		
-		// setup orientation
-		UIDeviceOrientation orientation = m_currentDevice.orientation;
-		NSInteger angle = [self angleFromOrientation:orientation];
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.orientationChanged( %i );", angle];
-		
-		// add the various features the device supports, common to all iOS devices
-		if ( [MFMailComposeViewController canSendMail] )
-		{
-			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'email' );"];
-		}
-		if ( NSClassFromString( @"MFMessageComposeViewController" ) != nil )
-		{
-			// SMS support does exist
-			if ( [MFMessageComposeViewController canSendText] ) 
-			{
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'sms' );"];
-			}
-		}
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'location' );"];
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'network' );"];
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'orientation' );"];
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'shake' );"];
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'size' );"];
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'tilt' );"];
-		
-		// now add the features that are available on specific devices
-		
-		NSInteger platformType = [m_currentDevice platformType];
-		switch ( platformType )
-		{
-			case UIDevice1GiPhone:
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
-				break;
-			case UIDevice3GiPhone:
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
-				break;
-			case UIDevice3GSiPhone:
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'heading' );"];
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
-				break;
-			case UIDevice4iPhone:
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
-				break;
-			case UIDevice1GiPad:
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
-				break;
-			case UIDevice4GiPod:
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
-				[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
-				break;
-			default:
-				break;
-		}
-		
-		// see if calendar support is available
-		Class eventStore = NSClassFromString( @"EKEventStore" );
-		if ( eventStore != nil )
-		{
-			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'calendar' );"];
-		}
-		
-		// let the ad know it can start work
-		m_applicationReady = YES;
-		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.applicationReady();"];
-	}
-	else
-	{
-		// just assume we're showing a non-rich ad
-		if ( ( self.ormmaDelegate != nil ) && 
-			( [self.ormmaDelegate respondsToSelector:@selector(adWillShow:isDefault:)] ) )
-		{
-			[self.ormmaDelegate adWillShow:self
-								 isDefault:( webView == m_webView )];
-		}
-		if ( ( self.ormmaDelegate != nil ) && 
-			( [self.ormmaDelegate respondsToSelector:@selector(adDidShow:isDefault:)] ) )
-		{
-			[self.ormmaDelegate adDidShow:self
-								isDefault:( webView == m_webView )];
-		}
-	}
+	[self injectJavaScriptIntoWebView:webView];
 }
 
 
@@ -369,7 +338,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	NSLog( @"Load Ad from URL: %@", url );
 	self.creativeURL = url;
 	NSURLRequest *request = [NSURLRequest requestWithURL:url];
-	[m_localServer cacheURL:url
+	[s_localServer cacheURL:url
 			   withDelegate:self];
 	[m_webView loadRequest:request];
 }
@@ -390,7 +359,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	NSString *html = [self processHTMLStubUsingFragment:htmlFragment];
 	//NSLog( @"Full HTML is: %@", html );
 	self.creativeURL = url;
-	[m_localServer cacheHTML:html
+	[s_localServer cacheHTML:html
 					 baseURL:url
 				withDelegate:self];
 }
@@ -407,9 +376,27 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 - (NSString *)processHTMLStubUsingFragment:(NSString *)fragment
 {
+	// select the correct stub
+	NSString *stub = self.htmlStub;
+	if ( stub == nil )
+	{
+		// determine if the fragment is JS or not
+		NSString *trimmedFragment = [fragment stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		BOOL isJS = [trimmedFragment hasPrefix:@"document.write"];
+				 
+	    if ( isJS )
+		{
+			stub = s_standardJSStub;
+		}
+		else
+		{
+			stub = s_standardHTMLStub;
+		}
+	}
+	
 	// build the string
-	NSString *output = [self.htmlStub stringByReplacingOccurrencesOfString:kAdContentToken
-																withString:fragment];
+	NSString *output = [stub stringByReplacingOccurrencesOfString:kAdContentToken
+													   withString:fragment];
 	return output;
 }
 
@@ -446,7 +433,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	va_list args;
 	va_start( args, javascript );
-	NSString *result = [self usingWebView:m_webView
+	NSString *result = [self usingWebView:(m_expandedView != nil ) ? m_expandedView : m_webView
 						executeJavascript:javascript
 							  withVarArgs:args];
 	va_end( args );
@@ -480,22 +467,15 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 - (void)showAd:(UIWebView *)webView
 {
-	// called when the ad is ready to be displayed
-	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(adWillShow:isDefault:)] ) )
-	{
-		[self.ormmaDelegate adWillShow:self
-							 isDefault:( webView == m_webView )];
-	}
+	// called when the ad needs to be made visible
+	[self fireAdWillShow];
 	
-	// Nothing special to do
+	// Nothing special to do, other than making sure the ad is visible
+	self.hidden = NO;
+	self.currentState = ORMMAViewStateDefault;
 	
-	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(adDidShow:isDefault:)] ) )
-	{
-		[self.ormmaDelegate adDidShow:self
-							isDefault:( webView == m_webView )];
-	}
+	// notify that we're done
+	[self fireAdDidShow];
 	
 	// notify the ad view that the state has changed
 	NSLog( @"STATE CHANGE TO default" );
@@ -506,22 +486,26 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 - (void)hideAd:(UIWebView *)webView
 {
-	// called when the ad is ready to be displayed
-	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(adWillHide:isDefault:)] ) )
+	// make sure we're not already hidden
+	if ( self.currentState == ORMMAViewStateHidden )
 	{
-		[self.ormmaDelegate adWillHide:self
-							 isDefault:( webView == m_webView )];
-	}
+		[self usingWebView:webView
+		 executeJavascript:@"window.OrmmaBridge.sendError( 'Cannot hide if we're already hidden.', 'hide' );" ]; 
+		return;
+	}	
 	
-	// Nothing special to do
+	// called when the ad is ready to hide
+	[self fireAdWillHide];
 	
-	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(adDidHide:isDefault:)] ) )
-	{
-		[self.ormmaDelegate adDidHide:self
-							isDefault:( webView == m_webView )];
-	}
+	// if the ad isn't in the default state, restore it first
+	[self closeAd:webView];
+	
+	// now hide the ad
+	self.hidden = YES;
+	self.currentState = ORMMAViewStateHidden;
+
+	// notify everyone that we're done
+	[self fireAdDidHide];
 	
 	// notify the ad view that the state has changed
 	NSLog( @"STATE CHANGE TO hidden" );
@@ -539,61 +523,82 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	if ( self.currentState == ORMMAViewStateDefault )
 	{
 		// default ad
-		NSLog( @"Ignoring close of default state" );
+		[self usingWebView:webView
+		 executeJavascript:@"window.OrmmaBridge.sendError( 'Cannot close the default state.', 'close' );" ]; 
+		return;
+	}
+	if ( self.currentState == ORMMAViewStateHidden )
+	{
+		// default ad
+		[self usingWebView:webView
+		 executeJavascript:@"window.OrmmaBridge.sendError( 'Cannot close a hidden ad.', 'close' );" ]; 
 		return;
 	}
 	
 	// Closing the ad refers to restoring the default state, whatever tasks
 	// need to be taken to achieve this state
 	
-	// Step 1: notify the app that we're starting
-	if ( ( self.ormmaDelegate != nil ) && 
-		 ( [self.ormmaDelegate respondsToSelector:@selector(adWillClose:)] ) )
-	{
-		[self.ormmaDelegate adWillClose:self];
-	}
+	// notify the app that we're starting
+	[self fireAdWillClose];
 	
-	// Step 2: closing the ad differs based on the current state
+	// closing the ad differs based on the current state
 	if ( self.currentState == ORMMAViewStateExpanded )
 	{
-		// Step 2a: we remove the close button and reverse the growth
-		[m_closeButton removeFromSuperview], m_closeButton = nil;
+		// make the default view visible
+		m_webView.hidden = NO;
+		
+		// reverse the growth
 		[UIView beginAnimations:kAnimationKeyCloseExpanded
 						context:nil];
 		[UIView setAnimationDuration:0.5];
 		[UIView setAnimationDelegate:self];
 		m_expandedView.frame = m_initialFrame;;
 		[UIView commitAnimations];
-	}
+
+		// more happens after the animation finishes
+    }
 	else
 	{
-		// Step 2b: the resized ad should animate back to the default size
-		[UIView beginAnimations:kAnimationKeyCloseResized
-						context:nil];
-		[UIView setAnimationDuration:0.5];
-		[UIView setAnimationDelegate:self];
+		// animations for resize are delegated to the application
+		
+		// notify the app that we are resizing
+		[self fireAdWillResizeToSize:m_defaultFrame.size];
+		
+		// restore the size
 		self.frame = m_defaultFrame;
-		[UIView commitAnimations];
+		
+		// notify the app that we are resizing
+		[self fireAdDidResizeToSize:m_defaultFrame.size];
+		
+		// notify the app that we're done
+		[self fireAdDidClose];
+		
+		// update our state
+		self.currentState = ORMMAViewStateDefault;
+		
+		// Notify the ad of it's current size
+		NSLog( @"AD RESIZED TO %f x %f", m_defaultFrame.size.width, m_defaultFrame.size.height );
+		[self executeJavaScript:@"window.OrmmaBridge.sizeChanged( %f, %f );", m_defaultFrame.size.width, m_defaultFrame.size.height];
+		
+		// send state changed event
+		NSLog( @"STATE CHANGE TO resized" );
+		[self executeJavaScript:@"window.OrmmaBridge.stateChanged( 'default' );"];
 	}
-	
-	[self logFrame:m_defaultFrame
-			  text:@"Frame Closed"];
-	[self logFrame:self.superview.frame
-			  text:@"Parent Frame"];
-
-	// steps 3+ happens after the animation finishes
 }
 
 
-- (void)expandFrom:(CGRect)startingFrame
-				to:(CGRect)endingFrame
-		   withURL:(NSURL *)url
-		 inWebView:(UIWebView *)webView
+- (void)expandTo:(CGRect)endingFrame
+		 withURL:(NSURL *)url
+	inWebView:(UIWebView *)webView
+   blockingColor:(UIColor *)blockingColor
+blockingOpacity:(CGFloat)blockingOpacity
 {
-	// NOTE: We cannot resize if we're in full screen mode
-	if ( self.currentState == ORMMAViewStateExpanded )
+	// NOTE: We can only expand if we are in the default state
+	if ( self.currentState != ORMMAViewStateDefault )
 	{
 		// Already Expanded
+		[self usingWebView:webView
+		 executeJavascript:@"window.OrmmaBridge.sendError( 'Can only expand from the default state.', 'expand' );" ]; 
 		return;
 	}
 	
@@ -601,33 +606,51 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// new frame. This frame is attached directly to the key window at the
 	// initial location specified, and will animate to a new location.
 	
-	// Step 1: Notify the native app that we're preparing to resize
-	if ( ( self.ormmaDelegate != nil ) && 
-		 ( [self.ormmaDelegate respondsToSelector:@selector(adWillExpand:)] ) )
-	{
-		[self.ormmaDelegate adWillExpand:self];
-	}
+	// Notify the native app that we're preparing to expand
+	[self fireAppShouldSuspend];
+	[self fireAdWillExpandToFrame:endingFrame];
 	
-	// Step 2: store the initial frame
-	m_initialFrame = CGRectMake( startingFrame.origin.x, 
-								 startingFrame.origin.y,
-								 startingFrame.size.width,
-								 startingFrame.size.height );
-	
-	// Step 3: get the key window
+	// get the key window
 	UIApplication *app = [UIApplication sharedApplication];
 	UIWindow *keyWindow = [app keyWindow];
 	
-	// Step 4: create the new ad View
-	m_expandedView = [[UIWebView alloc] initWithFrame:startingFrame];
+	// determine the initial (translated) frame
+	m_initialFrame = [self convertRect:self.frame
+								toView:keyWindow];
+								
+	// create the blocker view and add it to the window
+	CGRect f = keyWindow.frame;
+	UIApplication *a = [UIApplication sharedApplication];
+	if ( !a.statusBarHidden )
+	{
+	   // status bar is visible
+	   //f.origin.y += 20;
+	   //f.size.height -= 20;
+	   endingFrame.origin.y -= 20;
+	}
+	m_blockingView = [[UIView alloc] initWithFrame:f];
+	m_blockingView.backgroundColor = blockingColor;
+	m_blockingView.alpha = blockingOpacity;
+	[keyWindow addSubview:m_blockingView];
+	
+	// create the new ad View
+	m_expandedView = [[UIWebView alloc] initWithFrame:m_initialFrame];
 	m_expandedView.clipsToBounds = YES;
 	m_expandedView.delegate = self;
-	m_expandedView.scalesPageToFit = YES;
+	//m_expandedView.scalesPageToFit = YES;
+	if ( url == nil )
+	{
+	   // no url passed, reload default ad
+	   url = m_webView.request.URL;
+	}
 	NSURLRequest *request = [NSURLRequest requestWithURL:url];
 	[m_expandedView loadRequest:request];
 	[keyWindow addSubview:m_expandedView];
 	
-	// Step 5: Animate the new web view to the correct size and position
+	// make the default web view hidden
+	m_webView.hidden = YES; 
+	
+	// Animate the new web view to the correct size and position
 	[UIView beginAnimations:kAnimationKeyExpand
 					context:nil];
 	[UIView setAnimationDuration:0.5];
@@ -635,7 +658,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	m_expandedView.frame = endingFrame;
 	[UIView commitAnimations];
 	
-	// Steps 6+ happens after the animation completes
+	// more happens after the animation completes
 }
 
 
@@ -643,59 +666,64 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 			   height:(CGFloat)height
 			inWebView:(UIWebView *)webView
 {
-	// A resize action resizes the ad view in place without regard to the view 
-	// hierarcy. The ad will remain anchored in place at its origin, but will
-	// scale (up or down) to the width & height specified. Realistically, this
-	// means that it is enirely possible for the ad to be clipped by it's parent
-	// however this is as designed. If this is not desired, the user should use
-	// the expand action instead.
+	// resize must work within the view hierarchy; all the ORMMA ad view does
+	// is modify the frame size while leaving the containing application to 
+	// determine how this should be presented (animations).
 	
-	// Step 1: verify that we can resize
-	if ( m_currentState == ORMMAViewStateExpanded )
+	// note: we can only resize if we are in the default state and only to the
+	//       limit specified by the maxSize value.
+	
+	// verify that we can resize
+	if ( m_currentState != ORMMAViewStateDefault )
 	{
 		// we can't resize an expanded ad
+		[self usingWebView:webView
+		 executeJavascript:@"window.OrmmaBridge.sendError( 'Cannot resize an ad that is not in the default state.', 'resize' );" ]; 
 		return;
 	}
 	
-	// Step 2: setup what we're resizing from
-	if ( m_currentState == ORMMAViewStateDefault )
+	// Make sure the resize honors our limits
+	if ( ( height > self.maxSize.height ) ||
+		 ( width > self.maxSize.width ) ) 
 	{
-		// Step 2a: currently in default state, so store the original frame
-		m_defaultFrame = CGRectMake( self.frame.origin.x, 
-									 self.frame.origin.y,
-									 self.frame.size.width,
-									 self.frame.size.height );
-	}
-	else
-	{
-		// Step 2b: resizing a resized ad, are we going back to default?
-		if ( ( width == m_defaultFrame.size.width ) &&
-			 ( height == m_defaultFrame.size.height ) )
-		{
-			// returning to default state
-			[self closeAd:webView];
-			return;
-		}	
+		// we can't resize outside our limits
+		[self usingWebView:webView
+		 executeJavascript:@"window.OrmmaBridge.sendError( 'Cannot resize an ad larger than allowed.', 'resize' );" ]; 
+		return;
 	}
 	
-	// Step 3: determine the final frame
-	CGRect f = CGRectMake( self.frame.origin.x, 
-						   self.frame.origin.x, 
-						   width,
-						   height );
+	// store the original frame
+	m_defaultFrame = CGRectMake( self.frame.origin.x, 
+								 self.frame.origin.y,
+								 self.frame.size.width,
+								 self.frame.size.height );
 	
-	// Step 4: animate to the new size
-	[UIView beginAnimations:kAnimationKeyResize
-					context:nil];
-	[UIView setAnimationDuration:0.5];
-	[UIView setAnimationDelegate:self];
-	self.frame = f;
-	[UIView commitAnimations];
-
-	[self logFrame:f 
-			  text:@"Resize Frame"];
+	// determine the final frame
+	CGSize size = { width, height };
 	
-	// Steps 5+ occur when the animation completes
+	// notify the application that we are starting to resize
+	[self fireAdWillResizeToSize:size];
+	
+	// now update the size
+	CGRect newFrame = CGRectMake( self.frame.origin.x, 
+								  self.frame.origin.y, 
+								  width,
+								  height );
+	self.frame = newFrame;
+	
+	// notify the application that we are done resizing
+	[self fireAdDidResizeToSize:size];
+	
+	// update our state
+	self.currentState = ORMMAViewStateResized;
+	
+	// Notify the ad of it's current size
+	NSLog( @"AD RESIZED TO %f x %f", width, height );
+	[self executeJavaScript:@"window.OrmmaBridge.sizeChanged( %f, %f );", width, height];
+	
+	// send state changed event
+	NSLog( @"STATE CHANGE TO resized" );
+	[self executeJavaScript:@"window.OrmmaBridge.stateChanged( 'resized' );"];
 }
 
 
@@ -723,7 +751,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 						isHTML:html];
 		}
 		vc.mailComposeDelegate = self;
-		[self.ormmaDelegate.parentViewController presentModalViewController:vc
+		[self.ormmaDelegate.ormmaViewController presentModalViewController:vc
 																   animated:YES];
 	}
 }
@@ -749,7 +777,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 			{
 				vc.body = body;
 			}
-			[self.ormmaDelegate.parentViewController presentModalViewController:vc
+			[self.ormmaDelegate.ormmaViewController presentModalViewController:vc
 																	   animated:YES];
 		}
 	}
@@ -763,6 +791,54 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 }
 
 
+- (void)openBrowser:(UIWebView *)webView
+	  withUrlString:(NSString *)urlString
+		 enableBack:(BOOL)back
+	  enableForward:(BOOL)forward
+	  enableRefresh:(BOOL)refresh;
+{
+	// if the browser is already open, change the URL
+	NSLog( @"Open Browser" );
+	NSURL *url = [NSURL URLWithString:urlString];
+	if ( self.webBrowser != nil )
+	{
+		// Redirect
+		NSLog( @"Redirecting browser to new URL: %@", urlString );
+		self.webBrowser.URL = url;
+		return;
+	}
+	
+	// notify the app that it should stop work
+	[self fireAppShouldSuspend];
+
+	// display the web browser
+	NSLog( @"Create Web Browser" );
+	self.webBrowser = [[[ORMMAWebBrowserViewController alloc] initWithNibName:@"ORMMAWebBrowserViewController"
+																	   bundle:s_ormmaBundle] autorelease];
+	NSLog( @"Web Browser created: %@", self.webBrowser );
+	self.webBrowser.ormmaView = self;
+	self.webBrowser.backButtonEnabled = back;
+	self.webBrowser.forwardButtonEnabled = forward;
+	self.webBrowser.refreshButtonEnabled = refresh;
+	self.webBrowser.URL = url;
+	[self.ormmaDelegate.ormmaViewController presentModalViewController:self.webBrowser
+															   animated:YES];
+}
+
+
+#pragma mark -
+#pragma mark Web Browser Control
+
+- (void)doneWithBrowser
+{
+	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
+	self.webBrowser = nil;
+
+	// notify the app that it should start work
+	[self fireAppShouldResume];
+}
+
+
 
 #pragma mark -
 #pragma mark Animation View Delegate
@@ -771,112 +847,62 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 				finished:(NSNumber *)finished 
 				 context:(void *)context
 {
+	UIWebView *wv = ( m_expandedView != nil ) ? m_expandedView : m_webView;;
 	NSString *newState = @"unknown";
 	if ( [animationID isEqualToString:kAnimationKeyCloseExpanded] )
 	{
 		// finish the close expanded function
 		
-		// Step 7: remove the blocker view from the view hierarcy
+		// remove the blocker view from the view hierarcy
 		[m_blockingView removeFromSuperview], m_blockingView = nil;
 		
-		// Step 8: remove the expanded view
+		// remove the expanded view
 		[m_expandedView removeFromSuperview], m_expandedView = nil;
 		
-		// step 9: now notify the app that we're done
-		if ( ( self.ormmaDelegate != nil ) && 
-			 ( [self.ormmaDelegate respondsToSelector:@selector(adDidClose:)] ) )
-		{
-			[self.ormmaDelegate adDidClose:self];
-		}
+		// now notify the app that we're done
+		[self fireAdDidClose];
 		
-		// Step 10: setup state changed event
+		// setup state changed event
 		newState = @"default";
 		
-		// Step 11: update our internal state
+		// update our internal state
 		self.currentState = ORMMAViewStateDefault;
-	}
-	else if ( [animationID isEqualToString:kAnimationKeyCloseResized] )
-	{
-		// finish the close resized function
 		
-		// step 5: now notify the app that we're done
-		if ( ( self.ormmaDelegate != nil ) && 
-			( [self.ormmaDelegate respondsToSelector:@selector(adDidClose:)] ) )
-		{
-			[self.ormmaDelegate adDidClose:self];
-		}
+		// Notify the ad of it's current size
+		CGFloat w = self.frame.size.width;
+		CGFloat h = self.frame.size.height;
+		NSLog( @"AD RESIZED TO %f x %f", w, h );
+		[self usingWebView:wv 
+		 executeJavascript:@"window.OrmmaBridge.sizeChanged( %f, %f );", w, h];
 		
-		// Step 6: setup state changed event
-		newState = @"default";
-		
-		// Step 7: update our internal state
-		self.currentState = ORMMAViewStateDefault;
+		// Final Step: send state changed event
+		NSLog( @"STATE CHANGE TO %@", newState );
+		[self usingWebView:wv 
+		executeJavascript:@"window.OrmmaBridge.stateChanged( '%@' );", newState];
 	}
 	else
 	{
-		// finish the resize function
+		// finish the expand function
 
-		// Step 6: notify the app that we're done
-		if ( ( self.ormmaDelegate != nil ) && 
-			 ( [self.ormmaDelegate respondsToSelector:@selector(adDidExpand:)] ) )
-		{
-			[self.ormmaDelegate adDidExpand:self];
-		}
+		// notify the app that we're done
+		[self fireAdDidExpandToFrame:m_expandedView.frame];
 		
-		// Step 9: setup state changed event
-		newState = @"expanded";
+//		// setup state changed event
+//		newState = @"expanded";
 		
-		// Step 10: update our internal state
-		if ( [animationID isEqualToString:kAnimationKeyResize] )
-		{
-			self.currentState = ORMMAViewStateResized;
-		}
-		else
-		{
-			self.currentState = ORMMAViewStateExpanded;
-			
-			// now that we've expanded, also add the force close button
-			NSString *buttonImage = @"close";
-			if ( [UIScreen instancesRespondToSelector:@selector(scale)] ) 
-			{
-				CGFloat scale = [[UIScreen mainScreen] scale];
-				if ( scale > 1.0 ) 
-				{
-					buttonImage = @"close@2x";
-				}
-			}
-			NSString *imagePath = [m_ormmaBundle pathForResource:buttonImage
-														  ofType:@"png"];
-			NSLog( @"Close Button Image: %@", imagePath );
-			UIImage *image = [UIImage imageWithContentsOfFile:imagePath];
-			NSLog( @"Loaded Image: %@", image );
-			m_closeButton = [[UIButton buttonWithType:UIButtonTypeCustom] retain];
-			[m_closeButton setBackgroundImage:image
-									 forState:UIControlStateNormal];
-			[m_closeButton addTarget:self
-							  action:@selector(closeButtonPressed:)
-					forControlEvents:UIControlEventTouchUpInside];
-			CGFloat y = ( m_expandedView.frame.origin.y + kCloseButtonVerticalOffset );
-			CGFloat x = ( m_expandedView.frame.origin.x + m_expandedView.frame.size.width - ( 28 + kCloseButtonHorizontalOffset ) );
-			CGRect f = CGRectMake( x,
-								   y,
-								   28,
-								   28 );
-			[self logFrame:f text:@"Button Frame"];
-			m_closeButton.frame = f;
-			[m_expandedView.superview addSubview:m_closeButton];
-		}
+		// update our internal state
+		self.currentState = ORMMAViewStateExpanded;
+		
+//		// Notify the ad of it's current size
+//		CGFloat w = self.frame.size.width;
+//		CGFloat h = self.frame.size.height;
+//		NSLog( @"AD RESIZED TO %f x %f", w, h );
+//		[self usingWebView:wv executeJavaScript:@"window.OrmmaBridge.sizeChanged( %f, %f );", w, h];
+//		
+//		// Final Step: send state changed event
+//		NSLog( @"STATE CHANGE TO %@", newState );
+//		[self usingWebView:wv executeJavaScript:@"window.OrmmaBridge.stateChanged( '%@' );", newState];
 	}
-
-	// Final Step: send state changed event
-	NSLog( @"STATE CHANGE TO %@", newState );
-	[self executeJavaScript:@"window.OrmmaBridge.stateChanged( '%@' );", newState];
-	
-	// Notify the ad of it's current size
-	CGFloat w = self.frame.size.width;
-	CGFloat h = self.frame.size.height;
-	NSLog( @"AD RESIZED TO %f x %f", w, h );
-	[self executeJavaScript:@"window.OrmmaBridge.sizeChanged( %f, %f );", w, h];
 }
 
 
@@ -936,14 +962,14 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		  didFinishWithResult:(MFMailComposeResult)result 
 						error:(NSError*)error
 {
-	[self.ormmaDelegate.parentViewController dismissModalViewControllerAnimated:YES];
+	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 }
 
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller 
 				 didFinishWithResult:(MessageComposeResult)result
 {
-	[self.ormmaDelegate.parentViewController dismissModalViewControllerAnimated:YES];
+	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 }
 
 
@@ -962,6 +988,299 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// Restore the ad to it's default size
 	[self closeAd:m_webView];
 }
+
+
+
+#pragma mark -
+#pragma mark JavaScript Injection
+
+- (void)injectJavaScriptIntoWebView:(UIWebView *)webView
+{
+	// check to see if we need to inject ORMMA or not
+	NSLog( @"Testing Web View for ORMMA" );
+	NSString *result = [self usingWebView:webView executeJavascript:@"typeof ORMMAReady"];
+	if ( [result isEqualToString:@"function"] )
+	{
+		// the ad wants ORMMA, inject the ORMMA code
+		NSLog( @"Ad requires ORMMA, inject code" );
+		[self injectORMMAJavaScriptIntoWebView:webView];
+		
+		// now inject the current state
+		[self injectORMMAStateIntoWebView:webView];
+		
+		// notify the creative that ORMMA is done
+		m_applicationReady = YES;
+		[self usingWebView:webView executeJavascript:@"ORMMAReady();"];
+	}
+	else
+	{
+		// Not an ORMMA ad, but let the app know the ad is visible
+		[self fireAdWillShow];
+		[self fireAdDidShow];
+	}
+}
+
+
+- (void)injectORMMAJavaScriptIntoWebView:(UIWebView *)webView
+{
+	NSLog( @"Injecting ORMMA Javascript into creative." );
+	//[self injectJavaScriptFile:@"/ormmaapi.js" intoWebView:webView];
+	//[self injectJavaScriptFile:@"/ormmaios.js" intoWebView:webView];
+}
+
+
+- (void)injectJavaScriptFile:(NSString *)fileName
+				 intoWebView:(UIWebView *)webView
+{
+	NSString *js = [NSString stringWithFormat:@"var ormmascr = document.createElement('script');ormmascr.src='%@';ormmascr.type='text/javascript';var ormmahd = document.getElementsByTagName('head')[0];ormmahd.appendChild(ormmascr);return 'OK';", fileName];
+	if ( [self usingWebView:webView executeJavascript:js] == nil )
+	{
+		NSLog( @"Error injecting Javascript!" );
+	}
+}
+
+
+- (void)injectORMMAStateIntoWebView:(UIWebView *)webView
+{
+	NSLog( @"Injecting ORMMA State into creative." );
+	
+	// setup the screen size
+	UIScreen *screen = [UIScreen mainScreen];
+	CGSize screenSize = screen.bounds.size;	
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.setBaseScreenSize( %f, %f );", screenSize.width, screenSize.height];
+	
+	// setup the default state
+	BOOL expanded = ( m_expandedView != nil );
+	self.currentState = ORMMAViewStateDefault;
+	if ( expanded )
+	{
+		self.currentState = ORMMAViewStateExpanded;
+	}
+	else
+	{
+		[self fireAdWillShow];
+	}
+	
+	// setup the ad size
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.setMaxSize( %f, %f );", self.maxSize.width, self.maxSize.height];
+	UIWebView *wv = ( expanded ) ? m_expandedView : m_webView;
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.sizeChanged( %f, %f );", wv.frame.size.width, wv.frame.size.height];
+	
+	// setup orientation
+	UIDeviceOrientation orientation = m_currentDevice.orientation;
+	NSInteger angle = [self angleFromOrientation:orientation];
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.orientationChanged( %i );", angle];
+	
+	// add the various features the device supports, common to all iOS devices
+	if ( [MFMailComposeViewController canSendMail] )
+	{
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'email' );"];
+	}
+	if ( NSClassFromString( @"MFMessageComposeViewController" ) != nil )
+	{
+		// SMS support does exist
+		if ( [MFMessageComposeViewController canSendText] ) 
+		{
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'sms' );"];
+		}
+	}
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'location' );"];
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'network' );"];
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'orientation' );"];
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'shake' );"];
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'size' );"];
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'tilt' );"];
+	
+	// now add the features that are available on specific devices
+	
+	NSInteger platformType = [m_currentDevice platformType];
+	switch ( platformType )
+	{
+		case UIDevice1GiPhone:
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
+			break;
+		case UIDevice3GiPhone:
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
+			break;
+		case UIDevice3GSiPhone:
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'heading' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
+			break;
+		case UIDevice4iPhone:
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
+			break;
+		case UIDevice1GiPad:
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'phone' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
+			break;
+		case UIDevice4GiPod:
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'rotation' );"];
+			[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'camera' );"];
+			break;
+		default:
+			break;
+	}
+	
+	// see if calendar support is available
+	Class eventStore = NSClassFromString( @"EKEventStore" );
+	if ( eventStore != nil )
+	{
+		[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'calendar' );"];
+	}
+	
+	// identify which ORMMA levels we support
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'level-1' );"];
+	[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'level-2' );"];
+	//[self usingWebView:webView executeJavascript:@"window.OrmmaBridge.addFeature( 'level-3' );"];
+	
+	// now make sure the ad is visible
+	NSString *newState = ( webView == m_expandedView ) ? @"expanded" : @"default";
+	NSLog( @"STATE CHANGE TO %@", newState );
+	[self usingWebView:webView 
+	 executeJavascript:@"window.OrmmaBridge.stateChanged( '%@' );", newState];
+	 
+	// make sure things are visible
+	if ( !expanded )
+	{
+		[self fireAdDidShow];
+	}
+}
+
+
+#pragma mark -
+#pragma mark Delegate Helpers
+
+- (void)fireAdWillShow
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(adWillShow:)] ) )
+	{
+		[self.ormmaDelegate adWillShow:self];
+	}
+}
+
+
+- (void)fireAdDidShow
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(adDidShow:)] ) )
+	{
+		[self.ormmaDelegate adDidShow:self];
+	}
+}
+
+
+- (void)fireAdWillHide
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(adWillHide:)] ) )
+	{
+		[self.ormmaDelegate adWillHide:self];
+	}
+}
+
+
+- (void)fireAdDidHide
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(adDidHide:)] ) )
+	{
+		[self.ormmaDelegate adDidHide:self];
+	}
+}
+
+
+- (void)fireAdWillClose
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(adWillClose:)] ) )
+	{
+		[self.ormmaDelegate adWillClose:self];
+	}
+}
+
+
+- (void)fireAdDidClose
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(adDidClose:)] ) )
+	{
+		[self.ormmaDelegate adDidClose:self];
+	}
+}
+
+
+- (void)fireAdWillResizeToSize:(CGSize)size
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(willResizeAd:toSize:)] ) )
+	{
+		[self.ormmaDelegate willResizeAd:self
+								  toSize:size];
+	}
+}
+
+
+- (void)fireAdDidResizeToSize:(CGSize)size
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(didResizeAd:toSize:)] ) )
+	{
+		[self.ormmaDelegate didResizeAd:self
+								  toSize:size];
+	}
+}
+
+
+- (void)fireAdWillExpandToFrame:(CGRect)frame
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(willExpandAd:toFrame:)] ) )
+	{
+		[self.ormmaDelegate willExpandAd:self
+								 toFrame:frame];
+	}
+}
+
+
+- (void)fireAdDidExpandToFrame:(CGRect)frame
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(didExpandAd:toFrame:)] ) )
+	{
+		[self.ormmaDelegate didExpandAd:self
+								toFrame:frame];
+	}
+}
+
+
+- (void)fireAppShouldSuspend
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(appShouldSuspendForAd:)] ) )
+	{
+		[self.ormmaDelegate appShouldSuspendForAd:self];
+	}
+}
+
+
+- (void)fireAppShouldResume
+{
+	if ( ( self.ormmaDelegate != nil ) && 
+		( [self.ormmaDelegate respondsToSelector:@selector(appShouldResumeFromAd:)] ) )
+	{
+		[self.ormmaDelegate appShouldResumeFromAd:self];
+	}
+}
+
+
+
+
 
 
 #pragma mark -
@@ -1003,7 +1322,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 }
 
 
-- (void)copyFile:(NSString *)file
++ (void)copyFile:(NSString *)file
 		  ofType:(NSString *)type
 	  fromBundle:(NSBundle *)bundle
 		  toPath:(NSString *)path

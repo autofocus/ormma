@@ -47,7 +47,9 @@ window.Ormma = {
 	cacheRemaining : ORMMA_UNKNOWN_VALUE,
 	
 	/** stores the current expand properties */
-	expandProperties : { },
+	expandProperties : { useBackground : false,
+                         backgroundColor : "grey",
+                         backgroundOpacity : 0.20 },
 	
 	/** stores the last known heading */
 	heading : ORMMA_UNKNOWN_VALUE,
@@ -66,9 +68,6 @@ window.Ormma = {
 	
 	/** stores the last known orientation */
 	orientation : ORMMA_UNKNOWN_VALUE,
-	
-	/** stores the current resize properties */
-	resizeProperties : { transition : ORMMA_STATE_UNKNOWN },
 	
 	/** stores the current screen size */
 	screenSize : { height : ORMMA_UNKNOWN_VALUE,
@@ -269,24 +268,13 @@ window.Ormma = {
 	 * <p>properties object<br/>
 	 * <code>
 	 * properties = {
-	 *  "transition" : "default|dissolve|fade|roll|slide|zoom|none",
-	 *  "navigation" : "none|close|back|forward|refresh",
 	 *  "use-background" : "true|false",
 	 *  "background-color" : "#rrggbb",
 	 *  "background-opacity" : "n.n",
-	 *  "is-modal" : "true|false"
 	 * }
 	 * </code></p>
 	 * 
 	 * <pre>
-	 * "transition"
-	 * If "transition" is not specified in the properties object, a value of
-	 * "default" is assumed.
-	 * 
-	 * "navigation"
-	 * If "navigation" is not specified in the properties object, a value of
-	 * "none" is assumed.
-	 * 
 	 * "useBackground"
 	 * "useBackground" should contain a boolean value (true/false) indicating
 	 * the presence of a background. If "useBackground" is not specified in the 
@@ -301,10 +289,6 @@ window.Ormma = {
 	 * from 0 equaling fully transparent to 1 equaling fully opaque). If either
 	 * "backgroundColor" or "backgroundOpacity" is not specified in the 
 	 * properties object, values of 0xffffff and 1.0 respectively are assumed.
-	 * 
-	 * "isModal"
-	 * The "isModal" property is a boolean value (true/false) and if it is not
-	 * specified in the properties object a value of false is assumed.
 	 * </pre>
 	 * 
 	 * <br/>#side effects: none
@@ -402,31 +386,6 @@ window.Ormma = {
 		
 		// must be Landscape left
 		return ORMMA_ORIENTATION_LANDSCAPE_LEFT;
-	},
-	
-	
-	/**
-	 * Use this method to get the current resize properties of the web viewer.
-	 * Since the resize action is asynchronous, this value does not update until
-	 * the action has completed execution (when the resizeChange" event fires).
-	 *
-	 * <p>properties object<br/>
-	 * <code>
-	 *   properties = {
-	 *     "transition" : "default|dissolve|zoom|none",
-	 *   }
-	 * </code></p>
-	 *
-	 * "transition" - If "transition" is not specified in the properties object,
-	 * a value of "default" is assumed.
-	 *
-	 * <br/>#side effects: none
-	 * <br/>#ORMMA Level: 1
-	 *
-	 * @returns {JSON} { transition } properties object
-	 */
-	getResizeProperties : function() {
-		return this.resizeProperties;
 	},
 	
 	
@@ -554,8 +513,8 @@ window.Ormma = {
 	 * 
 	 * @param {String} phone number to dial.
 	 */
-	open : function( url ) {
-		window.OrmmaBridge.executeNativeOpen( url );
+	open : function( url, navigation ) {
+		window.OrmmaBridge.executeNativeOpen( url, navigation );
 	},
 	
 	
@@ -727,21 +686,6 @@ window.Ormma = {
 	 */
 	setExpandProperties : function( properties ) {
 		window.OrmmaBridge.expandProperties = properties;
-	},
-	
-	
-	/**
-	 * Use this method to set the ads resize properties.
-	 *
-	 * <br/>#side effects: none
-	 * <br/>#ORMMA Level: 1
-	 * 
-	 * @param {JSON} properties this object contains any number of properties,
-	 * such as transition, that might be used by the SDK when resizing the web 
-	 * viewer, for more info @see properties object.
-	 */
-	setResizeProperties : function( properties ) {
-		window.OrmmaBridge.resizeProperties = properties;
 	},
 	
 	
