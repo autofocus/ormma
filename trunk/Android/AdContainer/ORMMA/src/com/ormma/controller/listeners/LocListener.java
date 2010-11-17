@@ -79,7 +79,7 @@ public class LocListener implements LocationListener {
 
 
 	public void start() {
-		mLocMan.requestLocationUpdates(mProvider, mInterval, 0, this);		
+		mLocMan.requestLocationUpdates(mProvider, 0, 0, this);		
 	}
 	
 }

@@ -5,25 +5,35 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import android.R;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.content.res.TypedArray;
 import android.net.ConnectivityManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.RelativeLayout;
+import android.widget.ViewSwitcher;
 
 import com.ormma.controller.OrmmaAssetController;
+import com.ormma.controller.OrmmaController.Dimensions;
+import com.ormma.controller.OrmmaController.Properties;
 import com.ormma.controller.OrmmaDisplayController;
 import com.ormma.controller.OrmmaLocationController;
 import com.ormma.controller.OrmmaNetworkController;
-import com.ormma.controller.OrmmaController.Dimensions;
-import com.ormma.controller.OrmmaController.Properties;
+import com.ormma.controller.OrmmaSensorController;
+import com.ormma.controller.OrmmaUtilityController;
 
 public class OrmmaView extends WebView {
 
@@ -31,89 +41,165 @@ public class OrmmaView extends WebView {
 	private static final int MESSAGE_CLOSE = 1001;
 	private static final int MESSAGE_HIDE = 1002;
 	private static final int MESSAGE_SHOW = 1003;
+	private static final int MESSAGE_EXPAND = 1004;
+	private static final int MESSAGE_ANIMATE = 1005;
+	private static final String EXPAND_DIMENSIONS = "exand_initial_dimensions";
+	private static final String EXPAND_URL = "expand_url";
+	private static final String EXPAND_PROPERTIES = "expand_properties";
+	private static final String RESIZE_WIDTH = "resize_width";
+	private static final String RESIZE_HEIGHT = "resize_height";
 
+	private static final String CURRENT_FILE = "_ormma_current";
 
 	private OrmmaAssetController mAssetController;
 	private OrmmaDisplayController mDisplayController;
 	private OrmmaLocationController mLocationController;
 	private OrmmaNetworkController mNetworkController;
+	private OrmmaSensorController mSensorController;
 
-//	private boolean mResized = false;
-	private Dimensions mResizedDimension;
+	private static String mScriptPath = null;
 
-//	private Properties mResizedProperties;
+	private enum ViewState {
+		DEFAULT, RESIZED, EXPANDED, HIDDEN, LEFT_BEHIND;
+	}
+
+	private ViewState mViewState = ViewState.DEFAULT;
+
+	// private boolean mResized = false;
+	// private Dimensions mResizedDimension;
+	private ViewSwitcher mViewSwitcher;
+	private OrmmaViewListener mListener;
+	private OrmmaView mParentAd = null;
+	
+	// private Properties mResizedProperties;
+
+	public OrmmaView(Context context, OrmmaViewListener listener) {
+		super(context);
+		setListener(listener);
+		initialize();
+	}
+
+	public void setListener(OrmmaViewListener listener) {
+		mListener = listener;
+	}
 
 	public OrmmaView(Context context) {
 		super(context);
 		initialize();
 	}
 
-	// private void load(InputStream is){
-	// try{
-	// InputStreamReader isr = new InputStreamReader(is);
-	// BufferedReader br = new BufferedReader(isr);
-	// char[] buffer = new char[BUFFER_SIZE];
-	// StringBuffer page = new StringBuffer(BUFFER_SIZE);
-	// int read;
-	// while ((read = br.read(buffer,0,1024)) >0) {
-	// String readData = String.valueOf(buffer,0,read);
-	// page.append(readData);
-	// buffer = new char[BUFFER_SIZE];
-	// }
-	// loadDataWithBaseURL(mAssetController.getAssetPath(), page.toString(),
-	// "text/html", "UTF-8", null);
-	// }
-	// catch (MalformedURLException ex) {
-	// System.err.println(ex);
-	// }
-	// catch (IOException ex) {
-	// System.err.println(ex);
-	// }
-	// }
-
-
-	@Override
-	public void loadUrl(String url) {
-		InputStream is = null;
-		try {
-			URL u = new URL(url);
-			String name = u.getFile();
-			if (url.startsWith("file:///android_asset")) {
-				int lastSep = url.lastIndexOf(java.io.File.separatorChar);
-				
-				if (lastSep >=0){
-					name = url.substring(url.lastIndexOf(java.io.File.separatorChar)+1);
-				}
-				AssetManager am = getContext().getAssets();
-				is = am.open(name);
-			} else {
-				is = u.openStream();
-			}
-			url = "file://"+mAssetController.writeToDisk(is, name);
-		} catch (MalformedURLException e) {
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-		super.loadUrl(url);
+	public void setMaxSize(int w, int h) {
+		mDisplayController.setMaxSize(w, h);
 	}
 
-	public OrmmaView(Context context, AttributeSet attrs) {
-		super(context, attrs);
+	public interface OrmmaViewListener {
+		abstract boolean onReady();
+
+		abstract boolean onResize();
+
+		abstract boolean onExpand();
+
+		abstract boolean onEventFired();
+	}
+
+	public void injectJavaScript(String str) {
+		super.loadUrl("javascript:" + str);
+	}
+
+
+	public String mDataToInject = null;
+	
+	public void loadUrl(String url, String dataToInject) {
+		loadUrl(url, false, dataToInject);
+	}
+
+	
+	@Override
+	public void loadUrl(String url) {
+		loadUrl(url, false, null);
+	}
+	
+	public void loadUrl(String url, boolean dontLoad, String dataToInject) {
+		mDataToInject = dataToInject;
+		if (!dontLoad) {
+			InputStream is = null;
+			bPageFinished = false;
+			try {
+				URL u = new URL(url);
+				String name = u.getFile();
+				if (url.startsWith("file:///android_asset")) {
+					int lastSep = url.lastIndexOf(java.io.File.separatorChar);
+
+					if (lastSep >= 0) {
+						name = url.substring(url.lastIndexOf(java.io.File.separatorChar) + 1);
+					}
+					AssetManager am = getContext().getAssets();
+					is = am.open(name);
+				} else {
+					is = u.openStream();
+				}
+				url = "file://"+mAssetController.writeToDisk(is, CURRENT_FILE, true);
+
+			} catch (MalformedURLException e) {
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+		super.loadUrl(url);
+
+	}
+
+	private static int[] attrs = { R.attr.maxWidth, R.attr.maxHeight };
+
+	public OrmmaView(Context context, AttributeSet set) {
+		super(context, set);
+
 		initialize();
+
+		TypedArray a = getContext().obtainStyledAttributes(set, attrs);
+
+		mDisplayController.setMaxSize(a.getDimensionPixelSize(0, -1), a.getDimensionPixelSize(1, -1));
+
+		a.recycle();
+
 	}
 
 	private Handler mHandler = new Handler() {
+
+		private int mOldHeight;
+		private int mOldWidth;
+
 		@Override
 		public void handleMessage(Message msg) {
+			Bundle data = msg.getData();
 			switch (msg.what) {
 			case MESSAGE_RESIZE: {
-				layout(mResizedDimension.left, mResizedDimension.top, mResizedDimension.right, mResizedDimension.bottom);
+				mViewState = ViewState.RESIZED;
+				ViewGroup.LayoutParams lp = getLayoutParams();
+				mOldHeight = lp.height;
+				mOldWidth = lp.width;
+
+				lp.height = data.getInt(RESIZE_HEIGHT, lp.height);
+				lp.width = data.getInt(RESIZE_WIDTH, lp.width);
+				Log.d("xxx","viewrs:"+lp.height+","+lp.width);
+				requestLayout();
 				break;
 			}
 			case MESSAGE_CLOSE: {
-				requestLayout();
-				break;
+				switch (mViewState) {
+				case RESIZED:
+					ViewGroup.LayoutParams lp = getLayoutParams();
+					lp.height = mOldHeight;
+					lp.width = mOldWidth;
+					requestLayout();
+					break;
+				case EXPANDED:
+					mParentAd.closeExpanded(mExpandedFrame);
+					break;
+			}
+
+			break;
 			}
 			case MESSAGE_HIDE: {
 				setVisibility(View.INVISIBLE);
@@ -123,25 +209,21 @@ public class OrmmaView extends WebView {
 				setVisibility(View.VISIBLE);
 				break;
 			}
+			case MESSAGE_ANIMATE: {
+				mViewSwitcher.showNext();
+				break;
+			}
+			case MESSAGE_EXPAND: {
+				mViewState = ViewState.LEFT_BEHIND;
+				expandInUIThread((Dimensions) data.getParcelable(EXPAND_DIMENSIONS), data.getString(EXPAND_URL),
+						(Properties) data.getParcelable(EXPAND_PROPERTIES));
+				break;
+			}
+
 			}
 			super.handleMessage(msg);
 		}
 	};
-
-	// @Override
-	// protected void onLayout(boolean changed, int l, int t, int r, int b) {
-	// Configuration cfg = getContext().getResources().getConfiguration();
-	// if (cfg.keyboardHidden == Configuration.KEYBOARDHIDDEN_NO && mResized &&
-	// l!= mResizedDimension.left && t!= mResizedDimension.top && r!=
-	// mResizedDimension.right && b!= mResizedDimension.bottom){
-	// layout(mResizedDimension.left, mResizedDimension.top,
-	// mResizedDimension.right, mResizedDimension.bottom);
-	// super.onLayout(true, mResizedDimension.left, mResizedDimension.top,
-	// mResizedDimension.right, mResizedDimension.bottom);
-	// }
-	// else
-	// super.onLayout(changed, l, t, r, b);
-	// }
 
 	WebViewClient mWebViewClient = new WebViewClient() {
 		@Override
@@ -151,16 +233,12 @@ public class OrmmaView extends WebView {
 			super.onReceivedError(view, errorCode, description, failingUrl);
 		}
 
+		@Override
 		public void onPageFinished(WebView view, String url) {
-
-			String scriptPath = mAssetController.copyTextFromJarIntoAssetDir("/js/OrmmaAdController.js",
-					"/js/OrmmaAdController.js");
-
-			loadUrl("javascript:	" + "{ var body = document.getElementsByTagName('head').item(0);"
-					+ "script = document.createElement('script');" + "script.src = \"" + scriptPath + "\";"
-					+ "script.type = 'text/javascript';" + "body.appendChild(script)" + "}");
+			((OrmmaView) view).onPageFinished();
 		}
 
+		@Override
 		public void onLoadResource(WebView view, String url) {
 			if (url.startsWith("ormma://")) {
 				url = "file:///data/data/com.ormma.OrmmaTestBed/files/tmp/abc.jpg";// mAssetController.getRealPath(url);
@@ -177,8 +255,15 @@ public class OrmmaView extends WebView {
 			return super.onJsAlert(view, url, message, result);
 		}
 	};
+	private ViewGroup mExpandedFrame;
+	private boolean bPageFinished = false;
+	private AnimationHelper mAnimationHelper;
+	private Object mUtilityController;
 
 	private void initialize() {
+		
+		
+		bPageFinished = false;
 
 		getSettings().setJavaScriptEnabled(true);
 
@@ -186,56 +271,84 @@ public class OrmmaView extends WebView {
 		mDisplayController = new OrmmaDisplayController(this, this.getContext());
 		mLocationController = new OrmmaLocationController(this, this.getContext());
 		mNetworkController = new OrmmaNetworkController(this, this.getContext());
+		mUtilityController = new OrmmaUtilityController(this, this.getContext());
+		mSensorController = new OrmmaSensorController(this, this.getContext());
+		mAnimationHelper = new AnimationHelper();
 
 		addJavascriptInterface(mAssetController, "ORMMAAssetsControllerBridge");
 		addJavascriptInterface(mDisplayController, "ORMMADisplayControllerBridge");
 		addJavascriptInterface(mLocationController, "ORMMALocationControllerBridge");
 		addJavascriptInterface(mNetworkController, "ORMMANetworkControllerBridge");
+		addJavascriptInterface(mUtilityController, "ORMMAUtilityControllerBridge");
+		addJavascriptInterface(mSensorController, "ORMMASensorControllerBridge");
 
 		setWebViewClient(mWebViewClient);
 
 		setWebChromeClient(mWebChromeClient);
+		setScriptPath();
+	}
+	
+	
+	private synchronized void setScriptPath(){
+		if (mScriptPath == null){
+			mScriptPath = mAssetController.copyTextFromJarIntoAssetDir("/js/OrmmaAdController.js",
+			"/js/OrmmaAdController.js");	
+		}
 	}
 
-	public void resize(Dimensions dimension, Properties properties) {
-		mResizedDimension = dimension;
-//		mResized = true;
-//		mResizedProperties = properties;
-		mHandler.sendEmptyMessage(MESSAGE_RESIZE);
+	protected void closeExpanded(View expandedFrame) {
+		((ViewGroup)((Activity) getContext()).getWindow().getDecorView()).removeView(expandedFrame);
+		requestLayout();
+		mViewState = ViewState.DEFAULT;
+		injectJavaScript("Ormma.unexpand()");
+		requestLayout();
 	}
 
-//	private AnimationSet getResizeAnimation() {
-//		AnimationSet resizeAnimation = new AnimationSet(true);
-//		Animation a = new TranslateAnimation(Animation.ABSOLUTE, mResizedDimension.left, Animation.ABSOLUTE,
-//				mResizedDimension.top);
-//		// a.setFillAfter(true);
-//		resizeAnimation.addAnimation(a);
-//		resizeAnimation.setFillAfter(true);
-//		a.setAnimationListener(new AnimationListener() {
-//
-//			@Override
-//			public void onAnimationStart(Animation animation) {
-//				// TODO Auto-generated method stub
-//
-//			}
-//
-//			@Override
-//			public void onAnimationRepeat(Animation animation) {
-//				OrmmaView.this.requestLayout();
-//
-//			}
-//
-//			@Override
-//			public void onAnimationEnd(Animation animation) {
-//				android.view.ViewGroup.LayoutParams x = getLayoutParams();
-//				x.height = mResizedDimension.bottom - mResizedDimension.top;
-//				x.width = mResizedDimension.right - mResizedDimension.left;
-//				requestLayout();
-//
-//			}
-//		});
-//		return resizeAnimation;
-//	}
+	protected void onPageFinished() {
+
+		// injectJavaScript("ready()");
+
+		if (mDataToInject != null){
+			injectJavaScript(mDataToInject);
+		}
+		
+		
+		
+		String injection = "{ var body = document.getElementsByTagName('head').item(0);"
+		+ "script = document.createElement('script');" + "script.src = \"" + mScriptPath + "\";"
+//		+ "alert(\"" + mScriptPath + "\");"
+		+ "script.type = 'text/javascript';"
+		+ "body.appendChild(script);" 
+		+ "}";
+		
+		
+		injectJavaScript(injection);
+		
+		
+		//injectJavaScript("ORMMAReady()");
+		// synchronized (mSync) {
+		// bPageFinished = true;
+		// if (mPageFinishedHandler != null) {
+		// mPageFinishedHandler.onPageFinished();
+		// }
+		// }
+
+	}
+
+	public String getState(){
+		return mViewState.toString().toLowerCase();
+	}
+	
+	public void resize(int width, int height) {
+		Message msg = mHandler.obtainMessage(MESSAGE_RESIZE);
+
+		Bundle data = new Bundle();
+		data.putInt(RESIZE_WIDTH, width);
+		data.putInt(RESIZE_HEIGHT, height);
+		msg.setData(data);
+
+		mHandler.sendMessage(msg);
+	}
 
 	public void close() {
 		mHandler.sendEmptyMessage(MESSAGE_CLOSE);
@@ -255,7 +368,134 @@ public class OrmmaView extends WebView {
 
 	public void dump() {
 		// TODO Auto-generated method stub
-
 	}
+
+	public void expand(Dimensions dimensions, String URL, Properties properties) {
+		Message msg = mHandler.obtainMessage(MESSAGE_EXPAND);
+
+		Bundle data = new Bundle();
+		data.putParcelable(EXPAND_DIMENSIONS, dimensions);
+		data.putString(EXPAND_URL, URL);
+		data.putParcelable(EXPAND_PROPERTIES, properties);
+		msg.setData(data);
+
+		mHandler.sendMessage(msg);
+	}
+
+	private void expandInUIThread(Dimensions dimensions, String URL, Properties properties) {
+		boolean dontLoad = false;
+		if (URL == null || URL.equals("undefined")) {
+			URL = getUrl();
+			dontLoad = true;
+		}
+		mExpandedFrame = new RelativeLayout(getContext());
+//		ColorDrawable cd = new ColorDrawable(properties.background_color);
+//		cd.setAlpha((int) (properties.background_opacity*255));
+//		mExpandedFrame.setBackgroundDrawable(cd);
+		mExpandedFrame.setBackgroundColor(properties.background_color);
+		android.widget.RelativeLayout.LayoutParams adLp = new RelativeLayout.LayoutParams(dimensions.width,
+				dimensions.height);
+		adLp.leftMargin = dimensions.x;
+		adLp.topMargin = dimensions.y;
+
+		android.view.WindowManager.LayoutParams lp = new WindowManager.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+				ViewGroup.LayoutParams.FILL_PARENT);
+
+		OrmmaView expandedView = new OrmmaView(getContext());
+		expandedView.loadExpandedUrl(URL, this, mExpandedFrame, dontLoad);
+		mExpandedFrame.addView(expandedView, adLp);
+
+		((ViewGroup)((Activity) getContext()).getWindow().getDecorView()).addView(mExpandedFrame, lp);
+	}
+
+	private void loadExpandedUrl(String Url, OrmmaView parentAd, ViewGroup expandedFrame, boolean dontLoad) {
+		mParentAd = parentAd;
+		mExpandedFrame = expandedFrame;
+		mViewState = ViewState.EXPANDED;
+		loadUrl(Url, dontLoad, mDataToInject);
+	}
+
+	class PageFinishedHandler {
+		ViewSwitcher mParentView;
+
+		public PageFinishedHandler(ViewSwitcher viewSwitcher) {
+			mParentView = viewSwitcher;
+		}
+
+		public void onPageFinished() {
+			mParentView.setVisibility(VISIBLE);
+			mParentView.setInAnimation(mAnimationHelper.getExpandInAnimation());
+			mParentView.setOutAnimation(mAnimationHelper.getExpandOutAnimation());
+			mHandler.sendEmptyMessage(MESSAGE_ANIMATE);
+		}
+	}
+
+
+	public boolean isPageFinished() {
+		return bPageFinished;
+	}
+
+//	private void insertOrmma(InputStream in) throws IOException {
+//
+//		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//
+//		try {
+//			if (insertOrmmaPass1(reader)) {
+//				in.reset();
+//				insertOrmmaPass2(reader);
+//			}
+//		} catch (NoSuchAlgorithmException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		reader.close();
+//	}
+//
+//	private boolean insertOrmmaPass1(BufferedReader reader) throws IOException {
+//
+//		boolean fragment = true;
+//		boolean inHTML = false;
+//
+//		MessageDigest digest;
+//		try {
+//			digest = java.security.MessageDigest.getInstance("MD5");
+//		} catch (NoSuchAlgorithmException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		File out = new File(getContext().getFilesDir(), CURRENT_FILE);
+//		out.createNewFile();
+//
+//		PrintWriter writer = new PrintWriter(new FileWriter(out, false));
+//
+//		String line = null;
+//		while ((line = reader.readLine()) != null) {
+//			digest.update(line.getBytes());
+//			writer.println(line);
+//		}
+//		writer.close();
+//		return fragment;
+//	}
+//
+//	private void insertOrmmaPass2(BufferedReader reader) throws IOException {
+//		File out = new File(getContext().getFilesDir(), CURRENT_FILE);
+//		out.createNewFile();
+//
+//		PrintWriter writer = new PrintWriter(new FileWriter(out, false));
+//		String line = null;
+//
+//		writer.println("<HTML>");
+//		writer.println("<HEAD>");
+//		writer.println("<script type=\"text/javascript\" src=\"" + mScriptPath + "\"></script>");
+//		writer.println("</HEAD>");
+//		writer.println("<BODY>");
+//		while ((line = reader.readLine()) != null) {
+//			writer.println(line);
+//		}
+//		writer.println("</BODY>");
+//		writer.println("</HTML>");
+//
+//		writer.close();
+//	}
 
 }
