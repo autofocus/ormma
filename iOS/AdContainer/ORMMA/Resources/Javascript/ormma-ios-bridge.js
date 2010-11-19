@@ -170,6 +170,19 @@
    /********** INTERNALLY USED METHODS **********/
    /*********************************************/
  
+ 
+   /**
+    *
+    */
+   ormmaview.zeroPad = function( number ) {
+      var text = "";
+      if ( number < 10 ) {
+         text += "0";
+      }
+	  text += number;
+      return text;
+   }
+ 
    /**
     *
     */
@@ -415,8 +428,16 @@
     *
     */
    ormmaview.createEvent = function( date, title, body ) {
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var day = date.getDate();
+      var hours = date.getHours();
+      var minutes = date.getMinutes();
+ 
+ 
+      var dateString = year + this.zeroPad( month ) + this.zeroPad( day ) + this.zeroPad( hours ) + this.zeroPad( minutes );
 	  this.executeNativeCall( "calendar",
-							  "date", date,
+							  "date", dateString,
 							  "title", title,
 							  "body", body );
    };

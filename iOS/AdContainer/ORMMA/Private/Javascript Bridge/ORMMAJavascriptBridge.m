@@ -136,16 +136,15 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 		{
 			self.motionManager = [[CMMotionManager alloc] init];
 		}
+		
+		// setup our network reachability
+		self.reachability = [Reachability reachabilityForInternetConnection];
 
 		// make sure to register for the events that we care about
 		NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 		[notificationCenter addObserver:self
 							   selector:@selector(orientationChanged:)
 								   name:UIDeviceOrientationDidChangeNotification
-								 object:nil];
-		[notificationCenter addObserver:self
-							   selector:@selector(reachabilityStateChanged:)
-								   name:kReachabilityChangedNotification
 								 object:nil];
 		[notificationCenter addObserver:self 
 							   selector:@selector(keyboardWillShow:) 
@@ -154,7 +153,15 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 		[notificationCenter addObserver:self 
 							   selector:@selector(keyboardWillHide:) 
 								   name:UIKeyboardWillHideNotification
-								 object:nil];	}
+								 object:nil];
+		[notificationCenter addObserver:self
+							   selector:@selector(handleReachabilityChangedNotification:)
+								   name:kReachabilityChangedNotification
+								 object:nil];
+	
+		// start up reachability notifications
+		[self.reachability startNotifier];
+	}
 	return self;
 }
 
@@ -185,15 +192,12 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	NetworkStatus ns = [self.reachability currentReachabilityStatus];
 	switch ( ns )
 	{
-		case NotReachable:
-			return @"offline";
 		case ReachableViaWWAN:
 			return @"cell";
 		case ReachableViaWiFi:
 			return @"wifi";
-		default:
-			return @"unknown";
 	}
+	return @"offline";
 }
 
 
@@ -551,7 +555,25 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 - (BOOL)processCalendarCommand:(NSDictionary *)parameters
 					forWebView:(UIWebView *)webView
 {
-	NSLog( @"Processing CALENDAR Command..." );
+	NSString *dateString = [self requiredStringFromDictionary:parameters 
+													   forKey:@"date"];
+	NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+	[formatter setDateFormat:@"yyyyMMddHHmm"];
+	NSDate *date = [formatter dateFromString:dateString];
+	
+	NSString *title = [self requiredStringFromDictionary:parameters 
+												  forKey:@"title"];
+	NSString *body = [self requiredStringFromDictionary:parameters 
+												 forKey:@"body"];
+	NSLog( @"Processing CALENDAR Command for %@ / %@ / %@", date, title, body );
+	if ( ( date != nil ) && 
+		 ( title != nil ) && 
+		 ( body != nil ) )
+	{
+		[self.bridgeDelegate addEventToCalanderForDate:date
+											 withTitle:title
+											  withBody:body];
+	}
 	return YES;
 }
 
@@ -560,6 +582,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 				  forWebView:(UIWebView *)webView
 {
 	NSLog( @"Processing CAMERA Command..." );
+	
 	return YES;
 }
 
@@ -740,30 +763,6 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 			NSLog( @"Location Services are not available." );
 		}
 	}
-	else if ( [@"networkChange" isEqualToString:eventName] ) // Reachability / Network
-	{
-		if ( enabled )
-		{
-			m_networkEnableCount++;
-			if ( self.reachability == nil )
-			{
-				self.reachability = [Reachability reachabilityForInternetConnection];
-			}
-			[self.reachability startNotifier];
-		}
-		else
-		{
-			if ( m_networkEnableCount > 0 )
-			{
-				m_networkEnableCount--;
-				if ( m_networkEnableCount == 0 )
-				{
-					[self.reachability stopNotifier];
-					self.reachability = nil;
-				}
-			}
-		}
-	}
 	else if ( [@"rotationChange" isEqualToString:eventName] ) // gyroscope
 	{
 		if ( self.motionManager != nil )
@@ -832,17 +831,6 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 		[m_locationManager stopUpdatingLocation];
 		m_locationEnableCount = 0;
 	}
-	
-	// network monitoring
-	if ( m_networkEnableCount > 0 )
-	{
-		if ( self.reachability != nil )
-		{
-			[self.reachability stopNotifier];
-			self.reachability = nil;
-		}
-		m_networkEnableCount = 0;
-	}
 }
 
 
@@ -881,23 +869,6 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 }
 
 
-- (void)reachabilityStateChanged:(NSNotification *)notification
-{
-	NSString *state = @"offline";
-	Reachability *r = (Reachability *)notification.object;
-	if ( [r isReachableViaWWAN] )
-	{
-		state = @"cell";
-	}
-	else if ( [r isReachableViaWiFi] )
-	{
-		state = @"wifi";
-	}
-	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
-					executeJavascript:@"window.ormmaview.fireChangeEvent( { network: '%@' } );", state];
-}
-
-
 - (void)keyboardWillShow:(NSNotification *)notification
 {
 	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
@@ -911,6 +882,14 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 					executeJavascript:@"window.ormmaview.fireChangeEvent( { keyboardState: false } );"];
 }
 
+
+- (void)handleReachabilityChangedNotification:(NSNotification *)notification
+{
+	//Reachability *r = (Reachability *)notification.object;
+	NSLog( @"Network is now %@", self.networkStatus );
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+					executeJavascript:@"window.ormmaview.fireChangeEvent( { network: '%@' } );", self.networkStatus];
+}
 
 
 #pragma mark -
