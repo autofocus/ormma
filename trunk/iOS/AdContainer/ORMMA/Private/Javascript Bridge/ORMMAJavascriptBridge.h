@@ -33,7 +33,6 @@
 	BOOL m_compassEnableCount;
 	BOOL m_gyroscopeEnableCount;
 	BOOL m_locationEnableCount;
-	BOOL m_networkEnableCount;
 	
 	BOOL m_processAccelerometer;
 	BOOL m_processShake;
@@ -97,6 +96,9 @@
 - (void)sendSMSTo:(NSString *)to
 		 withBody:(NSString *)body;
 - (void)placeCallTo:(NSString *)phoneNumber;
+- (void)addEventToCalanderForDate:(NSDate *)date
+						withTitle:(NSString *)title
+						 withBody:(NSString *)body;
 
 - (CGRect)getAdFrameInWindowCoordinates;
 

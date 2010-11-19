@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>ActivePerspectiveName</key>
-	<string>Project</string>
+	<string>Debug</string>
 	<key>AllowedModules</key>
 	<array>
 		<dict>
@@ -299,8 +299,6 @@
 							<string>MainColumn</string>
 							<real>352</real>
 						</array>
-						<key>RubberWindowFrame</key>
-						<string>156 181 1239 753 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -311,8 +309,6 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -330,7 +326,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>FAD819E51295E59000252C5A</string>
+										<string>FAD81AD2129702B700252C5A</string>
 										<key>history</key>
 										<array>
 											<string>FAE3A5E512425ADE00285B32</string>
@@ -341,10 +337,10 @@
 											<string>FAC971C412883FCF001567EB</string>
 											<string>FAC971C712883FCF001567EB</string>
 											<string>FAC9736F1288A69D001567EB</string>
-											<string>FAD7279212948493001D702B</string>
 											<string>FAD7288012958F89001D702B</string>
-											<string>FAD7289412959082001D702B</string>
-											<string>FAD819E11295E58300252C5A</string>
+											<string>FAD81A361296C66100252C5A</string>
+											<string>FAD81A6D1296EB8200252C5A</string>
+											<string>FAD81A6E1296EB8200252C5A</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -359,8 +355,6 @@
 							<dict>
 								<key>Frame</key>
 								<string>{{0, 0}, {865, 707}}</string>
-								<key>RubberWindowFrame</key>
-								<string>156 181 1239 753 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -384,8 +378,6 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {865, -27}}</string>
-										<key>RubberWindowFrame</key>
-										<string>156 181 1239 753 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -525,6 +517,8 @@
 					<dict>
 						<key>Frame</key>
 						<string>{{0, 0}, {1239, 179}}</string>
+						<key>RubberWindowFrame</key>
+						<string>114 175 1239 753 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugCLIModule</string>
@@ -599,7 +593,11 @@
 							</array>
 							<key>Frame</key>
 							<string>{{605, 0}, {634, 259}}</string>
+							<key>RubberWindowFrame</key>
+							<string>114 175 1239 753 0 0 1920 1178 </string>
 						</dict>
+						<key>RubberWindowFrame</key>
+						<string>114 175 1239 753 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugSessionModule</string>
@@ -663,13 +661,12 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>FAD819E61295E59000252C5A</string>
 		<string>FAD819011295C42100252C5A</string>
 		<string>FAD819021295C42100252C5A</string>
 		<string>/Users/rhedin/source/iOS/ORMMA/ORMMATestBed/ORMMATestBed.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>156 181 1239 753 0 0 1920 1178 </string>
+	<string>114 175 1239 753 0 0 1920 1178 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>

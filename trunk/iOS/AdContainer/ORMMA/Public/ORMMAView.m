@@ -13,7 +13,7 @@
 #import "ORMMALocalServer.h"
 #import "ORMMAWebBrowserViewController.h"
 #import "UIDevice-ORMMA.h"
-
+#import <EventKit/EventKit.h>
 
 
 
@@ -754,6 +754,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 		// and the modal dialog may come up "under" the expanded web view
 		// let's hide it while the modal is up
 		m_expandedView.hidden = YES;
+		m_blockingView.hidden = YES;
 		
 		// display the modal dialog
 		vc.mailComposeDelegate = self;
@@ -788,6 +789,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 			// and the modal dialog may come up "under" the expanded web view
 			// let's hide it while the modal is up
 			m_expandedView.hidden = YES;
+			m_blockingView.hidden = YES;
 		
 			// now show the dialog
 			[self.ormmaDelegate.ormmaViewController presentModalViewController:vc
@@ -805,6 +807,27 @@ blockingOpacity:(CGFloat)blockingOpacity
    [[UIApplication sharedApplication] openURL:url]; 
 }
 
+
+- (void)addEventToCalanderForDate:(NSDate *)date
+						withTitle:(NSString *)title
+						 withBody:(NSString *)body
+{
+    EKEventStore *eventStore = [[EKEventStore alloc] init];
+
+    EKEvent *event  = [EKEvent eventWithEventStore:eventStore];
+    event.title = title;
+	event.notes = body;
+
+    event.startDate = date;
+    event.endDate   = [[NSDate alloc] initWithTimeInterval:600 
+												 sinceDate:event.startDate];
+
+    NSError *err;
+    [event setCalendar:[eventStore defaultCalendarForNewEvents]];
+    [eventStore saveEvent:event 
+					 span:EKSpanThisEvent 
+					error:&err];       
+}
 
 - (CGRect)getAdFrameInWindowCoordinates
 {
@@ -963,6 +986,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	
 	// redisplay the expanded view if necessary
 	m_expandedView.hidden = NO;
+	m_blockingView.hidden = NO;
 }
 
 
@@ -974,6 +998,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	
 	// redisplay the expanded view if necessary
 	m_expandedView.hidden = NO;
+	m_blockingView.hidden = NO;
 }
 
 
