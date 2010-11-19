@@ -442,7 +442,7 @@ window.OrmmaBridge = {
      */
     executeNativeAddAsset : function( url ) {
 		this.executeNativeCall( "addasset", 
-							   "uri", url );
+							    "uri", url );
 	},
 	
 	

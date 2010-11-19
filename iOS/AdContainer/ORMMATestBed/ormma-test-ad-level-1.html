@@ -8,13 +8,6 @@
       display:none; 
    }
 
-   #bannerdata {
-      position:absolute; 
-      left:75px; 
-      top:-2px;
-      color:green;
-   }
-
 
    #browser {
       position:absolute;
@@ -100,7 +93,7 @@
     */
    function hideAd() {
 	  if ( confirm( "You have selected the HIDE action. Once hidden, you will lose all interaction with the ad. Continue?" ) ) {
-		  Ormma.hide();
+		  ormma.hide();
       }
    }
 
@@ -111,7 +104,12 @@
     * @requires Ormma
     */
    function expandAd() {
-	  Ormma.expand( { height : 250 } );
+      var pos = ormma.getDefaultPosition();
+	  var size = ormma.getSize();
+	  ormma.expand( { x: pos.x, 
+	                  y: pos.y, 
+					  width: size.width, 
+					  height : 250 } );
    }
 
 
@@ -122,14 +120,13 @@
     *
     * @requires Ormma
     */
-   function handleErrorEvent( evt ) {
-      var err = evt.data;
+   function handleErrorEvent( message, action ) {
       var msg = "ORMMA ERROR ";
-	  if ( err.action != null ) {
+	  if ( action != null ) {
 	     // error caused by an action	
-	     msg += "caused by action '" + err.action + "', ";
+	     msg += "caused by action '" + action + "', ";
       }
-      msg += "Message: " + err.message;
+      msg += "Message: " + message;
 	  alert( msg );
    }
 
@@ -141,10 +138,9 @@
     *
     * @requires Ormma
     */
-   function handleKeyboardChangeEvent( evt ) {
-	  var kbd = evt.data;
+   function handleKeyboardChangeEvent( open ) {
       var msg = "Keyboard is now: ";
-      msg += ( kbd.open ) ? "OPEN" : "CLOSED";
+      msg += ( open ) ? "OPEN" : "CLOSED";
       alert( msg );
    }
 
@@ -156,8 +152,8 @@
     *
     * @requires Ormma
     */
-   function handleScreenSizeChangeEvent( evt ) {
-      var msg = "Screen Size Changed to " + buildSizeText( evt.data );;
+   function handleScreenSizeChangeEvent( width, height ) {
+      var msg = "Screen Size Changed to " + buildSizeText( width, height );;
       alert( msg );
    }
 
@@ -169,14 +165,9 @@
     *
     * @requires Ormma
     */
-   function handleSizeChangeEvent( evt ) {
-      var err = evt.data;
-      var msg = "ORMMA ERROR ";
-	  if ( err.action != null ) {
-	     // error caused by an action	
-	     msg += "caused by action '" + err.action + "', ";
-      }
-      msg += "Message: " + err.message;
+   function handleSizeChangeEvent( width, height ) {
+      var msg = "Ad Size Changed to " + buildSizeText( width, height );;
+      alert( msg );
    }
 
 
@@ -185,21 +176,20 @@
     *
     * @requires Ormma
     */
-   function handleStateChangeEvent( evt ) {
-	  var newState = evt.data;
+   function handleStateChangeEvent( state ) {
       var banner = document.getElementById( 'banner' );
       var resizedad = document.getElementById( 'resizedad' );
       var expandedad = document.getElementById( 'expandedad' );
-	  if ( newState === 'default' ) {
+	  if ( state === 'default' ) {
 	     showDefault();
       }
-	  else if ( newState === 'expanded' ) {
+	  else if ( state === 'expanded' ) {
 	     showExpanded();
       }
-	  else if ( newState === 'resized' ) {
+	  else if ( state === 'resized' ) {
 	     showResized();
       }
-	  else if ( newState === 'hidden' ) {
+	  else if ( state === 'hidden' ) {
 	     showHidden();
       }
    }
@@ -211,7 +201,7 @@
     * @requires Ormma
 	*/
    function openBrowser() {
-      Ormma.open( "http://www.toyota.com" );
+      ormma.open( "http://www.toyota.com" );
    }
 
 
@@ -222,14 +212,13 @@
     */
    function ORMMAReady() {
       //  start listening for state changes
-	  alert( "ORMMAReady()" );
-      Ormma.addEventListener( 'error', handleErrorEvent );
-      Ormma.addEventListener( 'stateChange', handleStateChangeEvent );
-      Ormma.addEventListener( 'screenSizeChange', handleScreenSizeChangeEvent );
-      Ormma.addEventListener( 'keyboardChange', handleKeyboardChangeEvent );
+      ormma.addEventListener( 'error', handleErrorEvent );
+      ormma.addEventListener( 'stateChange', handleStateChangeEvent );
+      ormma.addEventListener( 'screenChange', handleScreenSizeChangeEvent );
+      ormma.addEventListener( 'keyboardChange', handleKeyboardChangeEvent );
 	  
 	  // determine our current state
-	  var newState = Ormma.getState();
+	  var newState = ormma.getState();
 	  if ( newState === 'default' ) {
 		 showDefault();
       }
@@ -249,8 +238,8 @@
     */
    function resizeLarger() {
 	  // add a special listener for size changes, to make sure it's firing
-      Ormma.addEventListener( 'sizeChanged', handleSizeChangeEvent );
-	  Ormma.resize( 320, 250 );
+      ormma.addEventListener( 'sizeChange', handleSizeChangeEvent );
+	  ormma.resize( 320, 250 );
    }
 
 
@@ -260,7 +249,7 @@
     * @requires Ormma
     */
    function resizeSmaller() {
-	  Ormma.close();
+	  ormma.close();
    }
    
    
@@ -275,11 +264,8 @@
          expandedad.style.display = 'none';
 
          // we only care about the size changed event if we're resizing
-         Ormma.removeEventListener( 'sizeChanged', handleSizeChangeEvent );
+         ormma.removeEventListener( 'sizeChange', handleSizeChangeEvent );
          resizeText = "No Value";
-
-         // now update the contents of the ad
-         updateDefaultAd();
    }
    
    
@@ -327,21 +313,7 @@
     * @requires Ormma
     */
    function shrinkAd() {
-	  Ormma.close();
-   }
-
-
-   /**
-    * Helper that updates the contents of the default state.
-    *
-    * @requires Ormma
-    */
-   function updateDefaultAd() {
-      var state = document.getElementById( 'bannerstate' );
-      var size = document.getElementById( 'bannersize' );
-
-      state.innerHTML = Ormma.getState();	
-      size.innerHTML = buildSizeText( Ormma.getSize() );	
+	  ormma.close();
    }
 
 
@@ -367,10 +339,13 @@
       var text = document.getElementById( 'resizetext' );
 
       // update the ad contentx
-      state.innerHTML = Ormma.getState();	
-      screensize.innerHTML = buildSizeText( Ormma.getScreenSize() );	
-      maxsize.innerHTML = buildSizeText( Ormma.getMaxSize() );	
-      size.innerHTML = buildSizeText( Ormma.getSize() );	
+      state.innerHTML = ormma.getState();	
+	  var sz = ormma.getScreenSize();
+      screensize.innerHTML = buildSizeText( sz.width, sz.height );	
+	  sz = ormma.getMaxSize();
+      maxsize.innerHTML = buildSizeText( sz.width, sz.height );	
+	  sz = ormma.getSize();
+      size.innerHTML = buildSizeText( sz.width, sz.height );	
       text.innerHTML = resizeText;
    }
 
@@ -378,10 +353,10 @@
    /**
     * Helper Function to build a size text from the specified diminsions.
     */
-   function buildSizeText( dimensions ) {
-      var text = dimensions.width;
+   function buildSizeText( width, height ) {
+      var text = width;
       text += " x ";
-      text += dimensions.height;
+      text += height;
 
       return text;
    }
@@ -412,10 +387,6 @@
          <img src="http://localhost/images/hide.png"
               alt="hide"
               onclick="hideAd();" />
-      </div>
-      <div id='bannerdata'>
-	    State: <span id='bannerstate'>STATE GOES HERE</span><br><br>
- 	    Size: <span id='bannersize'>WIDTH X HEIGHT</span>
       </div>
    </div>
 

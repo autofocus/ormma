@@ -34,9 +34,14 @@
 	BOOL m_gyroscopeEnableCount;
 	BOOL m_locationEnableCount;
 	BOOL m_networkEnableCount;
+	
+	BOOL m_processAccelerometer;
+	BOOL m_processShake;
+	CGFloat m_shakeIntensity;
 }
 @property( nonatomic, assign ) id<ORMMAJavascriptBridgeDelegate> bridgeDelegate;
 @property( nonatomic, retain ) CMMotionManager *motionManager;
+@property( nonatomic, copy, readonly ) NSString *networkStatus;
 
 
 
@@ -56,9 +61,13 @@
 @protocol ORMMAJavascriptBridgeDelegate
 
 @required
-- (void)applicationReadyNotificationRequestReceived;
 
-- (NSString *)executeJavaScript:(NSString *)javascript, ...;
+@property( nonatomic, assign, readonly ) UIWebView *currentWebView;
+
+
+//- (NSString *)executeJavaScript:(NSString *)javascript, ...;
+- (NSString *)usingWebView:(UIWebView *)webView
+		 executeJavascript:(NSString *)javascript, ...;
 
 - (void)showAd:(UIWebView *)webView;
 - (void)hideAd:(UIWebView *)webView;
@@ -87,6 +96,7 @@
 			 isHTML:(BOOL)html;
 - (void)sendSMSTo:(NSString *)to
 		 withBody:(NSString *)body;
+- (void)placeCallTo:(NSString *)phoneNumber;
 
 - (CGRect)getAdFrameInWindowCoordinates;
 

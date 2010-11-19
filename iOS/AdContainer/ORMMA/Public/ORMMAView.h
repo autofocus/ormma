@@ -8,11 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import <MessageUI/MessageUI.h>
+#import "ORMMAWebBrowserViewController.h"
 
 
 @class ORMMAJavascriptBridge;
 @class ORMMALocalServer;
-@class ORMMAWebBrowserViewController;
 
 @protocol ORMMAViewDelegate;
 @protocol ORMMAJavascriptBridgeDelegate;
@@ -31,7 +31,8 @@ typedef enum ORMMAViewStateEnum
 
 
 @interface ORMMAView : UIView <MFMailComposeViewControllerDelegate,
-							   MFMessageComposeViewControllerDelegate>
+							   MFMessageComposeViewControllerDelegate,
+							   ORMMAWebBrowserViewControllerDelegate>
 {
 @private
 	UIDevice *m_currentDevice;
@@ -94,6 +95,10 @@ typedef enum ORMMAViewStateEnum
 
 
 @optional
+
+// called to allow the application to inject javascript into the creative
+- (NSString *)javascriptForInjection;
+
 
 // called to allow the application to execute javascript on the creative at the
 // time the creative is loaded

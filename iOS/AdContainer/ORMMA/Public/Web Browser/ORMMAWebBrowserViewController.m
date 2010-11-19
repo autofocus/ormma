@@ -17,6 +17,7 @@
 
 - (UIImage *)imageForName:(NSString *)name;
 
+
 @end
 
 
@@ -45,11 +46,12 @@ static NSString *s_scale = nil;
 @synthesize refreshButton = m_refreshButton;
 @synthesize pageLoadingIndicator = m_pageLoadingIndicator;
 @synthesize closeButton = m_closeButton;
-@synthesize ormmaView = m_ormmaView;
+@synthesize browserDelegate = m_browserDelegate;
 @dynamic URL;
 @dynamic backButtonEnabled;
 @dynamic forwardButtonEnabled;
 @dynamic refreshButtonEnabled;
+@dynamic closeButtonEnabled;
 
 
 
@@ -101,7 +103,7 @@ static NSString *s_scale = nil;
 	[m_refreshButton release], m_refreshButton = nil;
 	[m_pageLoadingIndicator release], m_pageLoadingIndicator = nil;
 	[m_closeButton release], m_closeButton = nil;
-	[m_ormmaView release], m_ormmaView = nil;
+	m_browserDelegate = nil;
     [super dealloc];
 }
 
@@ -244,6 +246,17 @@ static NSString *s_scale = nil;
 }
 
 
+- (BOOL)closeButtonEnabled
+{
+	return self.closeButton.hidden;
+}
+
+
+- (void)setCloseButtonEnabled:(BOOL)enabled
+{
+	self.closeButton.hidden = enabled;
+}
+
 
 #pragma mark -
 #pragma mark Button Actions
@@ -272,7 +285,16 @@ static NSString *s_scale = nil;
 - (IBAction)closeButtonPressed:(id)sender
 {
 	NSLog( @"Close Button Pressed." );
-	[self.ormmaView doneWithBrowser];
+	if ( self.browserDelegate == nil )
+	{
+		// not assigned a delegate, just dismiss the view controller
+		// (assumes that we're a modal dialog)
+		[self.parentViewController dismissModalViewControllerAnimated:YES];
+	}
+	else
+	{
+		[self.browserDelegate doneWithBrowser];
+	}
 }
 
 

@@ -15,14 +15,12 @@
 		2899E5220DE3E06400AC0155 /* ORMMATestBedViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* ORMMATestBedViewController.xib */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* ORMMATestBedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* ORMMATestBedViewController.m */; };
-		FA05F59D1279F7D500DF7D5F /* OrmmaOne.html in Resources */ = {isa = PBXBuildFile; fileRef = FA05F59C1279F7D500DF7D5F /* OrmmaOne.html */; };
-		FA83BE42127F388000616718 /* test-ad.html in Resources */ = {isa = PBXBuildFile; fileRef = FA83BE41127F388000616718 /* test-ad.html */; };
-		FA83BE44127F3CC800616718 /* ormma-test-ad.html in Resources */ = {isa = PBXBuildFile; fileRef = FA83BE43127F3CC800616718 /* ormma-test-ad.html */; };
-		FAC971BD12883D91001567EB /* ormma-test-ad-level-2.html in Resources */ = {isa = PBXBuildFile; fileRef = FAC971BC12883D91001567EB /* ormma-test-ad-level-2.html */; };
+		FAC971BD12883D91001567EB /* ormma-test-ad-level-2a.html in Resources */ = {isa = PBXBuildFile; fileRef = FAC971BC12883D91001567EB /* ormma-test-ad-level-2a.html */; };
 		FACA4167128706F000261A12 /* ormma-test-ad-level-1.html in Resources */ = {isa = PBXBuildFile; fileRef = FACA4166128706F000261A12 /* ormma-test-ad-level-1.html */; };
 		FAD19EDE127726CE00CA9836 /* libORMMA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD19EDB127726CE00CA9836 /* libORMMA.a */; };
 		FAD19EDF127726CE00CA9836 /* ORMMA.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FAD19EDC127726CE00CA9836 /* ORMMA.bundle */; };
 		FAD3FA29126C9DCB00468F35 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD3FA28126C9DCB00468F35 /* libsqlite3.0.dylib */; };
+		FAD726CB1294424E001D702B /* ormma-test-ad-level-2.html in Resources */ = {isa = PBXBuildFile; fileRef = FAD726CA1294424E001D702B /* ormma-test-ad-level-2.html */; };
 		FADF792C1247F2B2003F7C45 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADF792B1247F2B2003F7C45 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAE3A6CC124299A500285B32 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A6CB124299A500285B32 /* CFNetwork.framework */; };
 		FAE3A6D0124299BB00285B32 /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A6CF124299BB00285B32 /* libz.1.2.3.dylib */; };
@@ -34,7 +32,6 @@
 		FAE3A7B512429A8200285B32 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A7B412429A8200285B32 /* CoreFoundation.framework */; };
 		FAE3A7B712429A8200285B32 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A7B612429A8200285B32 /* CoreLocation.framework */; };
 		FAE3A7EF12429AD800285B32 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A7EE12429AD800285B32 /* MobileCoreServices.framework */; };
-		FAE3A9701242D9DF00285B32 /* Ad.html in Resources */ = {isa = PBXBuildFile; fileRef = FAE3A96F1242D9DF00285B32 /* Ad.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,15 +48,13 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* ORMMATestBed_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMATestBed_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* ORMMATestBed-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ORMMATestBed-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
-		FA05F59C1279F7D500DF7D5F /* OrmmaOne.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = OrmmaOne.html; sourceTree = "<group>"; };
-		FA83BE41127F388000616718 /* test-ad.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "test-ad.html"; sourceTree = "<group>"; };
-		FA83BE43127F3CC800616718 /* ormma-test-ad.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "ormma-test-ad.html"; sourceTree = "<group>"; };
-		FAC971BC12883D91001567EB /* ormma-test-ad-level-2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "ormma-test-ad-level-2.html"; sourceTree = "<group>"; };
+		FAC971BC12883D91001567EB /* ormma-test-ad-level-2a.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "ormma-test-ad-level-2a.html"; sourceTree = "<group>"; };
 		FACA4166128706F000261A12 /* ormma-test-ad-level-1.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "ormma-test-ad-level-1.html"; sourceTree = "<group>"; };
 		FAD19EDB127726CE00CA9836 /* libORMMA.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libORMMA.a; sourceTree = "<group>"; };
 		FAD19EDC127726CE00CA9836 /* ORMMA.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ORMMA.bundle; sourceTree = "<group>"; };
 		FAD19EDD127726CE00CA9836 /* ORMMAView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAView.h; sourceTree = "<group>"; };
 		FAD3FA28126C9DCB00468F35 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
+		FAD726CA1294424E001D702B /* ormma-test-ad-level-2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "ormma-test-ad-level-2.html"; sourceTree = "<group>"; };
 		FADF792B1247F2B2003F7C45 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		FAE3A6CB124299A500285B32 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		FAE3A6CF124299BB00285B32 /* libz.1.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.3.dylib; path = usr/lib/libz.1.2.3.dylib; sourceTree = SDKROOT; };
@@ -71,7 +66,6 @@
 		FAE3A7B412429A8200285B32 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		FAE3A7B612429A8200285B32 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		FAE3A7EE12429AD800285B32 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
-		FAE3A96F1242D9DF00285B32 /* Ad.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Ad.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,12 +142,9 @@
 			isa = PBXGroup;
 			children = (
 				FACA4166128706F000261A12 /* ormma-test-ad-level-1.html */,
-				FAC971BC12883D91001567EB /* ormma-test-ad-level-2.html */,
-				FA83BE43127F3CC800616718 /* ormma-test-ad.html */,
+				FAD726CA1294424E001D702B /* ormma-test-ad-level-2.html */,
+				FAC971BC12883D91001567EB /* ormma-test-ad-level-2a.html */,
 				8D1107310486CEB800E47090 /* ORMMATestBed-Info.plist */,
-				FAE3A96F1242D9DF00285B32 /* Ad.html */,
-				FA05F59C1279F7D500DF7D5F /* OrmmaOne.html */,
-				FA83BE41127F388000616718 /* test-ad.html */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -241,13 +232,10 @@
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				2899E5220DE3E06400AC0155 /* ORMMATestBedViewController.xib in Resources */,
-				FAE3A9701242D9DF00285B32 /* Ad.html in Resources */,
 				FAD19EDF127726CE00CA9836 /* ORMMA.bundle in Resources */,
-				FA05F59D1279F7D500DF7D5F /* OrmmaOne.html in Resources */,
-				FA83BE42127F388000616718 /* test-ad.html in Resources */,
-				FA83BE44127F3CC800616718 /* ormma-test-ad.html in Resources */,
 				FACA4167128706F000261A12 /* ormma-test-ad-level-1.html in Resources */,
-				FAC971BD12883D91001567EB /* ormma-test-ad-level-2.html in Resources */,
+				FAC971BD12883D91001567EB /* ormma-test-ad-level-2a.html in Resources */,
+				FAD726CB1294424E001D702B /* ormma-test-ad-level-2.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
