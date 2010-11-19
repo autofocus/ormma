@@ -7,7 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ORMMAView.h"
+
+
+
+
+@protocol ORMMAWebBrowserViewControllerDelegate
+
+- (void)doneWithBrowser;
+
+@end
 
 
 
@@ -17,8 +25,8 @@
 	// access to our bundle
 	NSBundle *m_ormmaBundle;
 	
-	// the ORMMA view for this browser
-	ORMMAView *m_ormmaView;
+	// the delegate for this browser
+	id<ORMMAWebBrowserViewControllerDelegate> m_browserDelegate;
 	
 	// user interface components
 	NSURL *m_url;
@@ -39,7 +47,7 @@
 @property( nonatomic, retain ) IBOutlet UIButton *closeButton;
 
 // the ORMMA view
-@property( nonatomic, assign ) ORMMAView *ormmaView;
+@property( nonatomic, assign ) id<ORMMAWebBrowserViewControllerDelegate> browserDelegate;
 
 // the URL to load
 @property( nonatomic, copy ) NSURL *URL;
@@ -48,6 +56,7 @@
 @property( nonatomic, assign ) BOOL backButtonEnabled;
 @property( nonatomic, assign ) BOOL forwardButtonEnabled;
 @property( nonatomic, assign ) BOOL refreshButtonEnabled;
+@property( nonatomic, assign ) BOOL closeButtonEnabled;
 
 
 // button actions

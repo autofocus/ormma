@@ -117,7 +117,7 @@ typedef enum OTBAdAnimationDirectionEnum
 
 - (void)viewWillAppear:(BOOL)animated
 {
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"ormma-test-ad-level-1"
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"ormma-test-ad-level-2"
 													 ofType:@"html"];
 	NSLog( @"Ad Path is: %@", path );
 	NSString *adFragment = [NSString stringWithContentsOfFile:path

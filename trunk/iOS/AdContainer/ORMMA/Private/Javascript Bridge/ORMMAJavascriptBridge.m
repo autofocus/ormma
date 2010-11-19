@@ -10,6 +10,7 @@
 #import "ORMMAJavascriptBridge.h"
 #import "Reachability.h"
 #import "UIColor-Expanded.h"
+#import "UIDevice-ORMMA.h"
 
 
 
@@ -100,6 +101,8 @@ NSString * const ORMMACommandRequest = @"request";
 
 NSString * const ORMMACommandService = @"service";
 
+const CGFloat kDefaultShakeIntensity = 1.5;
+
 
 
 
@@ -109,6 +112,7 @@ NSString * const ORMMACommandService = @"service";
 @synthesize bridgeDelegate = m_bridgeDelegate;
 @synthesize reachability = m_reachability;
 @synthesize motionManager = m_motionManager;
+@dynamic networkStatus;
 
 
 
@@ -123,6 +127,9 @@ NSString * const ORMMACommandService = @"service";
 		m_locationManager = [[CLLocationManager alloc] init];
         m_locationManager.delegate = self;
 		m_locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+		
+		// set the default shake intensity
+		m_shakeIntensity = kDefaultShakeIntensity;
 		
 		// check for the availability of Core Motion
 		if ( NSClassFromString( @"CMMotionManager" ) != nil )
@@ -168,6 +175,26 @@ NSString * const ORMMACommandService = @"service";
 	[super dealloc];
 }
 
+
+
+#pragma mark -
+#pragma mark Dynamic Properties
+
+- (NSString *)networkStatus
+{
+	NetworkStatus ns = [self.reachability currentReachabilityStatus];
+	switch ( ns )
+	{
+		case NotReachable:
+			return @"offline";
+		case ReachableViaWWAN:
+			return @"cell";
+		case ReachableViaWiFi:
+			return @"wifi";
+		default:
+			return @"unknown";
+	}
+}
 
 
 #pragma mark -
@@ -230,7 +257,6 @@ NSString * const ORMMACommandService = @"service";
 			parameters:(NSDictionary *)parameters
 			forWebView:(UIWebView *)webView
 {
-	NSLog( @"Validating Command: %@", command );
 	BOOL processed = NO;
 	if ( [command isEqualToString:ORMMACommandClose] )
 	{
@@ -329,17 +355,15 @@ NSString * const ORMMACommandService = @"service";
 								 forWebView:webView];
 	}
 	
-	if ( processed ) 
-	{
-		// notify JS that we've completed the last request
-		[self.bridgeDelegate executeJavaScript:@"window.OrmmaBridge.nativeCallComplete();"];
-		NSLog( @"Processing complete." );
-	}
-	else
+	if ( !processed ) 
 	{
 		NSLog( @"Unknown Command: %@", command );
 	}
-	
+
+	// notify JS that we've completed the last request
+	[self.bridgeDelegate usingWebView:webView
+					executeJavascript:@"window.ormmaview.nativeCallComplete( '%@' );", command];
+
 	return processed;
 }
 
@@ -568,7 +592,13 @@ NSString * const ORMMACommandService = @"service";
 - (BOOL)processPhoneCommand:(NSDictionary *)parameters
 				 forWebView:(UIWebView *)webView
 {
-	NSLog( @"Processing PHONE Command..." );
+	NSString *phoneNumber = [self requiredStringFromDictionary:parameters 
+														forKey:@"number"];
+	NSLog( @"Processing PHONE Command for %@", phoneNumber );
+	if ( ( phoneNumber != nil ) && ( phoneNumber.length > 0 ) )
+	{
+		[self.bridgeDelegate placeCallTo:phoneNumber];
+	}
 	return YES;
 }
 
@@ -595,24 +625,13 @@ NSString * const ORMMACommandService = @"service";
 - (BOOL)processServiceCommand:(NSDictionary *)parameters
 				   forWebView:(UIWebView *)webView
 {
-	NSLog( @"Processing SERVICE Command..." );
-	
 	// determine the desired service and state
 	NSString *eventName = [parameters valueForKey:@"name"];
 	NSString *desiredState = [parameters valueForKey:@"enabled"];
-	BOOL enabled = ( [@"yes" isEqualToString:desiredState] );
+	BOOL enabled = ( [@"Y" isEqualToString:desiredState] );
+	NSLog( @"Processing SERVICE Command to %@able %@ events", ( enabled ? @"en" : @"dis" ), eventName );
 	
-	if ( [@"ready" isEqualToString:eventName] ) // application ready
-	{
-		if ( enabled )
-		{
-			// client is requesting notification when the app is ready
-			// if we're ready at the point this is registered, just go ahead
-			// and fire the event
-			[self.bridgeDelegate applicationReadyNotificationRequestReceived];
-		}
-	}	
-	else if ( [@"tiltChange" isEqualToString:eventName] ) // accelerometer
+	if ( [@"tiltChange" isEqualToString:eventName] ) // accelerometer
 	{
 		if ( enabled )
 		{
@@ -623,6 +642,7 @@ NSString * const ORMMACommandService = @"service";
 				m_accelerometer.updateInterval = .1;
 				m_accelerometer.delegate = self;
 			}
+			m_processAccelerometer = YES;
 		}
 		else
 		{
@@ -634,6 +654,34 @@ NSString * const ORMMACommandService = @"service";
 					m_accelerometer.delegate = nil, [m_accelerometer release], m_accelerometer = nil;
 				}
 			}
+			m_processAccelerometer = NO;
+		}
+	}
+	if ( [@"shake" isEqualToString:eventName] ) // shake
+	{
+		if ( enabled )
+		{
+			m_accelerometerEnableCount++;
+			if ( m_accelerometer == nil )
+			{
+				m_accelerometer = [[UIAccelerometer sharedAccelerometer] retain];
+				m_accelerometer.updateInterval = .1;
+				m_accelerometer.delegate = self;
+			}
+			
+			m_processShake = YES;
+		}
+		else
+		{
+			if ( m_accelerometerEnableCount > 0 )
+			{
+				m_accelerometerEnableCount--;
+				if ( m_accelerometerEnableCount == 0 )
+				{
+					m_accelerometer.delegate = nil, [m_accelerometer release], m_accelerometer = nil;
+				}
+			}
+			m_processShake = NO;
 		}
 	}
 	else if ( [@"headingChange" isEqualToString:eventName] ) // compass
@@ -665,11 +713,13 @@ NSString * const ORMMACommandService = @"service";
 	{
 		if ( [CLLocationManager locationServicesEnabled] )
 		{
+			NSLog( @"Location Services are available;  Enable count: %i", m_locationEnableCount );
 			if ( enabled )
 			{
 				m_locationEnableCount++;
 				if ( m_locationEnableCount == 1 )
 				{
+					NSLog( @"Location Services Enabled." );
 					[m_locationManager startUpdatingLocation];
 				}
 			}
@@ -677,13 +727,17 @@ NSString * const ORMMACommandService = @"service";
 			{
 				if ( m_locationEnableCount > 0 )
 				{
-					m_locationEnableCount++;
+					m_locationEnableCount--;
 					if ( m_locationEnableCount == 0 )
 					{
+						NSLog( @"Location Services Disabled." );
 						[m_locationManager stopUpdatingLocation];
 					}
 				}
 			}
+		}
+		else {
+			NSLog( @"Location Services are not available." );
 		}
 	}
 	else if ( [@"networkChange" isEqualToString:eventName] ) // Reachability / Network
@@ -815,11 +869,15 @@ NSString * const ORMMACommandService = @"service";
 			orientationAngle = 90;
 			break;
 		default:
-			orientationAngle = -1;
-			break;
+			// the device is likely flat
+			// since we have no idea what the orientation is
+			// don't change it
+			return;
 	}
-	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.orientationChanged( %i );", orientationAngle];
-	[self.bridgeDelegate executeJavaScript:js];
+	CGSize screenSize = [device screenSizeForOrientation:orientation];
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+					executeJavascript:@"window.ormmaview.fireChangeEvent( { orientation: %i, screenSize: { width: %f, height: %f } } );", orientationAngle,
+																																		  screenSize.width, screenSize.height];
 }
 
 
@@ -835,22 +893,22 @@ NSString * const ORMMACommandService = @"service";
 	{
 		state = @"wifi";
 	}
-	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.networkChanged( '%@' );", state];
-	[self.bridgeDelegate executeJavaScript:js];
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+					executeJavascript:@"window.ormmaview.fireChangeEvent( { network: '%@' } );", state];
 }
 
 
 - (void)keyboardWillShow:(NSNotification *)notification
 {
-	NSString *js = @"window.OrmmaBridge.keyboardChanged( true );";
-	[self.bridgeDelegate executeJavaScript:js];
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+	 executeJavascript:@"window.ormmaview.fireChangeEvent( { keyboardState: true } );"];
 }
 
 
 - (void)keyboardWillHide:(NSNotification *)notification
 {
-	NSString *js = @"window.OrmmaBridge.keyboardChanged( false );";
-	[self.bridgeDelegate executeJavaScript:js];
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+					executeJavascript:@"window.ormmaview.fireChangeEvent( { keyboardState: false } );"];
 }
 
 
@@ -861,13 +919,50 @@ NSString * const ORMMACommandService = @"service";
 - (void)accelerometer:(UIAccelerometer *)accelerometer 
 		didAccelerate:(UIAcceleration *)acceleration
 {
-	NSLog( @"Acceleration Data Available: %f, %f, %f", acceleration.x,
-													   acceleration.y,
-													   acceleration.z );
-	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.acceleration( %f, %f, %f );", acceleration.x,
-																								acceleration.y,
-																								acceleration.z];
-	[self.bridgeDelegate executeJavaScript:js];
+	static BOOL processingShake = NO;
+	BOOL shake = NO;
+	
+	// send accelerometer data if needed
+	if ( m_processAccelerometer )
+	{
+	    NSLog( @"Acceleration Data Available: %f, %f, %f", acceleration.x,
+														   acceleration.y,
+														   acceleration.z );
+		[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+						executeJavascript:@"window.ormmaview.fireChangeEvent( { tilt: { x: %f, y: %f, z: %f } } );", acceleration.x,
+																												acceleration.y,
+																												acceleration.z];
+	}
+	
+	// deal with shakes
+	if ( m_processShake )
+	{
+	   if ( processingShake )
+	   {
+		   return;
+	   }
+	   if ( ( acceleration.x > m_shakeIntensity ) || ( acceleration.x < ( -1 * m_shakeIntensity ) ) )
+	   {
+		   shake = YES;
+	   }
+	   if ( ( acceleration.x > m_shakeIntensity ) || ( acceleration.x < ( -1 * m_shakeIntensity ) ) )
+	   {
+		  shake = YES;
+  	   }
+	   if ( ( acceleration.x > m_shakeIntensity ) || ( acceleration.x < ( -1 * m_shakeIntensity ) ) )
+	   {
+		  shake = YES;
+	   }
+	
+	   if ( shake )
+	   {
+		   // Shake detected
+		   NSLog( @"Shake Detected" );
+		   [self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+						   executeJavascript:@"window.ormmaview.fireShakeEvent();"];
+	   }
+	   processingShake = NO;
+	}
 }
 
 
@@ -881,10 +976,10 @@ NSString * const ORMMACommandService = @"service";
 	NSLog( @"Gyroscope Data Available: %f, %f, %f", data.rotationRate.x, 
 													data.rotationRate.y, 
 													data.rotationRate.z );
-	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.rotation( %f, %f, %f );", data.rotationRate.x, 
-																							data.rotationRate.y, 
-																							data.rotationRate.z];
-	[self.bridgeDelegate executeJavaScript:js];
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+					executeJavascript:@"window.ormmaview.fireChangeEvent( { rotation: { x: %f, y: %f, z: %f } } );", data.rotationRate.x, 
+																									   data.rotationRate.y, 
+																									   data.rotationRate.z];
 }
 
 
@@ -896,24 +991,13 @@ NSString * const ORMMACommandService = @"service";
 	didUpdateToLocation:(CLLocation *)newLocation 
 		   fromLocation:(CLLocation *)oldLocation
 {
-	NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
-	[formatter setTimeStyle:NSDateFormatterFullStyle];
-	[formatter setDateStyle:NSDateFormatterFullStyle];
-	NSString *ts = [formatter stringFromDate:newLocation.timestamp];;
-	NSLog( @"Location Data Available: (%f, %f, %f ), acc: %f / %f, ts: %@, speed: %f @ %f", newLocation.coordinate.latitude, 
-																							newLocation.coordinate.longitude, 
-																							newLocation.altitude,
-																							newLocation.horizontalAccuracy,
-																							newLocation.verticalAccuracy,
-																							ts,
-																							newLocation.speed,
-																							newLocation.course );
-	NSString *jsFormat = @"window.OrmmaBridge.locationChanged( %f, %f, %f );";
-	NSString *js = [NSString stringWithFormat:jsFormat, newLocation.coordinate.latitude, 
-														newLocation.coordinate.longitude, 
-														newLocation.horizontalAccuracy];
-	NSLog( @"JS: %@", js );
-	[self.bridgeDelegate executeJavaScript:js];
+	NSLog( @"Location Data Available: (%f, %f ) acc: %f", newLocation.coordinate.latitude, 
+														  newLocation.coordinate.longitude, 
+														  newLocation.horizontalAccuracy );
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+					executeJavascript:@"window.ormmaview.fireChangeEvent( { location: { lat: %f, lon: %f, acc: %f } } );", newLocation.coordinate.latitude, 
+																											 newLocation.coordinate.longitude, 
+																											 newLocation.horizontalAccuracy];
 }
 
 
@@ -935,18 +1019,12 @@ NSString * const ORMMACommandService = @"service";
 - (void)locationManager:(CLLocationManager *)manager 
 	   didUpdateHeading:(CLHeading *)newHeading
 { 
-	NSLog( @"Heading Data Available: %f, %f, %f", newHeading.magneticHeading,
-												  newHeading.trueHeading,
-												  newHeading.headingAccuracy );
+	NSLog( @"Heading Data Available: %f", newHeading.trueHeading );
 	NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
 	[formatter setTimeStyle:NSDateFormatterFullStyle];
 	[formatter setDateStyle:NSDateFormatterFullStyle];
-	NSString *headingTimestamp = [formatter stringFromDate:newHeading.timestamp];;
-	NSString *js = [NSString stringWithFormat:@"window.OrmmaBridge.headingChanged( %f, %f, %f, '%@' );", newHeading.magneticHeading,
-																									    newHeading.trueHeading,
-																									    newHeading.headingAccuracy,
-																									    headingTimestamp];
-	[self.bridgeDelegate executeJavaScript:js];
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+					executeJavascript:@"window.ormmaview.fireChangeEvent( { heading: %f } );", newHeading.trueHeading];
 }
 
 

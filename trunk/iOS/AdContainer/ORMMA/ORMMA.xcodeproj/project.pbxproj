@@ -36,7 +36,6 @@
 		FAB6E05012402A6E00DF64C9 /* UIDevice-Hardware.h in Headers */ = {isa = PBXBuildFile; fileRef = FAB6E04E12402A6E00DF64C9 /* UIDevice-Hardware.h */; };
 		FAB6E05112402A6E00DF64C9 /* UIDevice-Hardware.m in Sources */ = {isa = PBXBuildFile; fileRef = FAB6E04F12402A6E00DF64C9 /* UIDevice-Hardware.m */; };
 		FAC9732C12886BA8001567EB /* ORMMA_Standard_JS_Stub.html in Resources */ = {isa = PBXBuildFile; fileRef = FAC9730E12886680001567EB /* ORMMA_Standard_JS_Stub.html */; };
-		FACA434B128754CB00261A12 /* ORMMAWebBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FACCB0C2128326F900B65BD6 /* ORMMAWebBrowserViewController.xib */; };
 		FACA43901287596100261A12 /* back.png in Resources */ = {isa = PBXBuildFile; fileRef = FACCB0C71283290000B65BD6 /* back.png */; };
 		FACA43911287596100261A12 /* back@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FACCB0C81283290000B65BD6 /* back@2x.png */; };
 		FACA43921287596100261A12 /* forward.png in Resources */ = {isa = PBXBuildFile; fileRef = FACCB0C91283290000B65BD6 /* forward.png */; };
@@ -45,10 +44,6 @@
 		FACA43951287596100261A12 /* refresh@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FACCB0CC1283290000B65BD6 /* refresh@2x.png */; };
 		FACA4446128765CF00261A12 /* UIColor-Expanded.h in Headers */ = {isa = PBXBuildFile; fileRef = FACA4444128765CF00261A12 /* UIColor-Expanded.h */; };
 		FACA4447128765CF00261A12 /* UIColor-Expanded.m in Sources */ = {isa = PBXBuildFile; fileRef = FACA4445128765CF00261A12 /* UIColor-Expanded.m */; };
-		FACCB0C3128326F900B65BD6 /* ORMMAWebBrowserViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = FACCB0C0128326F900B65BD6 /* ORMMAWebBrowserViewController.h */; };
-		FACCB0C4128326F900B65BD6 /* ORMMAWebBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FACCB0C1128326F900B65BD6 /* ORMMAWebBrowserViewController.m */; };
-		FAD19FC2127765C100CA9836 /* ormmaapi.js in Resources */ = {isa = PBXBuildFile; fileRef = FA4520661254F267004D2BED /* ormmaapi.js */; };
-		FAD19FC3127765C100CA9836 /* ormmaios.js in Resources */ = {isa = PBXBuildFile; fileRef = FA4520681254F382004D2BED /* ormmaios.js */; };
 		FAD232FE1268A93E00921D13 /* ORMMALocalServer.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD232FC1268A93E00921D13 /* ORMMALocalServer.h */; };
 		FAD232FF1268A93E00921D13 /* ORMMALocalServer.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD232FD1268A93E00921D13 /* ORMMALocalServer.m */; };
 		FAD233BC1268EF1B00921D13 /* FMDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD233B61268EF1B00921D13 /* FMDatabase.h */; };
@@ -98,7 +93,14 @@
 		FAD3FAAC126CABD000468F35 /* 3.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3FAAA126CABB800468F35 /* 3.sql */; };
 		FAD3FACC126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD3FACA126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h */; };
 		FAD3FACD126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD3FACB126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m */; };
+		FAD723A4129190B7001D702B /* UIDevice-ORMMA.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD723A2129190B7001D702B /* UIDevice-ORMMA.h */; };
+		FAD723A5129190B7001D702B /* UIDevice-ORMMA.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD723A3129190B7001D702B /* UIDevice-ORMMA.m */; };
+		FAD724151292D1D5001D702B /* ormma.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD1A30012902C6F009379B3 /* ormma.js */; };
+		FAD724161292D1D5001D702B /* ormma-ios-bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD1A30212902CCD009379B3 /* ormma-ios-bridge.js */; };
+		FAD72673129346FA001D702B /* ORMMAWebBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FAE2E8EB128C4D6200A1B1ED /* ORMMAWebBrowserViewController.xib */; };
 		FADF791D1247F29B003F7C45 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADF791C1247F29B003F7C45 /* CoreMotion.framework */; };
+		FAE2E8EC128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = FAE2E8E9128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h */; };
+		FAE2E8ED128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FAE2E8EA128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m */; };
 		FAE3A51F124159BE00285B32 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A51E124159BE00285B32 /* EventKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAE3A521124159BE00285B32 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A520124159BE00285B32 /* EventKitUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
@@ -117,8 +119,6 @@
 		AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMA_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libORMMA.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libORMMA.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		FA4520661254F267004D2BED /* ormmaapi.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ormmaapi.js; sourceTree = "<group>"; };
-		FA4520681254F382004D2BED /* ormmaios.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ormmaios.js; sourceTree = "<group>"; };
 		FA7756A01263598300CC8838 /* AsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsyncSocket.h; sourceTree = "<group>"; };
 		FA7756A11263598300CC8838 /* AsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AsyncSocket.m; sourceTree = "<group>"; };
 		FA7756A21263598300CC8838 /* DDData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDData.h; sourceTree = "<group>"; };
@@ -149,15 +149,14 @@
 		FAC9730E12886680001567EB /* ORMMA_Standard_JS_Stub.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ORMMA_Standard_JS_Stub.html; sourceTree = "<group>"; };
 		FACA4444128765CF00261A12 /* UIColor-Expanded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor-Expanded.h"; sourceTree = "<group>"; };
 		FACA4445128765CF00261A12 /* UIColor-Expanded.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor-Expanded.m"; sourceTree = "<group>"; };
-		FACCB0C0128326F900B65BD6 /* ORMMAWebBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAWebBrowserViewController.h; sourceTree = "<group>"; };
-		FACCB0C1128326F900B65BD6 /* ORMMAWebBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAWebBrowserViewController.m; sourceTree = "<group>"; };
-		FACCB0C2128326F900B65BD6 /* ORMMAWebBrowserViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ORMMAWebBrowserViewController.xib; sourceTree = "<group>"; };
 		FACCB0C71283290000B65BD6 /* back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = back.png; sourceTree = "<group>"; };
 		FACCB0C81283290000B65BD6 /* back@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "back@2x.png"; sourceTree = "<group>"; };
 		FACCB0C91283290000B65BD6 /* forward.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = forward.png; sourceTree = "<group>"; };
 		FACCB0CA1283290000B65BD6 /* forward@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "forward@2x.png"; sourceTree = "<group>"; };
 		FACCB0CB1283290000B65BD6 /* refresh.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = refresh.png; sourceTree = "<group>"; };
 		FACCB0CC1283290000B65BD6 /* refresh@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "refresh@2x.png"; sourceTree = "<group>"; };
+		FAD1A30012902C6F009379B3 /* ormma.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ormma.js; sourceTree = "<group>"; };
+		FAD1A30212902CCD009379B3 /* ormma-ios-bridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ormma-ios-bridge.js"; sourceTree = "<group>"; };
 		FAD232FC1268A93E00921D13 /* ORMMALocalServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMALocalServer.h; sourceTree = "<group>"; };
 		FAD232FD1268A93E00921D13 /* ORMMALocalServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMALocalServer.m; sourceTree = "<group>"; };
 		FAD233B61268EF1B00921D13 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
@@ -205,15 +204,18 @@
 		FAD28BE412381B2A00562D0B /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
 		FAD28C4E12381BF800562D0B /* ORMMA.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORMMA.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAD28C4F12381BF800562D0B /* ORMMA Bundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ORMMA Bundle-Info.plist"; sourceTree = "<group>"; };
-		FAD28C5B12381C8100562D0B /* ORMMA_Abstraction_Layer_iOS.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ORMMA_Abstraction_Layer_iOS.js; sourceTree = "<group>"; };
 		FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ORMMA_Standard_HTML_Stub.html; sourceTree = "<group>"; };
-		FAD28C6F12381E3500562D0B /* ORMMA_Javascript_API.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ORMMA_Javascript_API.js; sourceTree = "<group>"; };
 		FAD3F9C7126C84B300468F35 /* 1.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 1.sql; sourceTree = "<group>"; };
 		FAD3FAA9126CABB100468F35 /* 2.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 2.sql; sourceTree = "<group>"; };
 		FAD3FAAA126CABB800468F35 /* 3.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 3.sql; sourceTree = "<group>"; };
 		FAD3FACA126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAStoreAndForwardRequest.h; sourceTree = "<group>"; };
 		FAD3FACB126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAStoreAndForwardRequest.m; sourceTree = "<group>"; };
+		FAD723A2129190B7001D702B /* UIDevice-ORMMA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIDevice-ORMMA.h"; sourceTree = "<group>"; };
+		FAD723A3129190B7001D702B /* UIDevice-ORMMA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIDevice-ORMMA.m"; sourceTree = "<group>"; };
 		FADF791C1247F29B003F7C45 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		FAE2E8E9128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAWebBrowserViewController.h; sourceTree = "<group>"; };
+		FAE2E8EA128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAWebBrowserViewController.m; sourceTree = "<group>"; };
+		FAE2E8EB128C4D6200A1B1ED /* ORMMAWebBrowserViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ORMMAWebBrowserViewController.xib; sourceTree = "<group>"; };
 		FAE3A51E124159BE00285B32 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
 		FAE3A520124159BE00285B32 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
 		FAE3A86A12429E8500285B32 /* ORMMA Test Bed-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ORMMA Test Bed-Info.plist"; sourceTree = "<group>"; };
@@ -371,16 +373,6 @@
 			path = "Erica Sadun";
 			sourceTree = "<group>";
 		};
-		FACCB0A01281EA2E00B65BD6 /* User Interface */ = {
-			isa = PBXGroup;
-			children = (
-				FACCB0C0128326F900B65BD6 /* ORMMAWebBrowserViewController.h */,
-				FACCB0C1128326F900B65BD6 /* ORMMAWebBrowserViewController.m */,
-				FACCB0C2128326F900B65BD6 /* ORMMAWebBrowserViewController.xib */,
-			);
-			path = "User Interface";
-			sourceTree = "<group>";
-		};
 		FAD233B51268EF1B00921D13 /* FMDB */ = {
 			isa = PBXGroup;
 			children = (
@@ -411,7 +403,7 @@
 				FAD233D31269007700921D13 /* Data Model */,
 				FAD28BB812381B2A00562D0B /* Cache Implementations */,
 				FAD28BBD12381B2A00562D0B /* Javascript Bridge */,
-				FACCB0A01281EA2E00B65BD6 /* User Interface */,
+				FAD723A11291908C001D702B /* Utility */,
 			);
 			path = Private;
 			sourceTree = "<group>";
@@ -439,6 +431,7 @@
 			children = (
 				FAD28BC112381B2A00562D0B /* ORMMAView.h */,
 				FAD28BC212381B2A00562D0B /* ORMMAView.m */,
+				FAE2E8E0128C3C9500A1B1ED /* Web Browser */,
 			);
 			path = Public;
 			sourceTree = "<group>";
@@ -514,10 +507,8 @@
 		FAD28C5A12381C3F00562D0B /* Javascript */ = {
 			isa = PBXGroup;
 			children = (
-				FAD28C5B12381C8100562D0B /* ORMMA_Abstraction_Layer_iOS.js */,
-				FAD28C6F12381E3500562D0B /* ORMMA_Javascript_API.js */,
-				FA4520661254F267004D2BED /* ormmaapi.js */,
-				FA4520681254F382004D2BED /* ormmaios.js */,
+				FAD1A30012902C6F009379B3 /* ormma.js */,
+				FAD1A30212902CCD009379B3 /* ormma-ios-bridge.js */,
 			);
 			path = Javascript;
 			sourceTree = "<group>";
@@ -529,6 +520,25 @@
 				FAC9730E12886680001567EB /* ORMMA_Standard_JS_Stub.html */,
 			);
 			path = HTML;
+			sourceTree = "<group>";
+		};
+		FAD723A11291908C001D702B /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				FAD723A2129190B7001D702B /* UIDevice-ORMMA.h */,
+				FAD723A3129190B7001D702B /* UIDevice-ORMMA.m */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
+		FAE2E8E0128C3C9500A1B1ED /* Web Browser */ = {
+			isa = PBXGroup;
+			children = (
+				FAE2E8E9128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h */,
+				FAE2E8EA128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m */,
+				FAE2E8EB128C4D6200A1B1ED /* ORMMAWebBrowserViewController.xib */,
+			);
+			path = "Web Browser";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -576,8 +586,9 @@
 				FAD233C01268EF1B00921D13 /* FMResultSet.h in Headers */,
 				FAD233D6126900A800921D13 /* ORMMADataAccessLayer.h in Headers */,
 				FAD3FACC126CAEE700468F35 /* ORMMAStoreAndForwardRequest.h in Headers */,
-				FACCB0C3128326F900B65BD6 /* ORMMAWebBrowserViewController.h in Headers */,
 				FACA4446128765CF00261A12 /* UIColor-Expanded.h in Headers */,
+				FAE2E8EC128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h in Headers */,
+				FAD723A4129190B7001D702B /* UIDevice-ORMMA.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -661,11 +672,11 @@
 				FACA43931287596100261A12 /* forward@2x.png in Resources */,
 				FACA43941287596100261A12 /* refresh.png in Resources */,
 				FACA43951287596100261A12 /* refresh@2x.png in Resources */,
-				FAD19FC2127765C100CA9836 /* ormmaapi.js in Resources */,
-				FAD19FC3127765C100CA9836 /* ormmaios.js in Resources */,
 				FAD28C6E12381DFF00562D0B /* ORMMA_Standard_HTML_Stub.html in Resources */,
 				FAC9732C12886BA8001567EB /* ORMMA_Standard_JS_Stub.html in Resources */,
-				FACA434B128754CB00261A12 /* ORMMAWebBrowserViewController.xib in Resources */,
+				FAD72673129346FA001D702B /* ORMMAWebBrowserViewController.xib in Resources */,
+				FAD724151292D1D5001D702B /* ormma.js in Resources */,
+				FAD724161292D1D5001D702B /* ormma-ios-bridge.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -708,8 +719,9 @@
 				FAD233C11268EF1B00921D13 /* FMResultSet.m in Sources */,
 				FAD233D7126900A800921D13 /* ORMMADataAccessLayer.m in Sources */,
 				FAD3FACD126CAEE700468F35 /* ORMMAStoreAndForwardRequest.m in Sources */,
-				FACCB0C4128326F900B65BD6 /* ORMMAWebBrowserViewController.m in Sources */,
 				FACA4447128765CF00261A12 /* UIColor-Expanded.m in Sources */,
+				FAE2E8ED128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m in Sources */,
+				FAD723A5129190B7001D702B /* UIDevice-ORMMA.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
