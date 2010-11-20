@@ -1,5 +1,8 @@
 package com.ormma.view;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -118,6 +121,31 @@ public class OrmmaView extends WebView {
 	public void loadUrl(String url) {
 		loadUrl(url, false, null);
 	}
+
+	public void loadFile(File f, String dataToInject) {
+		try {
+			mDataToInject = dataToInject;
+			loadInputStream(getContext().openFileInput(f.getPath()), false, dataToInject);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	
+	private void loadInputStream(InputStream is, boolean dontLoad, String dataToInject){
+		String url;
+		try {
+			url = "file://"+mAssetController.writeToDiskWrap(is, CURRENT_FILE, true);
+			super.loadUrl(url);
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	public void loadUrl(String url, boolean dontLoad, String dataToInject) {
 		mDataToInject = dataToInject;
@@ -138,7 +166,8 @@ public class OrmmaView extends WebView {
 				} else {
 					is = u.openStream();
 				}
-				url = "file://"+mAssetController.writeToDisk(is, CURRENT_FILE, true);
+				loadInputStream(is, dontLoad, dataToInject);
+				return;
 
 			} catch (MalformedURLException e) {
 			} catch (IOException e) {
@@ -147,7 +176,6 @@ public class OrmmaView extends WebView {
 			}
 		}
 		super.loadUrl(url);
-
 	}
 
 	private static int[] attrs = { R.attr.maxWidth, R.attr.maxHeight };
