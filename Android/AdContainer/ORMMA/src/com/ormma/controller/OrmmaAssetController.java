@@ -97,47 +97,98 @@ public class OrmmaAssetController extends OrmmaController {
 			int numread = in.read(buff);
 			if (numread <= 0)
 				break;
-			
-			 if(storeInHashedDirectory && digest != null){
-				 digest.update(buff);
-			 }
+
+			if (storeInHashedDirectory && digest != null) {
+				digest.update(buff);
+			}
 			out.write(buff, 0, numread);
 			System.out.println("numread" + numread);
 			i++;
 		} while (true);
 		out.flush();
 		out.close();
-		
+
 		String filesDir = getFilesDir();
-		
-		if(storeInHashedDirectory && digest != null){
+
+		if (storeInHashedDirectory && digest != null) {
 			filesDir = moveToSubDirectory(file, filesDir, asHex(digest));
 		}
-		return filesDir  + file;
+		return filesDir + file;
+
+	}
+
+	public String writeToDiskWrap(InputStream in, String file, boolean storeInHashedDirectory)
+			throws IllegalStateException, IOException
+	/**
+	 * writes a HTTP entity to the specified filename and location on disk
+	 */
+	{
+		int i = 0;
+		byte buff[] = new byte[1024];
+
+		MessageDigest digest = null;
+		if (storeInHashedDirectory) {
+			try {
+				digest = java.security.MessageDigest.getInstance("MD5");
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			}
+		}
+		FileOutputStream out = getAssetOutputString(file);
+		boolean first = true;
+		boolean js = false;
+		
+		do {
+			int numread = in.read(buff);
+			if (numread <= 0)
+				break;
+			if (first) {
+				first = false;
+				if(in.toString().trim().startsWith("document.write")){
+					out.write("<script>".getBytes());
+					js = true;
+				}
+			}
+			if (storeInHashedDirectory && digest != null) {
+				digest.update(buff);
+			}
+			out.write(buff, 0, numread);
+			System.out.println("numread" + numread);
+			i++;
+		} while (true);
+		if(js)
+			out.write("</script>".getBytes());
+		out.flush();
+		out.close();
+
+		String filesDir = getFilesDir();
+
+		if (storeInHashedDirectory && digest != null) {
+			filesDir = moveToSubDirectory(file, filesDir, asHex(digest));
+		}
+		return filesDir + file;
 
 	}
 
 	private String moveToSubDirectory(String fn, String filesDir, String subDir) {
 		File file = new File(filesDir + java.io.File.separator + fn);
-	    File dir = new File(filesDir + java.io.File.separator + subDir);	
-	    dir.mkdir();
-	    file.renameTo(new File(dir, file.getName()));
-	    return dir.getPath()  + java.io.File.separator;
+		File dir = new File(filesDir + java.io.File.separator + subDir);
+		dir.mkdir();
+		file.renameTo(new File(dir, file.getName()));
+		return dir.getPath() + java.io.File.separator;
 	}
 
-	private static final char[] HEX_CHARS = {'0', '1', '2', '3',
-        '4', '5', '6', '7',
-        '8', '9', 'a', 'b',
-        'c', 'd', 'e', 'f',};
-	
+	private static final char[] HEX_CHARS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
+			'e', 'f', };
+
 	private String asHex(MessageDigest digest) {
 		byte[] hash = digest.digest();
 		char buf[] = new char[hash.length * 2];
-        for (int i = 0, x = 0; i < hash.length; i++) {
-            buf[x++] = HEX_CHARS[(hash[i] >>> 4) & 0xf];
-            buf[x++] = HEX_CHARS[hash[i] & 0xf];
-        }
-        return new String(buf);
+		for (int i = 0, x = 0; i < hash.length; i++) {
+			buf[x++] = HEX_CHARS[(hash[i] >>> 4) & 0xf];
+			buf[x++] = HEX_CHARS[hash[i] & 0xf];
+		}
+		return new String(buf);
 	}
 
 	public String getFilesDir() {
