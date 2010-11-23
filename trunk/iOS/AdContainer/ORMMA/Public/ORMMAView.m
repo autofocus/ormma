@@ -105,7 +105,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 												   " screenSize: { width: %f, height: %f },"\
 												   " defaultPosition: { x: %f, y: %f, width: %f, height: %f },"\
 												   " orientation: %i,"\
-												   " supports: [ 'level-1', 'level-2', 'location', 'orientation', 'network', 'screen', 'shake', 'size', 'tilt'%@ ] }";
+												   " supports: [ 'level-1', 'level-2', 'orientation', 'network', 'screen', 'shake', 'size', 'tilt'%@ ] }";
 
 
 #pragma mark -
@@ -119,6 +119,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 @synthesize maxSize = m_maxSize;
 @synthesize webBrowser = m_webBrowser;
 
+@synthesize allowLocationServices = m_allowLocationServices;
 
 
 #pragma mark -
@@ -328,6 +329,21 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		// don't bother loading the empty page
 		NSLog( @"IFrame Detected" );
 		return NO;
+	}
+	
+	// not handled by ORMMA, give the delegate a chance
+	if ( self.ormmaDelegate != nil )
+	{
+		if ( [self.ormmaDelegate respondsToSelector:@selector(shouldLoadRequest:forAd:)] )
+		{
+			if ( ![self.ormmaDelegate shouldLoadRequest:request
+												  forAd:self] )
+				{
+					// container handled the call
+					NSLog( @"Container handled request for: %@", request );
+					return NO;
+				}
+		}
 	}
 	
 	// for all other cases, just let the web view handle it
@@ -1109,6 +1125,12 @@ blockingOpacity:(CGFloat)blockingOpacity
 		}
 	}
 	
+	// allow LBS if app allows it
+	if ( self.allowLocationServices )
+	{
+		[features appendString:@", 'email'"]; 
+	}
+	
 	NSInteger platformType = [m_currentDevice platformType];
 	switch ( platformType )
 	{
@@ -1369,7 +1391,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 {
 	NSString *sourcePath = [bundle pathForResource:file
 											ofType:type];
-	NSAssert( ( sourcePath != nil ), @"Source for file copy does not exist." );
+	NSAssert( ( sourcePath != nil ), @"Source for file copy does not exist (%@)", file );
 	NSString *contents = [NSString stringWithContentsOfFile:sourcePath
 												   encoding:NSUTF8StringEncoding
 													  error:NULL];

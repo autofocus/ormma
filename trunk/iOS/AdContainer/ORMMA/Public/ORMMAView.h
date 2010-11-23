@@ -59,6 +59,8 @@ typedef enum ORMMAViewStateEnum
 	long m_creativeId;
 	
 	BOOL m_applicationReady;
+	
+	BOOL m_allowLocationServices;
 }
 @property( nonatomic, assign ) id<ORMMAViewDelegate> ormmaDelegate;
 @property( nonatomic, copy ) NSString *htmlStub;
@@ -66,6 +68,8 @@ typedef enum ORMMAViewStateEnum
 @property( nonatomic, retain, readonly ) NSError *lastError;
 @property( nonatomic, assign, readonly ) ORMMAViewState currentState;
 @property( nonatomic, assign ) CGSize maxSize;
+
+@property( nonatomic, assign ) BOOL allowLocationServices;
 
 
 - (void)loadCreative:(NSURL *)url;
@@ -98,6 +102,10 @@ typedef enum ORMMAViewStateEnum
 
 // called to allow the application to inject javascript into the creative
 - (NSString *)javascriptForInjection;
+
+// called whenever a non-ormma page is displayed
+- (BOOL)shouldLoadRequest:(NSURLRequest *)request
+	forAd:(ORMMAView *)adView;
 
 
 // called to allow the application to execute javascript on the creative at the

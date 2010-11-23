@@ -95,6 +95,7 @@ typedef enum OTBAdAnimationDirectionEnum
 	
 	// set the delegate
 	self.ormmaView.ormmaDelegate = self;
+	self.ormmaView.allowLocationServices = YES;
 	CGSize maxSize = { 320, 250 };
 	self.ormmaView.maxSize = maxSize;
 }
