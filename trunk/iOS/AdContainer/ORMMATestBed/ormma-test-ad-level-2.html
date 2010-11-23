@@ -30,6 +30,12 @@
       color:green;
    }
 
+   #shrink {
+      position:absolute;
+      left:255px;
+      top:5px;
+   }
+
    img { 
       border:none 
    }
@@ -56,6 +62,7 @@
     */
    function ORMMAReady(){
 		ormma.addEventListener( 'error', handleErrorEvent );
+		ormma.addEventListener( 'stateChange', handleStateChangeEvent );
 	  
 	  // determine our current state
 	  var newState = ormma.getState();
@@ -157,6 +164,21 @@
    	}
 
 
+   /**
+    * Handles whenever the state changes.
+    *
+    * @requires Ormma
+    */
+   function handleStateChangeEvent( state ) {
+      var banner = document.getElementById( 'banner' );
+      var resizedad = document.getElementById( 'resizedad' );
+      var expandedad = document.getElementById( 'expandedad' );
+	  if ( state === 'default' ) {
+	     showDefault();
+      }
+   }
+
+
    	/**
     * Handles tilt(accelerometer) changes.
     * @requires Ormma
@@ -223,6 +245,16 @@
    function showExpanded() {
          banner.style.display = 'none';
          expandedad.style.display = 'block';
+   }
+
+
+   /**
+    * Notifies the SDK that the expanded ad wishes to return to the default state.
+    *
+    * @requires Ormma
+    */
+   function shrinkAd() {
+	  ormma.close();
    }
 
 
@@ -363,6 +395,11 @@
    <div id='expandedad'>
       <img src="http://i.imwx.com/RealMedia/ads/Creatives/creative_repository/ormma/300x250-solid.png"
            alt="expanded ad" />
+      <div id='shrink'>
+         <img src="http://i.imwx.com/RealMedia/ads/Creatives/creative_repository/ormma/shrink.png"
+              alt="close"
+              onclick="shrinkAd();" />
+      </div>
       <div id='expanddata'>
          <form name="controller">
             <input type="button" name="callButton"        value="Place Call"       onclick="sendCall();"><br>
