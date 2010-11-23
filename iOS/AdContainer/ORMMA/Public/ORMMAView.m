@@ -1079,8 +1079,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 - (void)injectORMMAJavaScriptIntoWebView:(UIWebView *)webView
 {
 	NSLog( @"Injecting ORMMA Javascript into creative." );
-//	[self injectJavaScriptFile:@"/ormma-ios-bridge.js" intoWebView:webView];
-//	[self injectJavaScriptFile:@"/ormma.js" intoWebView:webView];
+	[self injectJavaScriptFile:@"/ormma-ios-bridge.js" intoWebView:webView];
+	[self injectJavaScriptFile:@"/ormma.js" intoWebView:webView];
 }
 
 
