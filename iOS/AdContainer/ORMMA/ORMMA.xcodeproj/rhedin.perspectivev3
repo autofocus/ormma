@@ -234,6 +234,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -272,16 +274,17 @@
 								<string>0867D691FE84028FC02AAC07</string>
 								<string>FAD28BB712381B2A00562D0B</string>
 								<string>FAD28BC012381B2A00562D0B</string>
-								<string>FAD28C5912381C3400562D0B</string>
-								<string>FAD28C5D12381C8F00562D0B</string>
+								<string>FAE2E8E0128C3C9500A1B1ED</string>
+								<string>1C37FBAC04509CD000000102</string>
+								<string>FA61E219129C262D00214103</string>
+								<string>FA61E232129C281B00214103</string>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>14</integer>
-									<integer>12</integer>
-									<integer>11</integer>
-									<integer>0</integer>
+									<integer>29</integer>
+									<integer>22</integer>
+									<integer>20</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
@@ -302,7 +305,7 @@
 							<real>301</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>317 384 1191 793 0 0 1920 1178 </string>
+						<string>312 385 1191 793 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -313,14 +316,12 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>FAD28C4412381BE900562D0B</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>ORMMA_Standard_JS_Stub.html</string>
+								<string>ORMMAView.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -328,11 +329,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>FAD28C4512381BE900562D0B</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>ORMMA_Standard_JS_Stub.html</string>
+										<string>ORMMAView.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>FA61E0EB129B3F9E00214103</string>
+										<string>FA61E236129C283600214103</string>
 										<key>history</key>
 										<array>
 											<string>FAE3A5171241576F00285B32</string>
@@ -378,15 +379,15 @@
 											<string>FAD81A961296FA4100252C5A</string>
 											<string>FAD81AC41296FE7B00252C5A</string>
 											<string>FAD81AD71297032000252C5A</string>
-											<string>FAD81AD81297032000252C5A</string>
-											<string>FAD81AD91297032000252C5A</string>
 											<string>FAD81B471297194200252C5A</string>
 											<string>FAD81B481297194200252C5A</string>
 											<string>FAD81B491297194200252C5A</string>
 											<string>FA61E0B0129B3E3F00214103</string>
-											<string>FA61E0CE129B3F3B00214103</string>
-											<string>FA61E0CF129B3F3B00214103</string>
-											<string>FA61E0D0129B3F3B00214103</string>
+											<string>FA61E122129C12DB00214103</string>
+											<string>FA61E123129C12DB00214103</string>
+											<string>FA61E1BF129C1E4E00214103</string>
+											<string>FA61E1C0129C1E4E00214103</string>
+											<string>FA61E1F6129C241B00214103</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -400,18 +401,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {868, 460}}</string>
+								<string>{{0, 0}, {868, 435}}</string>
 								<key>RubberWindowFrame</key>
-								<string>317 384 1191 793 0 0 1920 1178 </string>
+								<string>312 385 1191 793 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>460pt</string>
+							<string>435pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>287pt</string>
+							<string>312pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -425,9 +426,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {868, 260}}</string>
-										<key>RubberWindowFrame</key>
-										<string>317 384 1191 793 0 0 1920 1178 </string>
+										<string>{{10, 27}, {868, 285}}</string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -443,7 +442,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {868, 203}}</string>
+										<string>{{10, 27}, {868, 276}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXProjectFindModule</string>
@@ -481,7 +480,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {868, 209}}</string>
+										<string>{{10, 27}, {868, 285}}</string>
+										<key>RubberWindowFrame</key>
+										<string>312 385 1191 793 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -509,11 +510,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>FA61E0B3129B3E3F00214103</string>
+				<string>FA61E21B129C262D00214103</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>FA61E0B4129B3E3F00214103</string>
+				<string>FA61E21C129C262D00214103</string>
 				<string>FAD28C4412381BE900562D0B</string>
-				<string>FA61E0B5129B3E3F00214103</string>
+				<string>FA61E21D129C262D00214103</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -708,7 +709,7 @@
 		<string>/Users/rhedin/source/iOS/ORMMA/ORMMA/ORMMA.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>317 384 1191 793 0 0 1920 1178 </string>
+	<string>312 385 1191 793 0 0 1920 1178 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>

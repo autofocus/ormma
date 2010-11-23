@@ -626,7 +626,6 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// initial location specified, and will animate to a new location.
 	
 	// Notify the native app that we're preparing to expand
-	[self fireAppShouldSuspend];
 	[self fireAdWillExpandToFrame:endingFrame];
 	
 	// get the key window
@@ -1079,8 +1078,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 - (void)injectORMMAJavaScriptIntoWebView:(UIWebView *)webView
 {
 	NSLog( @"Injecting ORMMA Javascript into creative." );
-	[self injectJavaScriptFile:@"/ormma-ios-bridge.js" intoWebView:webView];
-	[self injectJavaScriptFile:@"/ormma.js" intoWebView:webView];
+//	[self injectJavaScriptFile:@"/ormma-ios-bridge.js" intoWebView:webView];
+//	[self injectJavaScriptFile:@"/ormma.js" intoWebView:webView];
 }
 
 
