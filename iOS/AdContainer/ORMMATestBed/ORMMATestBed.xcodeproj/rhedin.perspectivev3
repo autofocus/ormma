@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>ActivePerspectiveName</key>
-	<string>Debug</string>
+	<string>Project</string>
 	<key>AllowedModules</key>
 	<array>
 		<dict>
@@ -272,13 +272,15 @@
 								<string>29B97314FDCFA39411CA2CEA</string>
 								<string>080E96DDFE201D6D7F000001</string>
 								<string>29B97317FDCFA39411CA2CEA</string>
+								<string>1C37FBAC04509CD000000102</string>
+								<string>FA6CFFBF129B0A3F00DFCC2E</string>
 								<string>1C77FABC04509CD000000102</string>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>12</integer>
-									<integer>10</integer>
+									<integer>7</integer>
+									<integer>2</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -299,6 +301,8 @@
 							<string>MainColumn</string>
 							<real>352</real>
 						</array>
+						<key>RubberWindowFrame</key>
+						<string>1940 404 1239 753 1920 176 1280 1024 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -309,12 +313,14 @@
 					<key>Dock</key>
 					<array>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>FAD28C7E1239125900562D0B</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>ormma-test-ad-level-2.html</string>
+								<string>ORMMATestBedViewController.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -322,25 +328,22 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>FAD28C7F1239125900562D0B</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>ormma-test-ad-level-2.html</string>
+										<string>ORMMATestBedViewController.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>FAD81AD2129702B700252C5A</string>
+										<string>FA6CFFC3129B0A3F00DFCC2E</string>
 										<key>history</key>
 										<array>
 											<string>FAE3A5E512425ADE00285B32</string>
 											<string>FA05F5A21279F7FA00DF7D5F</string>
 											<string>FACA42AE128735C900261A12</string>
 											<string>FACA43EF12875E9600261A12</string>
-											<string>FAC971C312883FCF001567EB</string>
-											<string>FAC971C412883FCF001567EB</string>
 											<string>FAC971C712883FCF001567EB</string>
 											<string>FAC9736F1288A69D001567EB</string>
-											<string>FAD7288012958F89001D702B</string>
-											<string>FAD81A361296C66100252C5A</string>
-											<string>FAD81A6D1296EB8200252C5A</string>
-											<string>FAD81A6E1296EB8200252C5A</string>
+											<string>FA6CFFC0129B0A3F00DFCC2E</string>
+											<string>FA6CFFC1129B0A3F00DFCC2E</string>
+											<string>FA6CFFC2129B0A3F00DFCC2E</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -355,6 +358,8 @@
 							<dict>
 								<key>Frame</key>
 								<string>{{0, 0}, {865, 707}}</string>
+								<key>RubberWindowFrame</key>
+								<string>1940 404 1239 753 1920 176 1280 1024 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -378,6 +383,8 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {865, -27}}</string>
+										<key>RubberWindowFrame</key>
+										<string>1940 404 1239 753 1920 176 1280 1024 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -459,11 +466,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>FAD818C51295968000252C5A</string>
+				<string>FA6CFFC4129B0A3F00DFCC2E</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>FAD818C61295968000252C5A</string>
+				<string>FA6CFFC5129B0A3F00DFCC2E</string>
 				<string>FAD28C7E1239125900562D0B</string>
-				<string>FAD818C71295968000252C5A</string>
+				<string>FA6CFFC6129B0A3F00DFCC2E</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -517,8 +524,6 @@
 					<dict>
 						<key>Frame</key>
 						<string>{{0, 0}, {1239, 179}}</string>
-						<key>RubberWindowFrame</key>
-						<string>114 175 1239 753 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugCLIModule</string>
@@ -593,11 +598,7 @@
 							</array>
 							<key>Frame</key>
 							<string>{{605, 0}, {634, 259}}</string>
-							<key>RubberWindowFrame</key>
-							<string>114 175 1239 753 0 0 1920 1178 </string>
 						</dict>
-						<key>RubberWindowFrame</key>
-						<string>114 175 1239 753 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXDebugSessionModule</string>
@@ -620,14 +621,14 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>FAD818D61295BBC900252C5A</string>
+				<string>FA6CFDFC129AB1F300DFCC2E</string>
 				<string>1CCC7628064C1048000F2A68</string>
 				<string>1CCC7629064C1048000F2A68</string>
-				<string>FAD818D71295BBC900252C5A</string>
-				<string>FAD818D81295BBC900252C5A</string>
-				<string>FAD818D91295BBC900252C5A</string>
-				<string>FAD818DA1295BBC900252C5A</string>
-				<string>FAD818DB1295BBC900252C5A</string>
+				<string>FA6CFDFD129AB1F300DFCC2E</string>
+				<string>FA6CFDFE129AB1F300DFCC2E</string>
+				<string>FA6CFDFF129AB1F300DFCC2E</string>
+				<string>FA6CFE00129AB1F300DFCC2E</string>
+				<string>FA6CFE01129AB1F300DFCC2E</string>
 			</array>
 			<key>ToolbarConfigUserDefaultsMinorVersion</key>
 			<string>2</string>
@@ -661,12 +662,10 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>FAD819011295C42100252C5A</string>
-		<string>FAD819021295C42100252C5A</string>
 		<string>/Users/rhedin/source/iOS/ORMMA/ORMMATestBed/ORMMATestBed.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>114 175 1239 753 0 0 1920 1178 </string>
+	<string>1940 404 1239 753 1920 176 1280 1024 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
