@@ -289,10 +289,12 @@ static NSString *s_scale = nil;
 	{
 		// not assigned a delegate, just dismiss the view controller
 		// (assumes that we're a modal dialog)
+		NSLog( @"Auto Dismiss of Modal Browser" );
 		[self.parentViewController dismissModalViewControllerAnimated:YES];
 	}
 	else
 	{
+		NSLog( @"Use Delegate to Dismiss Browser" );
 		[self.browserDelegate doneWithBrowser];
 	}
 }

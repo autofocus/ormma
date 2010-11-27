@@ -28,9 +28,6 @@
 
 - (void)commonInitialization;
 
-- (void)loadDefaultHTMLStub;
-- (NSString *)processHTMLStubUsingFragment:(NSString *)fragment;
-
 - (NSInteger)angleFromOrientation:(UIDeviceOrientation)orientation;
 
 + (void)copyFile:(NSString *)file
@@ -84,16 +81,12 @@
 
 static ORMMALocalServer *s_localServer;
 static NSBundle *s_ormmaBundle;
-static NSString *s_standardHTMLStub;
-static NSString *s_standardJSStub;
-//static NSString *s_publicAPI;
-//static NSString *s_nativeAPI;
+static NSString *s_publicAPI;
+static NSString *s_nativeAPI;
 
 
 #pragma mark -
 #pragma mark Constants
-
-NSString * const kAdContentToken    = @"<!--AD-CONTENT-->";
 
 NSString * const kAnimationKeyExpand = @"expand";
 NSString * const kAnimationKeyCloseExpanded = @"closeExpanded";
@@ -112,7 +105,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 #pragma mark Properties
 
 @synthesize ormmaDelegate = m_ormmaDelegate;
-@synthesize htmlStub = m_htmlStub;
+@dynamic htmlStub;
 @synthesize creativeURL = m_creativeURL;
 @synthesize lastError = m_lastError;
 @synthesize currentState = m_currentState;
@@ -140,50 +133,34 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	{
 		[NSException raise:@"Invalid Build Detected"
 					format:@"Unable to find ORMMA.bundle. Make sure it is added to your resources!"];
-	}
+	} 
 	s_ormmaBundle = [[NSBundle bundleWithPath:path] retain];
 	
-	// setup the default HTML Stub
-	path = [s_ormmaBundle pathForResource:@"ORMMA_Standard_HTML_Stub"
-								   ofType:@"html"];
-	NSLog( @"HTML Stub Path is: %@", path );
-	s_standardHTMLStub = [[NSString stringWithContentsOfFile:path
-												   encoding:NSUTF8StringEncoding
-													  error:NULL] retain];
-	
-	// setup the default HTML Stub
-	path = [s_ormmaBundle pathForResource:@"ORMMA_Standard_JS_Stub"
-								   ofType:@"html"];
-	NSLog( @"JS Stub Path is: %@", path );
-	s_standardJSStub = [[NSString stringWithContentsOfFile:path
-												   encoding:NSUTF8StringEncoding
-													  error:NULL] retain];
-	
 	// load the Public Javascript API
-	[self copyFile:@"ormma"
-			ofType:@"js"
-		fromBundle:s_ormmaBundle
-			toPath:s_localServer.cacheRoot];
-	path = [s_ormmaBundle pathForResource:@"ormmaapi"
+//	[self copyFile:@"ormma"
+//			ofType:@"js"
+//		fromBundle:s_ormmaBundle
+//			toPath:s_localServer.cacheRoot];
+	path = [s_ormmaBundle pathForResource:@"ormma"
 								   ofType:@"js"];
-//	NSLog( @"Public API Path is: %@", path );
-//	NSString *js = [NSString stringWithContentsOfFile:path
-//											 encoding:NSUTF8StringEncoding
-//												error:NULL];
-//	s_publicAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
+	NSLog( @"Public API Path is: %@", path );
+	NSString *js = [NSString stringWithContentsOfFile:path
+											 encoding:NSUTF8StringEncoding
+												error:NULL];
+	s_publicAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
 	
 	// load the Native Javascript API
-	[self copyFile:@"ormma-ios-bridge"
-			ofType:@"js"
-		fromBundle:s_ormmaBundle
-			toPath:s_localServer.cacheRoot];
-//	path = [s_ormmaBundle pathForResource:@"ormmaios"
-//								   ofType:@"js"];
-//	NSLog( @"Native API Path is: %@", path );
-//	js = [NSString stringWithContentsOfFile:path
-//								   encoding:NSUTF8StringEncoding
-//									  error:NULL];
-//	s_nativeAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
+//	[self copyFile:@"ormma-ios-bridge"
+//			ofType:@"js"
+//		fromBundle:s_ormmaBundle
+//			toPath:s_localServer.cacheRoot];
+	path = [s_ormmaBundle pathForResource:@"ormma-ios-bridge"
+								   ofType:@"js"];
+	NSLog( @"Native API Path is: %@", path );
+	js = [NSString stringWithContentsOfFile:path
+								   encoding:NSUTF8StringEncoding
+									  error:NULL];
+	s_nativeAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
 	
 	// done with autorelease pool
 	[pool drain];
@@ -267,7 +244,6 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	[m_webView release], m_webView = nil;
 	[m_blockingView release], m_blockingView = nil;
 	m_ormmaDelegate = nil;
-	[m_htmlStub release], m_htmlStub = nil;
 	[m_javascriptBridge restoreServicesToDefaultState], [m_javascriptBridge release], m_javascriptBridge = nil;
 	[m_webBrowser release], m_webBrowser = nil;
     [super dealloc];
@@ -286,6 +262,22 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 		return m_expandedView;
 	}
 	return m_webView;
+}
+
+
+- (NSString *)htmlStub
+{
+	// delegate to cache
+	ORMMALocalServer *cache = [ORMMALocalServer sharedInstance];
+	return cache.htmlStub;
+}
+
+
+- (void)setHtmlStub:(NSString *)stub
+{
+	// delegate to cache
+	ORMMALocalServer *cache = [ORMMALocalServer sharedInstance];
+	cache.htmlStub = stub;
 }
 		 
 
@@ -365,7 +357,6 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 }
 
 
-
 #pragma mark -
 #pragma mark Ad Loading
 
@@ -377,10 +368,10 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// ads loaded by URL are assumed to be complete as-is, just display it
 	NSLog( @"Load Ad from URL: %@", url );
 	self.creativeURL = url;
-	NSURLRequest *request = [NSURLRequest requestWithURL:url];
+//	NSURLRequest *request = [NSURLRequest requestWithURL:url];
 	[s_localServer cacheURL:url
 			   withDelegate:self];
-	[m_webView loadRequest:request];
+//	[m_webView loadRequest:request];
 }
 
 
@@ -390,54 +381,10 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// reset our state
 	m_applicationReady = NO;
 	
-	// ads loaded by HTML fragment are assumed to need a wrapper
-	// so we use the specified HTML stub and inject what we need into it
-	// and write everything to the filesystem in our cache.
-	//NSLog( @"Load Ad fragment: %@", htmlFragment );	
-
-	// get the final HTML and write the file to the cache
-	NSString *html = [self processHTMLStubUsingFragment:htmlFragment];
-	//NSLog( @"Full HTML is: %@", html );
 	self.creativeURL = url;
-	[s_localServer cacheHTML:html
+	[s_localServer cacheHTML:htmlFragment
 					 baseURL:url
 				withDelegate:self];
-}
-
-
-
-#pragma mark -
-#pragma mark HTML Stub Control
-
-- (void)loadDefaultHTMLStub
-{
-}
-
-
-- (NSString *)processHTMLStubUsingFragment:(NSString *)fragment
-{
-	// select the correct stub
-	NSString *stub = self.htmlStub;
-	if ( stub == nil )
-	{
-		// determine if the fragment is JS or not
-		NSString *trimmedFragment = [fragment stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-		BOOL isJS = [trimmedFragment hasPrefix:@"document.write"];
-				 
-	    if ( isJS )
-		{
-			stub = s_standardJSStub;
-		}
-		else
-		{
-			stub = s_standardHTMLStub;
-		}
-	}
-	
-	// build the string
-	NSString *output = [stub stringByReplacingOccurrencesOfString:kAdContentToken
-													   withString:fragment];
-	return output;
 }
 
 
@@ -891,11 +838,15 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 - (void)doneWithBrowser
 {
+	NSLog( @"Dismissing Browser" );
 	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 	self.webBrowser = nil;
 
 	// notify the app that it should start work
 	[self fireAppShouldResume];
+	
+	// make sure ad is visible
+	[self showAd:m_webView];
 }
 
 
@@ -1080,6 +1031,16 @@ blockingOpacity:(CGFloat)blockingOpacity
 	NSLog( @"Injecting ORMMA Javascript into creative." );
 //	[self injectJavaScriptFile:@"/ormma-ios-bridge.js" intoWebView:webView];
 //	[self injectJavaScriptFile:@"/ormma.js" intoWebView:webView];
+	if ( [self usingWebView:webView 
+		  executeJavascript:s_nativeAPI] == nil )
+	{
+		NSLog( @"Error injecting ORMMA Bridge Javascript!" );
+	}
+	if ( [self usingWebView:webView 
+		  executeJavascript:s_publicAPI] == nil )
+	{
+		NSLog( @"Error injecting ORMMA Public API Javascript!" );
+	}
 }
 
 

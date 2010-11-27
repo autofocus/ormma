@@ -38,7 +38,6 @@ typedef enum ORMMAViewStateEnum
 	UIDevice *m_currentDevice;
 	ORMMAJavascriptBridge *m_javascriptBridge;
 	id<ORMMAViewDelegate> m_ormmaDelegate;
-	NSString *m_htmlStub;
 	ORMMAViewState m_currentState;
 	NSError *m_lastError;
 	BOOL m_adVisible;
