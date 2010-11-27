@@ -39,7 +39,6 @@ typedef enum OTBAdAnimationDirectionEnum
 @synthesize tabBarView = m_tabBarView;
 @synthesize urlLabel = m_urlLabel;
 @synthesize urlField = m_urlField;
-@synthesize showAdButton = m_showAdButton;
 
 
 
@@ -77,7 +76,6 @@ typedef enum OTBAdAnimationDirectionEnum
 	[m_tabBarView release], m_tabBarView  = nil;
 	[m_urlLabel release], m_urlLabel = nil;
 	[m_urlField release], m_urlField = nil;
-	[m_showAdButton release], m_showAdButton = nil;
     [super dealloc];
 }
 
@@ -97,6 +95,7 @@ typedef enum OTBAdAnimationDirectionEnum
 
 - (void)viewDidLoad 
 {
+	NSLog( @"View Did Load" );
     [super viewDidLoad];
 	
 	// set the delegate
@@ -115,9 +114,9 @@ typedef enum OTBAdAnimationDirectionEnum
 	self.tabBarView  = nil;
 	self.urlLabel = nil;
 	self.urlField = nil;
-	self.showAdButton = nil;
 	
 	[super viewDidUnload];
+	NSLog( @"View Did Unload" );
 }
 
 
@@ -127,22 +126,24 @@ typedef enum OTBAdAnimationDirectionEnum
 
 - (void)viewWillAppear:(BOOL)animated
 {
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"ormma-test-ad-level-2"
-													 ofType:@"html"];
-	NSLog( @"Ad Path is: %@", path );
-	NSString *adFragment = [NSString stringWithContentsOfFile:path
-											  encoding:NSUTF8StringEncoding
-												 error:NULL];
-	
-	// refresh the ad
-	NSURL *url = [NSURL URLWithString:@"http://localhost/~rhedin/ad.html"];
-	[self.ormmaView loadHTMLCreative:adFragment
-						 creativeURL:url];
+	NSLog( @"View Will Appear" );
+//	NSString *path = [[NSBundle mainBundle] pathForResource:@"ormma-test-ad-level-2"
+//													 ofType:@"html"];
+//	NSLog( @"Ad Path is: %@", path );
+//	NSString *adFragment = [NSString stringWithContentsOfFile:path
+//											  encoding:NSUTF8StringEncoding
+//												 error:NULL];
+//	
+//	// refresh the ad
+//	NSURL *url = [NSURL URLWithString:@"http://localhost/~rhedin/ad.html"];
+//	[self.ormmaView loadHTMLCreative:adFragment
+//						 creativeURL:url];
 }
 
 
 - (void)viewDidAppear:(BOOL)animated
 {
+	NSLog( @"View Did Appear" );
 }
 
 
@@ -150,11 +151,13 @@ typedef enum OTBAdAnimationDirectionEnum
 {
 	// not showing anymore, animate ad out of the way
 	[self animateAd:kAnimateOffScreen];
+	NSLog( @"View Will Disappear" );
 }
 
 
 - (void)viewDidDisappear:(BOOL)animated
 {
+	NSLog( @"View Did Disappear" );
 }
 
 
@@ -298,14 +301,14 @@ typedef enum OTBAdAnimationDirectionEnum
 
 
 // called when the ad will begin heavy content (usually when the ad goes full screen)
-- (void)appWillSuspendForAd:(ORMMAView *)adView
+- (void)appShouldSuspendForAd:(ORMMAView *)adView
 {
 	NSLog( @"ORMAView Delegate Call: appWillSuspendForAd" );
 }
 
 
 // called when the ad is finished with it's heavy content (usually when the ad returns from full screen)
-- (void)appWillResumeFromAd:(ORMMAView *)adView
+- (void)appShouldResumeFromAd:(ORMMAView *)adView
 {
 	NSLog( @"ORMAView Delegate Call: appWillResumeFromAd" );
 }

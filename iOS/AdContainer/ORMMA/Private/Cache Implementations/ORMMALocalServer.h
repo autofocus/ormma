@@ -47,8 +47,11 @@
 @private
 	HTTPServer *m_server;
 	ORMMADataAccessLayer *m_dal;
+
+	NSString *m_htmlStub;
 }
 @property( nonatomic, copy, readonly ) NSString *cacheRoot;
+@property( nonatomic, copy ) NSString *htmlStub;
 
 
 // designated accessor for the singleton instance

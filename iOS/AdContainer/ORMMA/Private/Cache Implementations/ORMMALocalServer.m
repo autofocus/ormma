@@ -18,6 +18,10 @@
 								  includeFiles:(BOOL)files;
 + (NSString *)rootDirectory;
 
+- (NSString *)processHTMLStubUsingFragment:(NSString *)fragment;
+
++ (void)reapCache;
+
 @end
 
 
@@ -25,9 +29,21 @@
 
 @implementation ORMMALocalServer
 
+#pragma mark -
+#pragma mark Statics
+
+static NSString *s_standardHTMLStub;
+static NSString *s_standardJSStub;
+static NSTimer *s_timer;
+
+
 
 #pragma mark -
 #pragma mark Constants
+
+const NSTimeInterval kCacheReaperTimeInterval = 3600; // every hour
+
+NSString * const kAdContentToken    = @"<!--AD-CONTENT-->";
 
 NSString * const kORMMALocalServerWebRoot = @"ormma-web-root";
 NSString * const kORMMALocalServerDelegateKey = @"delegate";
@@ -44,6 +60,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 #pragma mark Properties
 
 @dynamic cacheRoot;
+@synthesize htmlStub = m_htmlStub;
 
 
 
@@ -63,6 +80,45 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 		}
     }
     return sharedInstance;
+}
+
+
++ (void)initialize
+{
+	// make sure an autorelease pool is active
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	// access our bundle
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"ORMMA"
+													 ofType:@"bundle"];
+	if ( path == nil )
+	{
+		[NSException raise:@"Invalid Build Detected"
+					format:@"Unable to find ORMMA.bundle. Make sure it is added to your resources!"];
+	}
+	NSBundle *ormmaBundle = [NSBundle bundleWithPath:path];
+
+	// setup the default HTML Stub
+	path = [ormmaBundle pathForResource:@"ORMMA_Standard_HTML_Stub"
+								   ofType:@"html"];
+	NSLog( @"HTML Stub Path is: %@", path );
+	s_standardHTMLStub = [[NSString stringWithContentsOfFile:path
+													encoding:NSUTF8StringEncoding
+													   error:NULL] retain];
+	
+	// setup the default HTML Stub
+	path = [ormmaBundle pathForResource:@"ORMMA_Standard_JS_Stub"
+								   ofType:@"html"];
+	NSLog( @"JS Stub Path is: %@", path );
+	s_standardJSStub = [[NSString stringWithContentsOfFile:path
+												  encoding:NSUTF8StringEncoding
+													 error:NULL] retain];
+	
+	// perform cache cleanup
+	[self reapCache];
+	
+	// done with pool
+	[pool drain];
 }
 
 
@@ -94,6 +150,9 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 
 - (void)dealloc
 {
+	// release our internals
+	[m_htmlStub release], m_htmlStub = nil;
+	
 	// shutdown our server
 	[m_server stop];
 	[m_server release], m_server = nil;
@@ -216,7 +275,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 {
 	// setup our dictionary for the callback
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:delegate, kORMMALocalServerDelegateKey,
-																		kORMMALocalServerTypeKey, kORMMALocalServerCreativeType,
+																		kORMMALocalServerCreativeType, kORMMALocalServerTypeKey, 
 																		nil];
 	
 	// this should retrieve the data from the specified URL
@@ -227,11 +286,25 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 }
 
 
-- (void)cacheHTML:(NSString *)html
+- (void)cacheHTML:(NSString *)baseHtml
 		  baseURL:(NSURL *)baseURL
 	 withDelegate:(id<ORMMALocalServerDelegate>)delegate;
 {
 	NSLog( @"Caching HTML" );
+	
+	// see if this is a fragment or not
+	NSString *workHtml = [baseHtml lowercaseString];
+	NSString *html;
+	NSRange r = [workHtml rangeOfString:@"<html"];
+	if ( r.location != NSNotFound )
+	{
+		// full doc, no need to wrap
+		html = baseHtml;
+	}
+	else
+	{
+		html = [self processHTMLStubUsingFragment:baseHtml];
+	}
 
 	// determine the hash for this creative
 	NSUInteger creativeId = [html hash];
@@ -342,8 +415,9 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	NSURL *baseURL = [request originalURL];
 
 	// determine the type and get the delegate
-	NSString *type = (NSString *)[request.userInfo objectForKey:kORMMALocalServerDelegateKey];
-	id<ORMMALocalServerDelegate> d = (id<ORMMALocalServerDelegate>)[request.userInfo objectForKey:kORMMALocalServerDelegateKey];
+	NSDictionary *userInfo = request.userInfo;
+	NSString *type = (NSString *)[userInfo objectForKey:kORMMALocalServerTypeKey];
+	id<ORMMALocalServerDelegate> d = (id<ORMMALocalServerDelegate>)[userInfo objectForKey:kORMMALocalServerDelegateKey];
 	
 	// now process the response based on the type
 	if ( [kORMMALocalServerCreativeType isEqualToString:type] )
@@ -392,7 +466,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	else
 	{
 		[NSException raise:@"Invalid Value Exception"
-					format:@"Unrecognized Type for request: %@", type];
+					format:@"Unrecognized Type '%@' for request: %@", type, request];
 	}
 	
 }
@@ -407,6 +481,84 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	id<ORMMALocalServerDelegate> delegate = (id<ORMMALocalServerDelegate>)[request.userInfo objectForKey:kORMMALocalServerDelegateKey];
 	[delegate cacheFailed:[request originalURL]
 				withError:error];
+}
+
+
+
+#pragma mark -
+#pragma mark HTML Stub Control
+
+- (NSString *)processHTMLStubUsingFragment:(NSString *)fragment
+{
+	// select the correct stub
+	NSString *stub = self.htmlStub;
+	if ( stub == nil )
+	{
+		// determine if the fragment is JS or not
+		NSString *trimmedFragment = [fragment stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		BOOL isJS = [trimmedFragment hasPrefix:@"document.write"];
+		
+	    if ( isJS )
+		{
+			stub = s_standardJSStub;
+		}
+		else
+		{
+			stub = s_standardHTMLStub;
+		}
+	}
+	
+	// build the string
+	NSString *output = [stub stringByReplacingOccurrencesOfString:kAdContentToken
+													   withString:fragment];
+	return output;
+}
+
+
+
+#pragma mark -
+#pragma mark Timer Controls
+
++ (void)reapCache
+{
+	// walk the cache directory, removing any out dated cache objects
+	NSError *error = nil;
+	BOOL isDirectory = NO;
+	NSDate *oldest = [NSDate dateWithTimeIntervalSinceNow:( -1 * kCacheReaperTimeInterval )];
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *root = [self rootDirectory];
+	NSArray *cached = [fm contentsOfDirectoryAtPath:root
+											  error:&error];
+	NSLog( @"Reap Cache at %@", root );
+	for ( NSString *entry in cached )
+	{
+		NSString *path = [root stringByAppendingPathComponent:entry];
+		if ( [fm fileExistsAtPath:path 
+					  isDirectory:&isDirectory] )
+		{
+			if ( isDirectory )
+			{
+				// this is a cache enty, see if it's old enough to delete
+				NSDictionary *attr = [fm attributesOfItemAtPath:path
+														  error:&error];
+				NSDate *modDate = (NSDate *)[attr objectForKey:NSFileModificationDate];
+				if ( [modDate compare:oldest] == NSOrderedAscending )
+				{
+					// needs to be removed
+					NSLog( @"Removed entry: %@", path );
+					[fm removeItemAtPath:path
+								   error:&error];
+				}
+			}
+		}
+	}
+	
+	// reschedule the timer
+	s_timer = [[NSTimer scheduledTimerWithTimeInterval:kCacheReaperTimeInterval
+												target:self
+											  selector:@selector(reapCache)
+											  userInfo:nil
+											   repeats:NO] retain];
 }
 
 
@@ -441,23 +593,6 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	[path appendFormat:@"/%@", [url lastPathComponent]];
 	return path;
 }
-//
-//
-//// our cache path will end up being
-//// ROOT + host + path1 + ... + pathN + resource
-//- (NSString *)cachePathFromURL:(NSURL *)url
-//{
-//	// add the root
-//	NSString *path = self.cacheRoot;
-//	
-//	// add the resource path
-//	NSString *rp = [self resourcePathFromBaseURL:url];
-//	
-//	path = [path stringByAppendingPathComponent:rp];
-//	
-//	// done
-//	return path;
-//}
 
 
 @end
