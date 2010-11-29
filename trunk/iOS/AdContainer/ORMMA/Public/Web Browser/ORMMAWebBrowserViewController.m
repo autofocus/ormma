@@ -33,6 +33,9 @@
 #pragma mark -
 #pragma mark Statics
 
+// access to our bundle
+static NSBundle *s_ormmaBundle;
+
 static NSString *s_scale = nil;
 
 
@@ -58,6 +61,14 @@ static NSString *s_scale = nil;
 #pragma mark -
 #pragma mark Initializers / Memory Management
 
++ (ORMMAWebBrowserViewController *)ormmaWebBrowserViewController
+{
+	ORMMAWebBrowserViewController *c = [[[ORMMAWebBrowserViewController alloc] initWithNibName:@"ORMMAWebBrowserViewController"
+																					   bundle:s_ormmaBundle] autorelease];
+	return c;
+}
+
+
 + (void)initialize
 {
 	// determine the scale factor
@@ -68,8 +79,17 @@ static NSString *s_scale = nil;
 			// retina display, use larger images
 			s_scale = @"@2x";
 		}
-		
 	}
+	
+	// Get a handle to our bundle
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"ORMMA"
+													 ofType:@"bundle"];
+	if ( path == nil )
+	{
+		[NSException raise:@"Invalid Build Detected"
+					format:@"Unable to find ORMMA.bundle. Make sure it is added to your resources!"];
+	}
+	s_ormmaBundle = [[NSBundle bundleWithPath:path] retain];
 }
 
 
@@ -79,15 +99,6 @@ static NSString *s_scale = nil;
     if ( ( self = [super initWithNibName:nibNameOrNil 
                                   bundle:nibBundleOrNil] ) ) 
     {
-        // Get a handle to our bundle
-		NSString *path = [[NSBundle mainBundle] pathForResource:@"ORMMA"
-														 ofType:@"bundle"];
-		if ( path == nil )
-		{
-			[NSException raise:@"Invalid Build Detected"
-						format:@"Unable to find ORMMA.bundle. Make sure it is added to your resources!"];
-		}
-		m_ormmaBundle = [[NSBundle bundleWithPath:path] retain];
     }
     return self;
 }
@@ -95,7 +106,6 @@ static NSString *s_scale = nil;
 
 - (void)dealloc 
 {
-	[m_ormmaBundle release], m_ormmaBundle = nil;
 	[m_webView release], m_webView = nil;
 	[m_browserNavigationBar release], m_browserNavigationBar = nil;
 	[m_backButton release], m_backButton = nil;
@@ -315,6 +325,17 @@ didFailLoadWithError:(NSError *)error
 shouldStartLoadWithRequest:(NSURLRequest *)request 
  navigationType:(UIWebViewNavigationType)navigationType
 {
+	// allow the delegate first shot, if necessary
+	if ( self.browserDelegate != nil )
+	{
+		if ( [self.browserDelegate respondsToSelector:@selector(shouldLoadRequest:forBrowser:)] )
+		{
+			// allow the app to take a shot at it
+			return [self.browserDelegate shouldLoadRequest:request
+												forBrowser:self];
+		}
+	}
+	
 	// allow everything
 	NSLog( @"Allow URL: %@", request.URL );
 	return YES;
@@ -364,7 +385,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	{
 		imageName = [name stringByAppendingString:s_scale];
 	}
-	NSString *imagePath = [m_ormmaBundle pathForResource:imageName
+	NSString *imagePath = [s_ormmaBundle pathForResource:imageName
 												  ofType:@"png"];
 	UIImage *image = [UIImage imageWithContentsOfFile:imagePath];
 	return image;

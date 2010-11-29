@@ -820,8 +820,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 	// display the web browser
 	NSLog( @"Create Web Browser" );
-	self.webBrowser = [[[ORMMAWebBrowserViewController alloc] initWithNibName:@"ORMMAWebBrowserViewController"
-																	   bundle:s_ormmaBundle] autorelease];
+	self.webBrowser = [ORMMAWebBrowserViewController ormmaWebBrowserViewController];
 	NSLog( @"Web Browser created: %@", self.webBrowser );
 	self.webBrowser.browserDelegate = self;
 	self.webBrowser.backButtonEnabled = back;
