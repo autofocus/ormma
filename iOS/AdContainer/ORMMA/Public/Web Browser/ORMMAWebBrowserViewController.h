@@ -11,20 +11,13 @@
 
 
 
-@protocol ORMMAWebBrowserViewControllerDelegate
-
-- (void)doneWithBrowser;
-
-@end
+@protocol ORMMAWebBrowserViewControllerDelegate;
 
 
 
 @interface ORMMAWebBrowserViewController : UIViewController <UIWebViewDelegate>
 {
 @private
-	// access to our bundle
-	NSBundle *m_ormmaBundle;
-	
 	// the delegate for this browser
 	id<ORMMAWebBrowserViewControllerDelegate> m_browserDelegate;
 	
@@ -59,10 +52,31 @@
 @property( nonatomic, assign ) BOOL closeButtonEnabled;
 
 
+// returns an auto-released instance of a new controller
++ (ORMMAWebBrowserViewController *)ormmaWebBrowserViewController;
+
+
 // button actions
 - (IBAction)backButtonPressed:(id)sender;
 - (IBAction)forwardButtonPressed:(id)sender;
 - (IBAction)refreshButtonPressed:(id)sender;
 - (IBAction)closeButtonPressed:(id)sender;
+
+@end
+
+
+
+
+
+
+
+@protocol ORMMAWebBrowserViewControllerDelegate <NSObject>
+
+@required
+- (void)doneWithBrowser;
+
+@optional
+- (BOOL)shouldLoadRequest:(NSURLRequest *)request
+			   forBrowser:(ORMMAWebBrowserViewController *)browserController;
 
 @end

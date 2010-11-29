@@ -153,14 +153,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		FA3D4C0912A4133900015954 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "${SYMROOT}/Debug-universal";
+			dstSubfolderSpec = 0;
+			files = (
+				FA61E227129C27CB00214103 /* ORMMAView.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FA61E22A129C27D400214103 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "../Debug-universal";
-			dstSubfolderSpec = 16;
+			dstPath = "${SYMROOT}/Debug-universal";
+			dstSubfolderSpec = 0;
 			files = (
 				FA61E228129C27CD00214103 /* ORMMAWebBrowserViewController.h in CopyFiles */,
-				FA61E227129C27CB00214103 /* ORMMAView.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -704,6 +713,7 @@
 				D2AAC07B0554694100DB518D /* Sources */,
 				D2AAC07C0554694100DB518D /* Frameworks */,
 				FA61E20A129C256600214103 /* ShellScript */,
+				FA3D4C0912A4133900015954 /* CopyFiles */,
 				FA61E22A129C27D400214103 /* CopyFiles */,
 				FA61E225129C275800214103 /* ShellScript */,
 			);
@@ -841,7 +851,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Copies the public files needed for ORMMA\n\ncp -r ${SYMROOT}/${CONFIGURATION}-iphonesimulator/ORMMA.bundle ${SYMROOT}/${CONFIGURATION}-universal/ORMMA.bundle";
+			shellScript = "# Copies the public files needed for ORMMA\n\ncp -r ${SYMROOT}/${CONFIGURATION}-iphonesimulator/ORMMA.bundle ${SYMROOT}/${CONFIGURATION}-universal/ORMMA.bundle\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
