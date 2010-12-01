@@ -124,6 +124,8 @@
 		FADF791D1247F29B003F7C45 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADF791C1247F29B003F7C45 /* CoreMotion.framework */; };
 		FAE2E8EC128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = FAE2E8E9128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h */; };
 		FAE2E8ED128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FAE2E8EA128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m */; };
+		FAE3049112A6B17000BDB443 /* UIWebView-ORMMA.h in Headers */ = {isa = PBXBuildFile; fileRef = FAE3048F12A6B17000BDB443 /* UIWebView-ORMMA.h */; };
+		FAE3049212A6B17000BDB443 /* UIWebView-ORMMA.m in Sources */ = {isa = PBXBuildFile; fileRef = FAE3049012A6B17000BDB443 /* UIWebView-ORMMA.m */; };
 		FAE3A51F124159BE00285B32 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A51E124159BE00285B32 /* EventKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAE3A521124159BE00285B32 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A520124159BE00285B32 /* EventKitUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
@@ -287,6 +289,8 @@
 		FAE2E8E9128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAWebBrowserViewController.h; sourceTree = "<group>"; };
 		FAE2E8EA128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAWebBrowserViewController.m; sourceTree = "<group>"; };
 		FAE2E8EB128C4D6200A1B1ED /* ORMMAWebBrowserViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ORMMAWebBrowserViewController.xib; sourceTree = "<group>"; };
+		FAE3048F12A6B17000BDB443 /* UIWebView-ORMMA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebView-ORMMA.h"; sourceTree = "<group>"; };
+		FAE3049012A6B17000BDB443 /* UIWebView-ORMMA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView-ORMMA.m"; sourceTree = "<group>"; };
 		FAE3A51E124159BE00285B32 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
 		FAE3A520124159BE00285B32 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
 		FAE3A88C12429F8B00285B32 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -622,6 +626,8 @@
 			children = (
 				FAD723A2129190B7001D702B /* UIDevice-ORMMA.h */,
 				FAD723A3129190B7001D702B /* UIDevice-ORMMA.m */,
+				FAE3048F12A6B17000BDB443 /* UIWebView-ORMMA.h */,
+				FAE3049012A6B17000BDB443 /* UIWebView-ORMMA.m */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -699,6 +705,7 @@
 				FACA4446128765CF00261A12 /* UIColor-Expanded.h in Headers */,
 				FAE2E8EC128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h in Headers */,
 				FAD723A4129190B7001D702B /* UIDevice-ORMMA.h in Headers */,
+				FAE3049112A6B17000BDB443 /* UIWebView-ORMMA.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -860,6 +867,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAE3049212A6B17000BDB443 /* UIWebView-ORMMA.m in Sources */,
 				FAD28BEA12381B2A00562D0B /* ORMMAJavascriptBridge.m in Sources */,
 				FAD28BEC12381B2A00562D0B /* ORMMAView.m in Sources */,
 				FAD28BEE12381B2A00562D0B /* ASIAuthenticationDialog.m in Sources */,
