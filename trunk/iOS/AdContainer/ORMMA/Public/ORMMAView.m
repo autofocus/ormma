@@ -6,15 +6,14 @@
 //  Copyright 2010 The Weather Channel. All rights reserved.
 //
 
+#import <EventKit/EventKit.h>
 #import "ORMMAView.h"
-#import "ORMMAJavascriptBridge.h"
 #import "UIDevice-Hardware.h"
-#import "EventKit/EventKit.h"
+#import "UIDevice-ORMMA.h"
+#import "UIWebView-ORMMA.h"
+#import "ORMMAJavascriptBridge.h"
 #import "ORMMALocalServer.h"
 #import "ORMMAWebBrowserViewController.h"
-#import "UIDevice-ORMMA.h"
-#import <EventKit/EventKit.h>
-
 
 
 @interface ORMMAView () <UIWebViewDelegate,
@@ -24,7 +23,8 @@
 @property( nonatomic, retain, readwrite ) NSError *lastError;
 @property( nonatomic, assign, readwrite ) ORMMAViewState currentState;
 @property( nonatomic, retain ) ORMMAWebBrowserViewController *webBrowser;
-
+@property( nonatomic, assign, readwrite ) BOOL isOrmmaAd;
+@property( nonatomic, retain ) NSURL *launchURL;
 
 - (void)commonInitialization;
 
@@ -67,6 +67,9 @@
 - (void)fireAdDidExpandToFrame:(CGRect)frame;
 - (void)fireAppShouldSuspend;
 - (void)fireAppShouldResume;
+
+
+-(void)verifyAppStoreLaunchWithURL:(NSURL*)url;
 
 @end
 
@@ -114,6 +117,9 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 
 @synthesize allowLocationServices = m_allowLocationServices;
 
+@synthesize isOrmmaAd = m_isOrmmaAd;
+@synthesize launchURL = m_launchURL;
+
 
 #pragma mark -
 #pragma mark Initializers / Memory Management
@@ -137,10 +143,6 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	s_ormmaBundle = [[NSBundle bundleWithPath:path] retain];
 	
 	// load the Public Javascript API
-//	[self copyFile:@"ormma"
-//			ofType:@"js"
-//		fromBundle:s_ormmaBundle
-//			toPath:s_localServer.cacheRoot];
 	path = [s_ormmaBundle pathForResource:@"ormma"
 								   ofType:@"js"];
 	NSLog( @"Public API Path is: %@", path );
@@ -150,10 +152,6 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	s_publicAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
 	
 	// load the Native Javascript API
-//	[self copyFile:@"ormma-ios-bridge"
-//			ofType:@"js"
-//		fromBundle:s_ormmaBundle
-//			toPath:s_localServer.cacheRoot];
 	path = [s_ormmaBundle pathForResource:@"ormma-ios-bridge"
 								   ofType:@"js"];
 	NSLog( @"Native API Path is: %@", path );
@@ -195,12 +193,17 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	
 	// it's up to the client to set any resizing policy for this container
 	
+	// make sure our default background color is transparent,
+	// the consumer can change it if need be
+	self.backgroundColor = [UIColor clearColor];
+	
 	// let's create a webview that will fill it's parent
 	CGRect webViewFrame = CGRectMake( 0, 
 									  0, 
 									  self.frame.size.width, 
 									  self.frame.size.height );
 	m_webView = [[UIWebView alloc] initWithFrame:webViewFrame];
+	[m_webView disableBounces];
 	
 	// make sure the webview will expand/contract as needed
 	m_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | 
@@ -246,6 +249,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	m_ormmaDelegate = nil;
 	[m_javascriptBridge restoreServicesToDefaultState], [m_javascriptBridge release], m_javascriptBridge = nil;
 	[m_webBrowser release], m_webBrowser = nil;
+	[m_launchURL release], m_launchURL = nil;
     [super dealloc];
 }
 
@@ -295,6 +299,7 @@ didFailLoadWithError:(NSError *)error
 	{
 		[self.ormmaDelegate failureLoadingAd:self];
 	}
+	m_loadingAd = NO;
 }
 
 
@@ -304,11 +309,35 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	NSURL *url = [request URL];
 	NSLog( @"Verify Web View should load URL: %@", url );
+
 	if ( [request.URL isFileURL] )
 	{
 		// Direct access to the file system is disallowed
 		return NO;
 	}
+
+	// handle iTunes requests
+	NSString * fullUrl = [request.URL absoluteString];
+	if ( ( [fullUrl rangeOfString:@"://itunes.apple.com/"].length > 0 ) || 
+		 ( [fullUrl rangeOfString:@"://phobos.apple.com/"].length > 0 ) )
+	{
+		NSLog( @"Treating URL %@ as call to app store", request.URL );
+		[self verifyAppStoreLaunchWithURL:request.URL];
+		return NO;
+	}
+	
+	// if we're not an ORMMA ad, special case it
+	if ( !m_loadingAd && !self.isOrmmaAd )
+	{
+		ORMMAWebBrowserViewController *wbvc = [ORMMAWebBrowserViewController ormmaWebBrowserViewController];
+		wbvc.URL = request.URL;
+		UIViewController *vc = [self.ormmaDelegate ormmaViewController];
+		[vc presentModalViewController:wbvc
+							  animated:YES];
+		return NO;
+	}
+	
+	// normal ad
 	if ( [m_javascriptBridge processURL:url
 							 forWebView:webView] )
 	{
@@ -348,6 +377,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	// we've finished loading the URL
 	[self injectJavaScriptIntoWebView:webView];
+	[m_webView disableBounces];
+	m_loadingAd = NO;
 }
 
 
@@ -368,10 +399,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// ads loaded by URL are assumed to be complete as-is, just display it
 	NSLog( @"Load Ad from URL: %@", url );
 	self.creativeURL = url;
-//	NSURLRequest *request = [NSURLRequest requestWithURL:url];
 	[s_localServer cacheURL:url
 			   withDelegate:self];
-//	[m_webView loadRequest:request];
 }
 
 
@@ -404,18 +433,6 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 #pragma mark -
 #pragma mark Javascript Bridge Delegate
-
-//- (NSString *)executeJavaScript:(NSString *)javascript, ...
-//{
-//	va_list args;
-//	va_start( args, javascript );
-//	NSString *result = [self usingWebView:(m_expandedView != nil ) ? m_expandedView : m_webView
-//						executeJavascript:javascript
-//							  withVarArgs:args];
-//	va_end( args );
-//	return result;
-//}
-
 
 - (NSString *)usingWebView:(UIWebView *)webView
 		 executeJavascript:(NSString *)javascript, ...
@@ -602,7 +619,6 @@ blockingOpacity:(CGFloat)blockingOpacity
 	m_expandedView = [[UIWebView alloc] initWithFrame:m_initialFrame];
 	m_expandedView.clipsToBounds = YES;
 	m_expandedView.delegate = self;
-	//m_expandedView.scalesPageToFit = YES;
 	if ( url == nil )
 	{
 	   // no url passed, reload default ad
@@ -909,7 +925,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 		// now show the cached file
 		m_creativeId = creativeId;
 		NSURLRequest *request = [NSURLRequest requestWithURL:url];
+		m_loadingAd = YES;
 		[m_webView loadRequest:request];
+		[m_webView disableBounces];
 	}
 }
 
@@ -993,7 +1011,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// check to see if we need to inject ORMMA or not
 	NSLog( @"Testing Web View for ORMMA" );
 	NSString *result = [self usingWebView:webView executeJavascript:@"typeof ORMMAReady"];
-	if ( [result isEqualToString:@"function"] )
+	self.isOrmmaAd = [result isEqualToString:@"function"];
+	if ( self.isOrmmaAd )
 	{
 		// the ad wants ORMMA, inject the ORMMA code
 		NSLog( @"Ad requires ORMMA, inject code" );
@@ -1370,6 +1389,37 @@ blockingOpacity:(CGFloat)blockingOpacity
 		NSLog( @"Unable to write file '%@', to '%@'. Error is: %@", sourcePath, finalPath, error );
 	}
 }
+
+
+
+#pragma mark -
+#pragma mark Launch App Store
+
+
+-(void)verifyAppStoreLaunchWithURL:(NSURL*)url 
+{
+	self.launchURL = url;
+	
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Launch AppStore" 
+													message:@"Application will exit.\nDo you wish to continue?"
+												   delegate:self 
+										  cancelButtonTitle:@"Cancel" 
+										  otherButtonTitles: @"Continue", nil];
+	[alert show];	
+	[alert release];
+}
+
+
+- (void)alertView:(UIAlertView *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	if ( buttonIndex == 0 )
+	{
+		[[UIApplication sharedApplication] openURL:self.launchURL];
+	}
+	
+	self.launchURL = nil;
+}
+
 
 
 

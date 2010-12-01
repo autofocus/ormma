@@ -60,6 +60,10 @@ typedef enum ORMMAViewStateEnum
 	BOOL m_applicationReady;
 	
 	BOOL m_allowLocationServices;
+	
+	BOOL m_isOrmmaAd;
+	NSURL *m_launchURL;
+	BOOL m_loadingAd;
 }
 @property( nonatomic, assign ) id<ORMMAViewDelegate> ormmaDelegate;
 @property( nonatomic, copy ) NSString *htmlStub;
@@ -69,6 +73,8 @@ typedef enum ORMMAViewStateEnum
 @property( nonatomic, assign ) CGSize maxSize;
 
 @property( nonatomic, assign ) BOOL allowLocationServices;
+
+@property( nonatomic, assign, readonly ) BOOL isOrmmaAd;
 
 
 - (void)loadCreative:(NSURL *)url;
