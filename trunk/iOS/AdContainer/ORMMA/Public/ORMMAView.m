@@ -326,17 +326,6 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		return NO;
 	}
 	
-	// if we're not an ORMMA ad, special case it
-	if ( !m_loadingAd && !self.isOrmmaAd )
-	{
-		ORMMAWebBrowserViewController *wbvc = [ORMMAWebBrowserViewController ormmaWebBrowserViewController];
-		wbvc.URL = request.URL;
-		UIViewController *vc = [self.ormmaDelegate ormmaViewController];
-		[vc presentModalViewController:wbvc
-							  animated:YES];
-		return NO;
-	}
-	
 	// normal ad
 	if ( [m_javascriptBridge processURL:url
 							 forWebView:webView] )
@@ -365,6 +354,17 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 					return NO;
 				}
 		}
+	}
+	
+	// if we're not an ORMMA ad, special case it
+	if ( !m_loadingAd && !self.isOrmmaAd )
+	{
+		ORMMAWebBrowserViewController *wbvc = [ORMMAWebBrowserViewController ormmaWebBrowserViewController];
+		wbvc.URL = request.URL;
+		UIViewController *vc = [self.ormmaDelegate ormmaViewController];
+		[vc presentModalViewController:wbvc
+							  animated:YES];
+		return NO;
 	}
 	
 	// for all other cases, just let the web view handle it
