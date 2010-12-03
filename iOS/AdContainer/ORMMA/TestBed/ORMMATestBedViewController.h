@@ -23,6 +23,7 @@
 	
 	UILabel *m_urlLabel;
 	UITextField *m_urlField;
+	UIButton *m_loadAdButton;
 }
 @property( nonatomic, retain ) IBOutlet ORMMAView *ormmaView;
 
@@ -32,9 +33,10 @@
 
 @property( nonatomic, retain ) IBOutlet UILabel *urlLabel;
 @property( nonatomic, retain ) IBOutlet UITextField *urlField;
+@property( nonatomic, retain ) IBOutlet UIButton *loadAdButton;
 
 
-- (IBAction)showAdButtonPressed:(id)sender; 
+- (IBAction)loadAdButtonPressed:(id)sender; 
 
 
 @end
