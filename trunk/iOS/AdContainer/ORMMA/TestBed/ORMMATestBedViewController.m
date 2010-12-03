@@ -39,6 +39,7 @@ typedef enum OTBAdAnimationDirectionEnum
 @synthesize tabBarView = m_tabBarView;
 @synthesize urlLabel = m_urlLabel;
 @synthesize urlField = m_urlField;
+@synthesize loadAdButton = m_loadAdButton;
 
 
 
@@ -76,6 +77,7 @@ typedef enum OTBAdAnimationDirectionEnum
 	[m_tabBarView release], m_tabBarView  = nil;
 	[m_urlLabel release], m_urlLabel = nil;
 	[m_urlField release], m_urlField = nil;
+	[m_loadAdButton release], m_loadAdButton = nil;
     [super dealloc];
 }
 
@@ -114,6 +116,7 @@ typedef enum OTBAdAnimationDirectionEnum
 	self.tabBarView  = nil;
 	self.urlLabel = nil;
 	self.urlField = nil;
+	self.loadAdButton = nil;
 	
 	[super viewDidUnload];
 	NSLog( @"View Did Unload" );
@@ -195,7 +198,11 @@ typedef enum OTBAdAnimationDirectionEnum
 	NSLog( @"ORMAView Delegate Call: adWillShow" );
 	
 	// let's animate our ad on-screen
-	[self animateAd:kAnimateOnScreen];
+	CGRect r = self.ormmaView.frame;
+	if ( r.origin.y < 0 )
+	{
+		[self animateAd:kAnimateOnScreen];
+	}
 }
 
 
@@ -212,7 +219,11 @@ typedef enum OTBAdAnimationDirectionEnum
 	NSLog( @"ORMAView Delegate Call: adWillHide" );
 	
 	// let's animate our ad off-screen
-	[self animateAd:kAnimateOffScreen];
+	CGRect r = self.ormmaView.frame;
+	if ( r.origin.y >= 0 )
+	{
+		[self animateAd:kAnimateOffScreen];
+	}
 }
 
 
@@ -318,8 +329,15 @@ typedef enum OTBAdAnimationDirectionEnum
 #pragma mark -
 #pragma mark Button Actions
 
-- (IBAction)showAdButtonPressed:(id)sender
+- (IBAction)loadAdButtonPressed:(id)sender
 {
+	// reset for loading the URL
+	self.loadAdButton.hidden = YES;
+	self.urlField.hidden = NO;
+	self.urlLabel.hidden = NO;
+	
+	// reset the ad
+	[m_ormmaView restoreToDefaultState];
 }
 
 
@@ -357,6 +375,13 @@ typedef enum OTBAdAnimationDirectionEnum
 	
 	// resign first responder
 	[textField resignFirstResponder];
+	
+	// reset for next load
+	self.loadAdButton.hidden = NO;
+	self.urlField.hidden = YES;
+	self.urlLabel.hidden = YES;
+
+	// done
 	return YES;
 }
 
