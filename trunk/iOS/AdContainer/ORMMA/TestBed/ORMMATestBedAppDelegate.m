@@ -19,12 +19,14 @@
 #pragma mark -
 #pragma mark Application lifecycle
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions 
+- (BOOL)application:(UIApplication *)application 
+didFinishLaunchingWithOptions:(NSDictionary *)launchOptions 
 {    
     
     // Override point for customization after application launch.
 
     // Add the view controller's view to the window and display.
+	self.window.backgroundColor = [UIColor greenColor];
     [self.window addSubview:self.viewController.view];
     [self.window makeKeyAndVisible];
 

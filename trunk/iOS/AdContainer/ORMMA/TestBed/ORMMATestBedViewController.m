@@ -31,6 +31,73 @@ typedef enum OTBAdAnimationDirectionEnum
 
 
 #pragma mark -
+#pragma mark Constants
+
+NSString * const kWxDataObject = @"var wx = {}; \n\n" \
+                                   "wx.config = {\n" \
+                                   "  page: {\n" \
+                                   "    pageId:  'testbed',\n" \
+                                   "    pageURL: '',\n" \
+                                   "    version: '1.0'\n" \
+                                   "  },\n" \
+                                   "\n" \
+                                   "  user: {\n" \
+                                   "    age:       '',\n" \
+                                   "    gender:    '',\n" \
+                                   "    asi:       '',\n" \
+                                   "    view:      '',\n" \
+                                   "    cobrand:   '',\n" \
+                                   "    dec:       '',\n" \
+                                   "    entry:     '',\n" \
+                                   "    skin:      '',\n" \
+                                   "    installed: ''\n" \
+                                   "  },\n" \
+                                   "\n" \
+                                   "  ad: {\n" \
+                                   "    mode:     '',\n" \
+                                   "    site:     '',\n" \
+                                   "    testsite: '',\n" \
+                                   "    zone:     '',\n" \
+                                   "    layout:   '',\n" \
+                                   "    ord:      '',\n" \
+                                   "    keywords: '',\n" \
+                                   "    sequence: '',\n" \
+                                   "    postions: {},\n" \
+                                   "    wap:      ''\n" \
+                                   "  },\n" \
+                                   "\n" \
+                                   "  loc: {\n" \
+                                   "    gpr:      '',\n" \
+                                   "    country:  'US',\n" \
+                                   "    state:    'GA',\n" \
+                                   "    dma:      '524',\n" \
+                                   "    zip:      '30339',\n" \
+                                   "    claritas: '8',\n" \
+                                   "    locId:    '30339',\n" \
+                                   "    locType:  '4',\n" \
+                                   "    city:     ''\n" \
+                                   "  },\n" \
+                                   "\n" \
+                                   "  wx: {\n" \
+                                   "    temp:             '32',\n" \
+                                   "    tempR:            '',\n" \
+                                   "    realTemp:         '',\n" \
+                                   "    cond:             'sun',\n" \
+                                   "    pollen:           ''\n" \
+                                   "    wind:             '',\n" \
+                                   "    windSpeed:        '13',\n" \
+                                   "    uv:               '',\n" \
+                                   "    uvIndex:          '3',\n" \
+                                   "    hum:              '52',\n" \
+                                   "    relativeHumidity: '',\n" \
+                                   "    severe:           '',\n" \
+                                   "    wxIcon:           '%7@'\n" \
+                                   "  }\n" \
+                                   "};";
+
+
+
+#pragma mark -
 #pragma mark Properties
 
 @synthesize ormmaView = m_ormmaView;
@@ -105,6 +172,16 @@ typedef enum OTBAdAnimationDirectionEnum
 	self.ormmaView.allowLocationServices = YES;
 	CGSize maxSize = { 320, 250 };
 	self.ormmaView.maxSize = maxSize;
+	
+	self.view.backgroundColor = [UIColor purpleColor];
+	
+	// set the last URL
+	NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+	NSString *s = [d objectForKey:@"lastURL"];
+	if ( d != nil )
+	{
+		self.urlField.text = s;
+	}
 }
 
 
@@ -182,6 +259,12 @@ typedef enum OTBAdAnimationDirectionEnum
 - (UIViewController *)ormmaViewController
 {
 	return self;
+}
+
+
+- (NSString *)javascriptForInjection
+{
+	return kWxDataObject;
 }
 
 
@@ -338,6 +421,9 @@ typedef enum OTBAdAnimationDirectionEnum
 	
 	// reset the ad
 	[m_ormmaView restoreToDefaultState];
+	
+	// bring up the keyboard
+	[self.urlField becomeFirstResponder];
 }
 
 
@@ -369,6 +455,11 @@ typedef enum OTBAdAnimationDirectionEnum
 		// bad URL
 		return NO;
 	}
+	
+	// store the text for next time around
+	NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+	[d setObject:txt
+		  forKey:@"lastURL"];
 
 	// load the creative
 	[self.ormmaView loadCreative:url];

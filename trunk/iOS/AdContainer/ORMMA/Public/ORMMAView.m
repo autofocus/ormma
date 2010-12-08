@@ -35,7 +35,6 @@
 	  fromBundle:(NSBundle *)bundle
 		  toPath:(NSString *)path;
 
-- (void)closeButtonPressed:(id)sender;
 - (void)blockingViewTouched:(id)sender;
 
 - (void)logFrame:(CGRect)frame
@@ -196,6 +195,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	// make sure our default background color is transparent,
 	// the consumer can change it if need be
 	self.backgroundColor = [UIColor clearColor];
+	self.opaque = NO;
 	
 	// let's create a webview that will fill it's parent
 	CGRect webViewFrame = CGRectMake( 0, 
@@ -215,12 +215,10 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	
 	// the web view should be transparent
 	m_webView.backgroundColor = [UIColor clearColor];
+	m_webView.opaque = NO;
 	
 	// add the web view to the main view
 	[self addSubview:m_webView];
-	
-	// make sure our view is also transparent
-	self.backgroundColor = [UIColor clearColor];
 	
 	// let the OS know that we care about receiving various notifications
 	m_currentDevice = [UIDevice currentDevice];
@@ -334,7 +332,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		return NO;
 	}
 	NSString *urlString = [url absoluteString];
-	if ( [@"about:blank" isEqualToString:urlString] )
+	if ( [@"about:blank" isEqualToString:fullUrl] )
 	{
 		// don't bother loading the empty page
 		NSLog( @"IFrame Detected" );
@@ -359,6 +357,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// if we're not an ORMMA ad, special case it
 	if ( !m_loadingAd && !self.isOrmmaAd )
 	{
+		NSLog( @"Delegating Open to web browser." );
 		ORMMAWebBrowserViewController *wbvc = [ORMMAWebBrowserViewController ormmaWebBrowserViewController];
 		wbvc.URL = request.URL;
 		UIViewController *vc = [self.ormmaDelegate ormmaViewController];
@@ -434,6 +433,12 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 #pragma mark -
 #pragma mark Javascript Bridge Delegate
 
+- (void)adIsORMMAEnabledForWebView:(UIWebView *)webView
+{
+	self.isOrmmaAd = YES;
+}
+
+
 - (NSString *)usingWebView:(UIWebView *)webView
 		 executeJavascript:(NSString *)javascript, ...
 {
@@ -464,15 +469,29 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	[self fireAdWillShow];
 	
 	// Nothing special to do, other than making sure the ad is visible
-	self.hidden = NO;
-	self.currentState = ORMMAViewStateDefault;
+	NSString *newState;
+	if ( m_expandedView != nil )
+	{
+	    // expanded ad
+		m_expandedView.hidden = NO;
+		m_blockingView.hidden = NO;
+		self.currentState = ORMMAViewStateExpanded;
+		newState = @"expanded";
+	}
+	else
+	{
+		// normal ad
+		self.hidden = NO;
+		self.currentState = ORMMAViewStateDefault;
+		newState = @"default";
+	}
 	
 	// notify that we're done
 	[self fireAdDidShow];
 	
 	// notify the ad view that the state has changed
 	[self usingWebView:webView
-	executeJavascript:@"window.ormmaview.fireChangeEvent( { state: 'default' } );"];
+	executeJavascript:@"window.ormmaview.fireChangeEvent( { state: '%@' } );", newState];
 }
 
 
@@ -591,6 +610,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 	
 	// Notify the native app that we're preparing to expand
 	[self fireAdWillExpandToFrame:endingFrame];
+	
+	// ensure that we realize this MUST be an ORMMA capable ad
+	self.isOrmmaAd = YES;
 	
 	// get the key window
 	UIApplication *app = [UIApplication sharedApplication];
@@ -833,6 +855,13 @@ blockingOpacity:(CGFloat)blockingOpacity
 	
 	// notify the app that it should stop work
 	[self fireAppShouldSuspend];
+	
+	// if the expanded view is on screen, hide it so we don't interfere with the full screen
+	if ( m_expandedView != nil )
+	{
+	   m_expandedView.hidden = YES;
+	   m_blockingView.hidden = YES;
+	}
 
 	// display the web browser
 	NSLog( @"Create Web Browser" );
@@ -856,12 +885,21 @@ blockingOpacity:(CGFloat)blockingOpacity
 	NSLog( @"Dismissing Browser" );
 	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 	self.webBrowser = nil;
-
+	
+	// if the expanded view should be visible, make it so
+	if ( m_expandedView != nil )
+	{
+	   m_expandedView.hidden = NO;
+	}
+	
+	// called when the ad needs to be made visible
+	[self fireAdWillShow];
+	
 	// notify the app that it should start work
 	[self fireAppShouldResume];
 	
-	// make sure ad is visible
-	[self showAd:m_webView];
+	// called when the ad needs to be made visible
+	[self fireAdDidShow];
 }
 
 
@@ -988,13 +1026,6 @@ blockingOpacity:(CGFloat)blockingOpacity
 #pragma mark -
 #pragma mark General Actions
 
-- (void)closeButtonPressed:(id)sender
-{
-	// the user wants to close the expanded window
-	[self closeAd:m_expandedView];
-}
-
-
 - (void)blockingViewTouched:(id)sender
 {
 	// Restore the ad to it's default size
@@ -1008,47 +1039,42 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 - (void)injectJavaScriptIntoWebView:(UIWebView *)webView
 {
-	// check to see if we need to inject ORMMA or not
-	NSLog( @"Testing Web View for ORMMA" );
-	NSString *result = [self usingWebView:webView executeJavascript:@"typeof ORMMAReady"];
-	self.isOrmmaAd = [result isEqualToString:@"function"];
-	if ( self.isOrmmaAd )
+	// notify app that the ad is preparing to show
+	[self fireAdWillShow];
+	
+	// assume we are not an ORMMA ad until told otherwise
+	// UNLESS we are the expanded view; in that case we MUST be ORMMA capable
+	self.isOrmmaAd = ( webView == m_expandedView );
+
+	// always inject the ORMMA code
+	NSLog( @"Ad requires ORMMA, inject code" );
+	[self injectORMMAJavaScriptIntoWebView:webView];
+		
+	// now inject the current state
+	[self injectORMMAStateIntoWebView:webView];
+		
+	// now allow the app to inject it's own javascript if needed
+	if ( self.ormmaDelegate != nil )
 	{
-		// the ad wants ORMMA, inject the ORMMA code
-		NSLog( @"Ad requires ORMMA, inject code" );
-		[self injectORMMAJavaScriptIntoWebView:webView];
-		
-		// now inject the current state
-		[self injectORMMAStateIntoWebView:webView];
-		
-		// now allow the app to inject it's own javascript if needed
-		if ( self.ormmaDelegate != nil )
-		{
-		   if ( [self.ormmaDelegate respondsToSelector:@selector(javascriptForInjection)] )
-		   {
-		       NSString *js = [self.ormmaDelegate javascriptForInjection];
-			   [self usingWebView:webView executeJavascript:js];
-		   }
-		}
-		
-		// notify the creative that ORMMA is done
-		m_applicationReady = YES;
-		[self usingWebView:webView executeJavascript:@"ORMMAReady();"];
+	   if ( [self.ormmaDelegate respondsToSelector:@selector(javascriptForInjection)] )
+	   {
+	       NSString *js = [self.ormmaDelegate javascriptForInjection];
+		   [self usingWebView:webView executeJavascript:js];
+	   }
 	}
-	else
-	{
-		// Not an ORMMA ad, but let the app know the ad is visible
-		[self fireAdWillShow];
-		[self fireAdDidShow];
-	}
+		
+	// notify the creative that ORMMA is done
+	m_applicationReady = YES;
+	[self usingWebView:webView executeJavascript:@"ormmaview.enableORMMA();"];
+	
+	// Notify app that the ad has been shown
+	[self fireAdDidShow];
 }
 
 
 - (void)injectORMMAJavaScriptIntoWebView:(UIWebView *)webView
 {
 	NSLog( @"Injecting ORMMA Javascript into creative." );
-//	[self injectJavaScriptFile:@"/ormma-ios-bridge.js" intoWebView:webView];
-//	[self injectJavaScriptFile:@"/ormma.js" intoWebView:webView];
 	if ( [self usingWebView:webView 
 		  executeJavascript:s_nativeAPI] == nil )
 	{
