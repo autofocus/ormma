@@ -13,7 +13,8 @@
 @interface ORMMAWebBrowserViewController ()
 
 - (void)updateButton:(UIButton *)button
-	  withImageNamed:(NSString *)imageName;
+	  withImageNamed:(NSString *)imageName
+		 disableable:(BOOL)disableable;
 
 - (UIImage *)imageForName:(NSString *)name;
 
@@ -44,9 +45,11 @@ static NSString *s_scale = nil;
 
 @synthesize webView = m_webView;
 @synthesize browserNavigationBar = m_browserNavigationBar;
+@synthesize addressBarBackground = m_addressBarBackground;
 @synthesize backButton = m_backButton;
 @synthesize forwardButton = m_forwardButton;
 @synthesize refreshButton = m_refreshButton;
+@synthesize safariButton = m_safariButton;
 @synthesize pageLoadingIndicator = m_pageLoadingIndicator;
 @synthesize closeButton = m_closeButton;
 @synthesize browserDelegate = m_browserDelegate;
@@ -108,9 +111,11 @@ static NSString *s_scale = nil;
 {
 	[m_webView release], m_webView = nil;
 	[m_browserNavigationBar release], m_browserNavigationBar = nil;
+	[m_addressBarBackground release], m_addressBarBackground = nil;
 	[m_backButton release], m_backButton = nil;
 	[m_forwardButton release], m_forwardButton = nil;
 	[m_refreshButton release], m_refreshButton = nil;
+	[m_safariButton release], m_safariButton = nil;
 	[m_pageLoadingIndicator release], m_pageLoadingIndicator = nil;
 	[m_closeButton release], m_closeButton = nil;
 	m_browserDelegate = nil;
@@ -134,16 +139,27 @@ static NSString *s_scale = nil;
 {
     [super viewDidLoad];
 	
+	// update the address bar background using stretchable image
+	UIImage *bgImage = [self imageForName:@"addressbar-background"];
+	self.addressBarBackground.image = bgImage;
+	
 	// update the button images
 	NSLog( @"Update Button Images" );
 	[self updateButton:self.backButton
-		withImageNamed:@"back"];
+		withImageNamed:@"back"
+		   disableable:YES];
 	[self updateButton:self.forwardButton
-		withImageNamed:@"forward"];
+		withImageNamed:@"forward"
+		   disableable:YES];
 	[self updateButton:self.refreshButton
-		withImageNamed:@"refresh"];
+		withImageNamed:@"refresh"
+		   disableable:NO];
+	[self updateButton:self.safariButton
+		withImageNamed:@"openbrowser"
+		   disableable:NO];
 	[self updateButton:self.closeButton
-		withImageNamed:@"close"];
+		withImageNamed:@"close"
+		   disableable:NO];
 }
 
 
@@ -153,9 +169,11 @@ static NSString *s_scale = nil;
 	
 	self.webView = nil;
 	self.browserNavigationBar = nil;
+	self.addressBarBackground = nil;
 	self.backButton = nil;
 	self.forwardButton = nil;
 	self.refreshButton = nil;
+	self.safariButton = nil;
 	self.pageLoadingIndicator = nil;
 	self.closeButton = nil;
 
@@ -292,6 +310,12 @@ static NSString *s_scale = nil;
 }
 
 
+- (IBAction)safariButtonPressed:(id)sender
+{
+	NSLog( @"Safari Button Pressed." );
+}
+
+
 - (IBAction)closeButtonPressed:(id)sender
 {
 	NSLog( @"Close Button Pressed." );
@@ -345,7 +369,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 	// we've finished loading the page
-	NSLog( @"Web Page Finished Loading" );
+	NSLog( @"Web Page '%@'Finished Loading", webView.request.URL );
 	[self.pageLoadingIndicator stopAnimating];
 	
 	// enable the back/forward buttons as needed
@@ -357,7 +381,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 	// let the user know we're doing something
-	NSLog( @"Web Page Started Loading" );
+	NSLog( @"Web Page '%@' Started Loading", webView.request.URL );
 	[self.pageLoadingIndicator startAnimating];
 }
 
@@ -367,10 +391,18 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 - (void)updateButton:(UIButton *)button
 	  withImageNamed:(NSString *)imageName
+		 disableable:(BOOL)disableable
 {
 	UIImage *image = [self imageForName:imageName];
 	[button setImage:image
 			forState:UIControlStateNormal];
+	if ( disableable )
+	{
+		NSString *disabledName = [imageName stringByAppendingString:@"-disabled"];
+		UIImage *disabledImage = [self imageForName:disabledName];
+		[button setImage:disabledImage
+				forState:UIControlStateDisabled];
+	}
 }
 
 

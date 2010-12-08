@@ -25,17 +25,21 @@
 	NSURL *m_url;
 	UIWebView *m_webView;
 	UIView *m_browserNavigationBar;
+	UIImageView *m_addressBarBackground;
 	UIButton *m_backButton;
 	UIButton *m_forwardButton;
 	UIButton *m_refreshButton;
+	UIButton *m_safariButton;
 	UIActivityIndicatorView *m_pageLoadingIndicator;
 	UIButton *m_closeButton;
 }
 @property( nonatomic, retain ) IBOutlet UIWebView *webView;
 @property( nonatomic, retain ) IBOutlet UIView *browserNavigationBar;
+@property( nonatomic, retain ) IBOutlet UIImageView *addressBarBackground;
 @property( nonatomic, retain ) IBOutlet UIButton *backButton;
 @property( nonatomic, retain ) IBOutlet UIButton *forwardButton;
 @property( nonatomic, retain ) IBOutlet UIButton *refreshButton;
+@property( nonatomic, retain ) IBOutlet UIButton *safariButton;
 @property( nonatomic, retain ) IBOutlet UIActivityIndicatorView *pageLoadingIndicator;
 @property( nonatomic, retain ) IBOutlet UIButton *closeButton;
 
@@ -60,6 +64,7 @@
 - (IBAction)backButtonPressed:(id)sender;
 - (IBAction)forwardButtonPressed:(id)sender;
 - (IBAction)refreshButtonPressed:(id)sender;
+- (IBAction)safariButtonPressed:(id)sender;
 - (IBAction)closeButtonPressed:(id)sender;
 
 @end
