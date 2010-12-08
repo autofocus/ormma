@@ -164,4 +164,6 @@ typedef enum ORMMAViewStateEnum
 // called when the ad is finished with it's heavy content (usually when the ad returns from full screen)
 - (void)appShouldResumeFromAd:(ORMMAView *)adView;
 
+
+//- (BOOL)cpm
 @end

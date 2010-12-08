@@ -36,46 +36,19 @@
 	*
 	*/
    ormmaview.enableORMMA = function() {
-      // the native code has indicated that ORMMA is ready
-      // we want to call the ORMMAReady event where-ever we find it
-      // first see if the root is ORMMA capable
-      if ( typeof ORMMAReady == 'function' ) {
-         // if we've found an ORMMAReady in the root document, use it
-         // there can be only one...
-         ORMMAReady();
-         this.executeNativeCall( "ormmaenabled" );
-		 return;
-      }
- 
-      // no ORMMAReady in the root document, see if there are any IFRAMES
-      if ( window.frames.length > 0 ) {
-         // we have IFRAMEs to process, schedule it 
-         totalTime = 0;
-         timer = setTimeout( "ormmaview.processIFrames();", 100 );
-      }
- /*
-      // now walk all the iframes and see if any of them are capable
-      for ( var i = 0; i < window.frames.length; i++ ) {
-         if ( typeof f.contentDocument.ORMMAReady == 'function' ) {
- alert( "frame has ORMMA" );
-             // inject the ORMMA objects
-             f.contentWindow.ormma = ormma;
-             f.contentWindow.ormmaview = ormmaview;
- 
-             // now make the call
-             f.contentWindow.ORMMAReady();
- 
-             // make sure to track it
-             isORMMA = true;
-         }
-      }
- 
-      // if we've found any ORMMA capable items, notify the native code
-      if ( isORMMA ) {
-         this.executeNativeCall( "ormmaenabled" );
-      }
-  */
+      ORMMAReady( true );
+      this.executeNativeCall( "ormmaenabled" );
+
+//      // the native code has indicated that ORMMA is ready
+//      // first see if the root is ORMMA capable
+//      if ( typeof ORMMAReady == 'function' ) {
+//         // if we've found an ORMMAReady in the root document, use it
+//         // there can be only one...
+//         ORMMAReady( true );
+//         this.executeNativeCall( "ormmaenabled" );
+//      }
    }
+
  
    /**
 	*
@@ -596,4 +569,28 @@
 	  this.executeNativeCall( "removeasset", 
 							  "alias", alias );
    };
+})();
+
+ 
+// add ORMMA Ready Handler
+ORMMAReady = ( function() {
+   // create event function stack
+   var load_events = [],
+                     done,
+                     exec,
+                     init = function () {
+                        done = true;
+                        // execute each function in the stack in the order they were added
+                        while ( exec = load_events.shift() ) { exec(); }
+					 };
+   this.init = function(){};
+			   
+   return function ( func ) {
+      //ormma is ready
+      if ( ( typeof func == "boolean" ) && ( func == true ) ) { init(); return; }
+
+	  // if the init function was already ran, just run this function now and stop
+	  if (done){return func();}
+	  load_events.push(func);
+   }
 })();

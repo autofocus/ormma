@@ -83,8 +83,8 @@
 
 static ORMMALocalServer *s_localServer;
 static NSBundle *s_ormmaBundle;
-static NSString *s_publicAPI;
-static NSString *s_nativeAPI;
+//static NSString *s_publicAPI;
+//static NSString *s_nativeAPI;
 
 
 #pragma mark -
@@ -142,22 +142,31 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	s_ormmaBundle = [[NSBundle bundleWithPath:path] retain];
 	
 	// load the Public Javascript API
-	path = [s_ormmaBundle pathForResource:@"ormma"
-								   ofType:@"js"];
-	NSLog( @"Public API Path is: %@", path );
-	NSString *js = [NSString stringWithContentsOfFile:path
-											 encoding:NSUTF8StringEncoding
-												error:NULL];
-	s_publicAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
+	path = [ORMMALocalServer rootDirectory];
+	[self copyFile:@"ormma"
+			ofType:@"js" 
+		fromBundle:s_ormmaBundle 
+			toPath:path];
+	//	path = [s_ormmaBundle pathForResource:@"ormma"
+//								   ofType:@"js"];
+//	NSLog( @"Public API Path is: %@", path );
+//	NSString *js = [NSString stringWithContentsOfFile:path
+//											 encoding:NSUTF8StringEncoding
+//												error:NULL];
+//	s_publicAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
 	
 	// load the Native Javascript API
-	path = [s_ormmaBundle pathForResource:@"ormma-ios-bridge"
-								   ofType:@"js"];
-	NSLog( @"Native API Path is: %@", path );
-	js = [NSString stringWithContentsOfFile:path
-								   encoding:NSUTF8StringEncoding
-									  error:NULL];
-	s_nativeAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
+	[self copyFile:@"ormma-ios-bridge"
+			ofType:@"js" 
+		fromBundle:s_ormmaBundle 
+			toPath:path];
+//	path = [s_ormmaBundle pathForResource:@"ormma-ios-bridge"
+//								   ofType:@"js"];
+//	NSLog( @"Native API Path is: %@", path );
+//	js = [NSString stringWithContentsOfFile:path
+//								   encoding:NSUTF8StringEncoding
+//									  error:NULL];
+//	s_nativeAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
 	
 	// done with autorelease pool
 	[pool drain];
@@ -331,7 +340,6 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		// the bridge processed the url, nothing else to do
 		return NO;
 	}
-	NSString *urlString = [url absoluteString];
 	if ( [@"about:blank" isEqualToString:fullUrl] )
 	{
 		// don't bother loading the empty page
@@ -1074,17 +1082,17 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 - (void)injectORMMAJavaScriptIntoWebView:(UIWebView *)webView
 {
-	NSLog( @"Injecting ORMMA Javascript into creative." );
-	if ( [self usingWebView:webView 
-		  executeJavascript:s_nativeAPI] == nil )
-	{
-		NSLog( @"Error injecting ORMMA Bridge Javascript!" );
-	}
-	if ( [self usingWebView:webView 
-		  executeJavascript:s_publicAPI] == nil )
-	{
-		NSLog( @"Error injecting ORMMA Public API Javascript!" );
-	}
+//	NSLog( @"Injecting ORMMA Javascript into creative." );
+//	if ( [self usingWebView:webView 
+//		  executeJavascript:s_nativeAPI] == nil )
+//	{
+//		NSLog( @"Error injecting ORMMA Bridge Javascript!" );
+//	}
+//	if ( [self usingWebView:webView 
+//		  executeJavascript:s_publicAPI] == nil )
+//	{
+//		NSLog( @"Error injecting ORMMA Public API Javascript!" );
+//	}
 }
 
 
