@@ -16,7 +16,6 @@
 							   forURL:(NSURL *)url;
 + (unsigned long long)removeObjectsInDirectory:(NSString *)directory
 								  includeFiles:(BOOL)files;
-+ (NSString *)rootDirectory;
 
 - (NSString *)processHTMLStubUsingFragment:(NSString *)fragment;
 

@@ -57,6 +57,8 @@
 // designated accessor for the singleton instance
 + (ORMMALocalServer *)sharedInstance;
 
++ (NSString *)rootDirectory;
+
 
 // used to cache a specific URL
 - (void)cacheURL:(NSURL *)url
