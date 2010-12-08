@@ -2,9 +2,9 @@
 <archive type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1056</int>
-		<string key="IBDocument.SystemVersion">10F569</string>
+		<string key="IBDocument.SystemVersion">10H574</string>
 		<string key="IBDocument.InterfaceBuilderVersion">823</string>
-		<string key="IBDocument.AppKitVersion">1038.29</string>
+		<string key="IBDocument.AppKitVersion">1038.35</string>
 		<string key="IBDocument.HIToolboxVersion">461.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="4"/>
+			<integer value="1"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -62,22 +62,22 @@
 						<int key="NSvFlags">298</int>
 						<object class="NSMutableArray" key="NSSubviews">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBUIView" id="68533273">
+							<object class="IBUIImageView" id="586174418">
 								<reference key="NSNextResponder" ref="682067338"/>
-								<int key="NSvFlags">292</int>
+								<int key="NSvFlags">274</int>
 								<string key="NSFrameSize">{320, 40}</string>
 								<reference key="NSSuperview" ref="682067338"/>
-								<object class="NSColor" key="IBUIBackgroundColor">
-									<int key="NSColorSpace">1</int>
-									<bytes key="NSRGB">MCAwIDAAA</bytes>
-								</object>
-								<float key="IBUIAlpha">0.30000001192092896</float>
+								<bool key="IBUIUserInteractionEnabled">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+								<object class="NSCustomResource" key="IBUIImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">addressbar-background.png</string>
+								</object>
 							</object>
 							<object class="IBUIButton" id="520267720">
 								<reference key="NSNextResponder" ref="682067338"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrameSize">{40, 37}</string>
+								<string key="NSFrame">{{3, 0}, {40, 37}}</string>
 								<reference key="NSSuperview" ref="682067338"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -101,11 +101,15 @@
 									<int key="NSColorSpace">3</int>
 									<bytes key="NSWhite">MC41AA</bytes>
 								</object>
+								<object class="NSCustomResource" key="IBUINormalImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">back.png</string>
+								</object>
 							</object>
 							<object class="IBUIButton" id="600707849">
 								<reference key="NSNextResponder" ref="682067338"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{48, 0}, {40, 37}}</string>
+								<string key="NSFrame">{{60, 0}, {40, 37}}</string>
 								<reference key="NSSuperview" ref="682067338"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -119,11 +123,15 @@
 									<bytes key="NSRGB">MC4xOTYwNzg0MzQ2IDAuMzA5ODAzOTMyOSAwLjUyMTU2ODY1NgA</bytes>
 								</object>
 								<reference key="IBUINormalTitleShadowColor" ref="121279829"/>
+								<object class="NSCustomResource" key="IBUINormalImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">forward.png</string>
+								</object>
 							</object>
 							<object class="IBUIButton" id="650482224">
 								<reference key="NSNextResponder" ref="682067338"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{114, 0}, {40, 37}}</string>
+								<string key="NSFrame">{{112, 0}, {40, 37}}</string>
 								<reference key="NSSuperview" ref="682067338"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -136,11 +144,36 @@
 									<bytes key="NSRGB">MC4xOTYwNzg0MzQ2IDAuMzA5ODAzOTMyOSAwLjUyMTU2ODY1NgA</bytes>
 								</object>
 								<reference key="IBUINormalTitleShadowColor" ref="121279829"/>
+								<object class="NSCustomResource" key="IBUINormalImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">refresh.png</string>
+								</object>
+							</object>
+							<object class="IBUIButton" id="328630662">
+								<reference key="NSNextResponder" ref="682067338"/>
+								<int key="NSvFlags">292</int>
+								<string key="NSFrame">{{165, 0}, {40, 37}}</string>
+								<reference key="NSSuperview" ref="682067338"/>
+								<bool key="IBUIOpaque">NO</bool>
+								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+								<int key="IBUIContentHorizontalAlignment">0</int>
+								<int key="IBUIContentVerticalAlignment">0</int>
+								<reference key="IBUIFont" ref="939967664"/>
+								<reference key="IBUIHighlightedTitleColor" ref="9503215"/>
+								<object class="NSColor" key="IBUINormalTitleColor">
+									<int key="NSColorSpace">1</int>
+									<bytes key="NSRGB">MC4xOTYwNzg0MzQ2IDAuMzA5ODAzOTMyOSAwLjUyMTU2ODY1NgA</bytes>
+								</object>
+								<reference key="IBUINormalTitleShadowColor" ref="121279829"/>
+								<object class="NSCustomResource" key="IBUINormalImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">openbrowser.png</string>
+								</object>
 							</object>
 							<object class="IBUIActivityIndicatorView" id="878061216">
 								<reference key="NSNextResponder" ref="682067338"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{196, 1}, {37, 37}}</string>
+								<string key="NSFrame">{{225, 1}, {37, 37}}</string>
 								<reference key="NSSuperview" ref="682067338"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -150,7 +183,7 @@
 							<object class="IBUIButton" id="655985889">
 								<reference key="NSNextResponder" ref="682067338"/>
 								<int key="NSvFlags">289</int>
-								<string key="NSFrame">{{280, 0}, {40, 37}}</string>
+								<string key="NSFrame">{{278, 0}, {40, 37}}</string>
 								<reference key="NSSuperview" ref="682067338"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -163,6 +196,10 @@
 									<bytes key="NSRGB">MC4xOTYwNzg0MzQ2IDAuMzA5ODAzOTMyOSAwLjUyMTU2ODY1NgA</bytes>
 								</object>
 								<reference key="IBUINormalTitleShadowColor" ref="121279829"/>
+								<object class="NSCustomResource" key="IBUINormalImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">close.png</string>
+								</object>
 							</object>
 						</object>
 						<string key="NSFrame">{{0, 420}, {320, 40}}</string>
@@ -295,6 +332,31 @@
 					</object>
 					<int key="connectionID">25</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">safariButtonPressed:</string>
+						<reference key="source" ref="328630662"/>
+						<reference key="destination" ref="372490531"/>
+						<int key="IBEventType">7</int>
+					</object>
+					<int key="connectionID">28</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">safariButton</string>
+						<reference key="source" ref="372490531"/>
+						<reference key="destination" ref="328630662"/>
+					</object>
+					<int key="connectionID">29</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">addressBarBackground</string>
+						<reference key="source" ref="372490531"/>
+						<reference key="destination" ref="586174418"/>
+					</object>
+					<int key="connectionID">30</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -334,9 +396,10 @@
 							<reference ref="520267720"/>
 							<reference ref="655985889"/>
 							<reference ref="600707849"/>
+							<reference ref="586174418"/>
 							<reference ref="650482224"/>
 							<reference ref="878061216"/>
-							<reference ref="68533273"/>
+							<reference ref="328630662"/>
 						</object>
 						<reference key="parent" ref="191373211"/>
 						<string key="objectName">Browser Navigation Bar</string>
@@ -377,10 +440,16 @@
 						<string key="objectName">Page Loading Indicator</string>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">24</int>
-						<reference key="object" ref="68533273"/>
+						<int key="objectID">26</int>
+						<reference key="object" ref="586174418"/>
 						<reference key="parent" ref="682067338"/>
 						<string key="objectName">Background</string>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">27</int>
+						<reference key="object" ref="328630662"/>
+						<reference key="parent" ref="682067338"/>
+						<string key="objectName">Safari Button</string>
 					</object>
 				</object>
 			</object>
@@ -394,7 +463,9 @@
 					<string>1.IBPluginDependency</string>
 					<string>20.IBPluginDependency</string>
 					<string>20.IBViewBoundsToFrameTransform</string>
-					<string>24.IBPluginDependency</string>
+					<string>26.IBPluginDependency</string>
+					<string>27.IBPluginDependency</string>
+					<string>27.IBViewBoundsToFrameTransform</string>
 					<string>4.IBPluginDependency</string>
 					<string>4.IBViewBoundsToFrameTransform</string>
 					<string>5.IBPluginDependency</string>
@@ -415,15 +486,21 @@
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<object class="NSAffineTransform">
-						<bytes key="NSTransformStruct">AUNDAAAAAAAAA</bytes>
+						<bytes key="NSTransformStruct">P4AAAL+AAABDWQAAwgwAAA</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+					<object class="NSAffineTransform">
+						<bytes key="NSTransformStruct">AUMYAAAAAAAAA</bytes>
+					</object>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAAAAAAAAw+KAAA</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-					<object class="NSAffineTransform"/>
+					<object class="NSAffineTransform">
+						<bytes key="NSTransformStruct">P4AAAL+AAAAAAAAAw9EAAA</bytes>
+					</object>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABDeAAAwgwAAA</bytes>
@@ -435,7 +512,7 @@
 					</object>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<object class="NSAffineTransform">
-						<bytes key="NSTransformStruct">P4AAAL+AAABCwAAAwgwAAA</bytes>
+						<bytes key="NSTransformStruct">P4AAAL+AAABC5AAAwgwAAA</bytes>
 					</object>
 				</object>
 			</object>
@@ -455,7 +532,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">25</int>
+			<int key="maxID">30</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -492,9 +569,11 @@
 							<string>closeButtonPressed:</string>
 							<string>forwardButtonPressed:</string>
 							<string>refreshButtonPressed:</string>
+							<string>safariButtonPressed:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -509,6 +588,7 @@
 							<string>closeButtonPressed:</string>
 							<string>forwardButtonPressed:</string>
 							<string>refreshButtonPressed:</string>
+							<string>safariButtonPressed:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -528,27 +608,37 @@
 								<string key="name">refreshButtonPressed:</string>
 								<string key="candidateClassName">id</string>
 							</object>
+							<object class="IBActionInfo">
+								<string key="name">safariButtonPressed:</string>
+								<string key="candidateClassName">id</string>
+							</object>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>addressBarBackground</string>
 							<string>backButton</string>
 							<string>browserNavigationBar</string>
 							<string>closeButton</string>
 							<string>forwardButton</string>
+							<string>m_browserDelegate</string>
 							<string>pageLoadingIndicator</string>
 							<string>refreshButton</string>
+							<string>safariButton</string>
 							<string>webView</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UIImageView</string>
 							<string>UIButton</string>
 							<string>UIView</string>
 							<string>UIButton</string>
 							<string>UIButton</string>
+							<string>id</string>
 							<string>UIActivityIndicatorView</string>
+							<string>UIButton</string>
 							<string>UIButton</string>
 							<string>UIWebView</string>
 						</object>
@@ -557,16 +647,23 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>addressBarBackground</string>
 							<string>backButton</string>
 							<string>browserNavigationBar</string>
 							<string>closeButton</string>
 							<string>forwardButton</string>
+							<string>m_browserDelegate</string>
 							<string>pageLoadingIndicator</string>
 							<string>refreshButton</string>
+							<string>safariButton</string>
 							<string>webView</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">addressBarBackground</string>
+								<string key="candidateClassName">UIImageView</string>
+							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">backButton</string>
 								<string key="candidateClassName">UIButton</string>
@@ -584,11 +681,19 @@
 								<string key="candidateClassName">UIButton</string>
 							</object>
 							<object class="IBToOneOutletInfo">
+								<string key="name">m_browserDelegate</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBToOneOutletInfo">
 								<string key="name">pageLoadingIndicator</string>
 								<string key="candidateClassName">UIActivityIndicatorView</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">refreshButton</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">safariButton</string>
 								<string key="candidateClassName">UIButton</string>
 							</object>
 							<object class="IBToOneOutletInfo">
@@ -599,7 +704,14 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Private/User Interface/ORMMAWebBrowserViewController.h</string>
+						<string key="minorKey">Public/Web Browser/ORMMAWebBrowserViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">UIWebView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">Private/Utility/UIWebView-ORMMA.h</string>
 					</object>
 				</object>
 			</object>
@@ -735,6 +847,14 @@
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
+					<string key="className">UIImageView</string>
+					<string key="superclassName">UIView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBFrameworkSource</string>
+						<string key="minorKey">UIKit.framework/Headers/UIImageView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
 					<string key="className">UIResponder</string>
 					<string key="superclassName">NSObject</string>
 					<reference key="sourceIdentifier" ref="654532673"/>
@@ -836,6 +956,27 @@
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<string key="IBDocument.LastKnownRelativeProjectPath">../../ORMMA.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
+		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
+			<bool key="EncodedWithXMLCoder">YES</bool>
+			<object class="NSArray" key="dict.sortedKeys">
+				<bool key="EncodedWithXMLCoder">YES</bool>
+				<string>addressbar-background.png</string>
+				<string>back.png</string>
+				<string>close.png</string>
+				<string>forward.png</string>
+				<string>openbrowser.png</string>
+				<string>refresh.png</string>
+			</object>
+			<object class="NSMutableArray" key="dict.values">
+				<bool key="EncodedWithXMLCoder">YES</bool>
+				<string>{1, 44}</string>
+				<string>{18, 20}</string>
+				<string>{14, 14}</string>
+				<string>{17, 20}</string>
+				<string>{24, 18}</string>
+				<string>{19, 20}</string>
+			</object>
+		</object>
 		<string key="IBCocoaTouchPluginVersion">132</string>
 	</data>
 </archive>
