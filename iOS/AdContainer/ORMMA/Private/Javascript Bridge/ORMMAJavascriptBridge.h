@@ -63,8 +63,8 @@
 
 @property( nonatomic, assign, readonly ) UIWebView *currentWebView;
 
+- (void)adIsORMMAEnabledForWebView:(UIWebView *)webView;
 
-//- (NSString *)executeJavaScript:(NSString *)javascript, ...;
 - (NSString *)usingWebView:(UIWebView *)webView
 		 executeJavascript:(NSString *)javascript, ...;
 

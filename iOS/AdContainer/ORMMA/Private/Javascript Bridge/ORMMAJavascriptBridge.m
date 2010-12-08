@@ -22,6 +22,8 @@
 - (BOOL)processCommand:(NSString *)command
 			parameters:(NSDictionary *)parameters
 			forWebView:(UIWebView *)webView;
+- (BOOL)processORMMAEnabledCommand:(NSDictionary *)parameters
+						forWebView:(UIWebView *)webView;
 - (BOOL)processCloseCommand:(NSDictionary *)parameters
 				 forWebView:(UIWebView *)webView;
 - (BOOL)processExpandCommand:(NSDictionary *)parameters
@@ -78,6 +80,8 @@
 
 // the protocol to use to identify the ORMMA request
 NSString * const ORMMAProtocol = @"ormma://";
+
+NSString * const ORMMACommandORMMAEnabled = @"ormmaenabled";
 
 NSString * const ORMMACommandShow = @"show";
 NSString * const ORMMACommandHide = @"hide";
@@ -262,7 +266,13 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 			forWebView:(UIWebView *)webView
 {
 	BOOL processed = NO;
-	if ( [command isEqualToString:ORMMACommandClose] )
+	if ( [command isEqualToString:ORMMACommandORMMAEnabled] )
+	{
+		// process close
+		processed = [self processORMMAEnabledCommand:parameters
+										  forWebView:webView];
+	}
+	else if ( [command isEqualToString:ORMMACommandClose] )
 	{
 		// process close
 		processed = [self processCloseCommand:parameters
@@ -369,6 +379,15 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 					executeJavascript:@"window.ormmaview.nativeCallComplete( '%@' );", command];
 
 	return processed;
+}
+
+
+- (BOOL)processORMMAEnabledCommand:(NSDictionary *)parameters
+						forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing ORMMAENABLED Command..." );
+	[self.bridgeDelegate adIsORMMAEnabledForWebView:webView];
+	return YES;
 }
 
 

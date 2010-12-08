@@ -21,6 +21,10 @@
  
    /** Identifies if a native call is currently in progress */
    var nativeCallInFlight = false;
+ 
+   /** timer for identifying iframes */
+   var timer;
+   var totalTime;
 
  
  
@@ -28,6 +32,87 @@
    /********** OBJECTIVE-C ENTRY POINTS **********/
    /**********************************************/
  
+   /**
+	*
+	*/
+   ormmaview.enableORMMA = function() {
+      // the native code has indicated that ORMMA is ready
+      // we want to call the ORMMAReady event where-ever we find it
+      // first see if the root is ORMMA capable
+      if ( typeof ORMMAReady == 'function' ) {
+         // if we've found an ORMMAReady in the root document, use it
+         // there can be only one...
+         ORMMAReady();
+         this.executeNativeCall( "ormmaenabled" );
+		 return;
+      }
+ 
+      // no ORMMAReady in the root document, see if there are any IFRAMES
+      if ( window.frames.length > 0 ) {
+         // we have IFRAMEs to process, schedule it 
+         totalTime = 0;
+         timer = setTimeout( "ormmaview.processIFrames();", 100 );
+      }
+ /*
+      // now walk all the iframes and see if any of them are capable
+      for ( var i = 0; i < window.frames.length; i++ ) {
+         if ( typeof f.contentDocument.ORMMAReady == 'function' ) {
+ alert( "frame has ORMMA" );
+             // inject the ORMMA objects
+             f.contentWindow.ormma = ormma;
+             f.contentWindow.ormmaview = ormmaview;
+ 
+             // now make the call
+             f.contentWindow.ORMMAReady();
+ 
+             // make sure to track it
+             isORMMA = true;
+         }
+      }
+ 
+      // if we've found any ORMMA capable items, notify the native code
+      if ( isORMMA ) {
+         this.executeNativeCall( "ormmaenabled" );
+      }
+  */
+   }
+ 
+   /**
+	*
+	*/
+   ormmaview.processIFrames = function() {
+      clearTimeout( timer );
+      timer = null;
+      totalTime += 100;
+ 
+      var unloadedCount = 0;
+      for ( var i = 0; i < window.frames.length; i++ ) {
+         var f = window.frames[i];
+         if ( f.contentWindow == undefined ) {
+            unloadedCount++;
+         }
+         else {
+ alert( "valid frame" );
+            // we have a valid frame, see if it has ORMMAReady
+            if ( typeof f.contentWindow.ORMMAReady == 'function' ) {
+               // we've found the ORMMA Creative
+               f.contentWindow.ORMMAReady();
+               this.executeNativeCall( "ormmaenabled" );
+               return;
+            }
+         }
+      }
+
+      // we've not yet found ORMMAReady, reschedule
+      if ( totalTime > 10000 ) {
+         // taking too long, bail
+         alert( "Taking too long to find ORMMAReady..." );
+         return;
+      }
+      if ( unloadedCount > 0 ) {
+         timer = setTimeout( "ormmaview.processIFrames();", 100 );
+      }
+   }
  
    /**
     * Called by the Objective-C SDK when an asset has been fully cached.
