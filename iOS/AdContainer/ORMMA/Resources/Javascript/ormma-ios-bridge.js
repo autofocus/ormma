@@ -33,61 +33,6 @@
    /**********************************************/
  
    /**
-	*
-	*/
-   ormmaview.enableORMMA = function() {
-      ORMMAReady( true );
-      this.executeNativeCall( "ormmaenabled" );
-
-//      // the native code has indicated that ORMMA is ready
-//      // first see if the root is ORMMA capable
-//      if ( typeof ORMMAReady == 'function' ) {
-//         // if we've found an ORMMAReady in the root document, use it
-//         // there can be only one...
-//         ORMMAReady( true );
-//         this.executeNativeCall( "ormmaenabled" );
-//      }
-   }
-
- 
-   /**
-	*
-	*/
-   ormmaview.processIFrames = function() {
-      clearTimeout( timer );
-      timer = null;
-      totalTime += 100;
- 
-      var unloadedCount = 0;
-      for ( var i = 0; i < window.frames.length; i++ ) {
-         var f = window.frames[i];
-         if ( f.contentWindow == undefined ) {
-            unloadedCount++;
-         }
-         else {
- alert( "valid frame" );
-            // we have a valid frame, see if it has ORMMAReady
-            if ( typeof f.contentWindow.ORMMAReady == 'function' ) {
-               // we've found the ORMMA Creative
-               f.contentWindow.ORMMAReady();
-               this.executeNativeCall( "ormmaenabled" );
-               return;
-            }
-         }
-      }
-
-      // we've not yet found ORMMAReady, reschedule
-      if ( totalTime > 10000 ) {
-         // taking too long, bail
-         alert( "Taking too long to find ORMMAReady..." );
-         return;
-      }
-      if ( unloadedCount > 0 ) {
-         timer = setTimeout( "ormmaview.processIFrames();", 100 );
-      }
-   }
- 
-   /**
     * Called by the Objective-C SDK when an asset has been fully cached.
     *
     * @returns string, "OK"
@@ -569,28 +514,4 @@
 	  this.executeNativeCall( "removeasset", 
 							  "alias", alias );
    };
-})();
-
- 
-// add ORMMA Ready Handler
-ORMMAReady = ( function() {
-   // create event function stack
-   var load_events = [],
-                     done,
-                     exec,
-                     init = function () {
-                        done = true;
-                        // execute each function in the stack in the order they were added
-                        while ( exec = load_events.shift() ) { exec(); }
-					 };
-   this.init = function(){};
-			   
-   return function ( func ) {
-      //ormma is ready
-      if ( ( typeof func == "boolean" ) && ( func == true ) ) { init(); return; }
-
-	  // if the init function was already ran, just run this function now and stop
-	  if (done){return func();}
-	  load_events.push(func);
-   }
 })();

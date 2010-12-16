@@ -4,6 +4,7 @@
     // CONSTANTS ///////////////////////////////////////////////////////////////
     
     var STATES = ormma.STATES = {
+        UNKNOWN     :'unknown',
         DEFAULT     :'default',
         RESIZED     :'resized',
         EXPANDED    :'expanded',
@@ -63,7 +64,7 @@
     
     // PRIVATE PROPERTIES (sdk controlled) //////////////////////////////////////////////////////
     
-    var state = STATES.DEFAULT;
+    var state = STATES.UNKNOWN;
     
     var size = {
         width:0,
@@ -129,6 +130,10 @@
     
     // PRIVATE PROPERTIES (internal) //////////////////////////////////////////////////////
     
+    var intervalID = null;
+    var readyTimeout = 10000;
+    var readyDuration = 0;
+    
     var dimensionValidators = {
         x:function(value) { return !isNaN(value); },
         y:function(value) { return !isNaN(value); },
@@ -155,6 +160,10 @@
     
     var changeHandlers = {
         state:function(val) {
+            if (state == STATES.UNKNOWN) {
+                intervalID = window.setInterval(window.ormma.signalReady, 20);
+                broadcastEvent(EVENTS.INFO, 'controller initialized, attempting callback');
+            }
             broadcastEvent(EVENTS.INFO, 'setting state to ' + stringify(val));
             state = val;
             broadcastEvent(EVENTS.STATECHANGE, state);
@@ -369,6 +378,21 @@
     }
     
     // LEVEL 1 ////////////////////////////////////////////////////////////////////
+    
+    
+    ormma.signalReady = function() {
+        if (ORMMAReady) {
+            window.clearInterval(intervalID);
+            ORMMAReady();
+            broadcastEvent(EVENTS.INFO, 'callback invoked');
+        } else {
+            readyDuration += 20;
+            if (readyDuration >= readyTimeout) {
+                window.clearInterval(intervalID);
+                broadcastEvent(EVENTS.ERROR, 'Callback not found (timeout of ' + readyTimeout + 'ms occurred)!');
+            }
+        }
+    };
     
     ormma.addEventListener = function(event, listener) {
         if (!event || !listener) {

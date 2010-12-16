@@ -882,7 +882,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 			return;
 	}
 	CGSize screenSize = [device screenSizeForOrientation:orientation];
-	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 					executeJavascript:@"window.ormmaview.fireChangeEvent( { orientation: %i, screenSize: { width: %f, height: %f } } );", orientationAngle,
 																																		  screenSize.width, screenSize.height];
 }
@@ -890,14 +890,14 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 
 - (void)keyboardWillShow:(NSNotification *)notification
 {
-	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 	 executeJavascript:@"window.ormmaview.fireChangeEvent( { keyboardState: true } );"];
 }
 
 
 - (void)keyboardWillHide:(NSNotification *)notification
 {
-	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 					executeJavascript:@"window.ormmaview.fireChangeEvent( { keyboardState: false } );"];
 }
 
@@ -906,7 +906,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 {
 	//Reachability *r = (Reachability *)notification.object;
 	NSLog( @"Network is now %@", self.networkStatus );
-	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 					executeJavascript:@"window.ormmaview.fireChangeEvent( { network: '%@' } );", self.networkStatus];
 }
 
@@ -926,7 +926,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	    NSLog( @"Acceleration Data Available: %f, %f, %f", acceleration.x,
 														   acceleration.y,
 														   acceleration.z );
-		[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+		[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 						executeJavascript:@"window.ormmaview.fireChangeEvent( { tilt: { x: %f, y: %f, z: %f } } );", acceleration.x,
 																												acceleration.y,
 																												acceleration.z];
@@ -956,7 +956,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	   {
 		   // Shake detected
 		   NSLog( @"Shake Detected" );
-		   [self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+		   [self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 						   executeJavascript:@"window.ormmaview.fireShakeEvent();"];
 	   }
 	   processingShake = NO;
@@ -974,7 +974,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	NSLog( @"Gyroscope Data Available: %f, %f, %f", data.rotationRate.x, 
 													data.rotationRate.y, 
 													data.rotationRate.z );
-	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 					executeJavascript:@"window.ormmaview.fireChangeEvent( { rotation: { x: %f, y: %f, z: %f } } );", data.rotationRate.x, 
 																									   data.rotationRate.y, 
 																									   data.rotationRate.z];
@@ -992,7 +992,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	NSLog( @"Location Data Available: (%f, %f ) acc: %f", newLocation.coordinate.latitude, 
 														  newLocation.coordinate.longitude, 
 														  newLocation.horizontalAccuracy );
-	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 					executeJavascript:@"window.ormmaview.fireChangeEvent( { location: { lat: %f, lon: %f, acc: %f } } );", newLocation.coordinate.latitude, 
 																											 newLocation.coordinate.longitude, 
 																											 newLocation.horizontalAccuracy];
@@ -1021,7 +1021,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
 	[formatter setTimeStyle:NSDateFormatterFullStyle];
 	[formatter setDateStyle:NSDateFormatterFullStyle];
-	[self.bridgeDelegate usingWebView:self.bridgeDelegate.currentWebView
+	[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
 					executeJavascript:@"window.ormmaview.fireChangeEvent( { heading: %f } );", newHeading.trueHeading];
 }
 

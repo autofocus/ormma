@@ -121,6 +121,13 @@
 		FAD90617129D8C4200C3F5DE /* libORMMA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2AAC07E0554694100DB518D /* libORMMA.a */; };
 		FAD90626129D8CB700C3F5DE /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD90625129D8CB700C3F5DE /* libsqlite3.0.dylib */; };
 		FAD9063E129D8CEA00C3F5DE /* ORMMA.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C4E12381BF800562D0B /* ORMMA.bundle */; };
+		FADAA05C12B6B35900721DDA /* openbrowser.png in Resources */ = {isa = PBXBuildFile; fileRef = FADAA05212B6B33400721DDA /* openbrowser.png */; };
+		FADAA05D12B6B35900721DDA /* openbrowser@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FADAA05312B6B33400721DDA /* openbrowser@2x.png */; };
+		FADAA05E12B6B35D00721DDA /* forward-disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = FADAA05012B6B33400721DDA /* forward-disabled.png */; };
+		FADAA05F12B6B36000721DDA /* back-disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = FADAA04E12B6B33400721DDA /* back-disabled.png */; };
+		FADAA06012B6B36000721DDA /* back-disabled@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FADAA04F12B6B33400721DDA /* back-disabled@2x.png */; };
+		FADAA06112B6B36600721DDA /* addressbar-background.png in Resources */ = {isa = PBXBuildFile; fileRef = FADAA04C12B6B33400721DDA /* addressbar-background.png */; };
+		FADAA06212B6B36600721DDA /* addressbar-background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FADAA04D12B6B33400721DDA /* addressbar-background@2x.png */; };
 		FADF791D1247F29B003F7C45 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADF791C1247F29B003F7C45 /* CoreMotion.framework */; };
 		FAE2E8EC128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = FAE2E8E9128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h */; };
 		FAE2E8ED128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FAE2E8EA128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m */; };
@@ -285,6 +292,14 @@
 		FAD9046D129D8AEB00C3F5DE /* ORMMATestBed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ORMMATestBed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAD9046F129D8AEC00C3F5DE /* ORMMATestBed-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ORMMATestBed-Info.plist"; sourceTree = "<group>"; };
 		FAD90625129D8CB700C3F5DE /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
+		FADAA04C12B6B33400721DDA /* addressbar-background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "addressbar-background.png"; sourceTree = "<group>"; };
+		FADAA04D12B6B33400721DDA /* addressbar-background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "addressbar-background@2x.png"; sourceTree = "<group>"; };
+		FADAA04E12B6B33400721DDA /* back-disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "back-disabled.png"; sourceTree = "<group>"; };
+		FADAA04F12B6B33400721DDA /* back-disabled@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "back-disabled@2x.png"; sourceTree = "<group>"; };
+		FADAA05012B6B33400721DDA /* forward-disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "forward-disabled.png"; sourceTree = "<group>"; };
+		FADAA05112B6B33400721DDA /* forward-disabled@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "forward-disabled@2x.png"; sourceTree = "<group>"; };
+		FADAA05212B6B33400721DDA /* openbrowser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = openbrowser.png; sourceTree = "<group>"; };
+		FADAA05312B6B33400721DDA /* openbrowser@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbrowser@2x.png"; sourceTree = "<group>"; };
 		FADF791C1247F29B003F7C45 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		FAE2E8E9128C4D6200A1B1ED /* ORMMAWebBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAWebBrowserViewController.h; sourceTree = "<group>"; };
 		FAE2E8EA128C4D6200A1B1ED /* ORMMAWebBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAWebBrowserViewController.m; sourceTree = "<group>"; };
@@ -439,12 +454,20 @@
 		FA94AF60124A682600AE8ADB /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				FADAA04C12B6B33400721DDA /* addressbar-background.png */,
+				FADAA04D12B6B33400721DDA /* addressbar-background@2x.png */,
 				FACCB0C71283290000B65BD6 /* back.png */,
 				FACCB0C81283290000B65BD6 /* back@2x.png */,
+				FADAA04E12B6B33400721DDA /* back-disabled.png */,
+				FADAA04F12B6B33400721DDA /* back-disabled@2x.png */,
 				FA94AF62124A684F00AE8ADB /* close.png */,
 				FA94AF63124A684F00AE8ADB /* close@2x.png */,
 				FACCB0C91283290000B65BD6 /* forward.png */,
 				FACCB0CA1283290000B65BD6 /* forward@2x.png */,
+				FADAA05012B6B33400721DDA /* forward-disabled.png */,
+				FADAA05112B6B33400721DDA /* forward-disabled@2x.png */,
+				FADAA05212B6B33400721DDA /* openbrowser.png */,
+				FADAA05312B6B33400721DDA /* openbrowser@2x.png */,
 				FACCB0CB1283290000B65BD6 /* refresh.png */,
 				FACCB0CC1283290000B65BD6 /* refresh@2x.png */,
 			);
@@ -805,12 +828,19 @@
 				FAD3FA4D126CA0B100468F35 /* 1.sql in Resources */,
 				FAD3FAAB126CABD000468F35 /* 2.sql in Resources */,
 				FAD3FAAC126CABD000468F35 /* 3.sql in Resources */,
+				FADAA06112B6B36600721DDA /* addressbar-background.png in Resources */,
+				FADAA06212B6B36600721DDA /* addressbar-background@2x.png in Resources */,
 				FACA43901287596100261A12 /* back.png in Resources */,
 				FACA43911287596100261A12 /* back@2x.png in Resources */,
+				FADAA05F12B6B36000721DDA /* back-disabled.png in Resources */,
+				FADAA06012B6B36000721DDA /* back-disabled@2x.png in Resources */,
 				FA94AF64124A685900AE8ADB /* close.png in Resources */,
 				FA94AF65124A685900AE8ADB /* close@2x.png in Resources */,
 				FACA43921287596100261A12 /* forward.png in Resources */,
 				FACA43931287596100261A12 /* forward@2x.png in Resources */,
+				FADAA05E12B6B35D00721DDA /* forward-disabled.png in Resources */,
+				FADAA05C12B6B35900721DDA /* openbrowser.png in Resources */,
+				FADAA05D12B6B35900721DDA /* openbrowser@2x.png in Resources */,
 				FACA43941287596100261A12 /* refresh.png in Resources */,
 				FACA43951287596100261A12 /* refresh@2x.png in Resources */,
 				FAD28C6E12381DFF00562D0B /* ORMMA_Standard_HTML_Stub.html in Resources */,

@@ -21,6 +21,9 @@ typedef enum OTBAdAnimationDirectionEnum
 
 @interface ORMMATestBedViewController ()
 
+@property( nonatomic, copy ) NSString *phoneNumber;
+@property( nonatomic, copy ) NSURL *url;
+
 - (void)animateAd:(OTBAdAnimationDirection)direction;
 
 @end
@@ -108,6 +111,9 @@ NSString * const kWxDataObject = @"var wx = {}; \n\n" \
 @synthesize urlField = m_urlField;
 @synthesize loadAdButton = m_loadAdButton;
 
+@synthesize phoneNumber = m_phoneNumber;
+@synthesize url = m_url;
+
 
 
 
@@ -145,6 +151,8 @@ NSString * const kWxDataObject = @"var wx = {}; \n\n" \
 	[m_urlLabel release], m_urlLabel = nil;
 	[m_urlField release], m_urlField = nil;
 	[m_loadAdButton release], m_loadAdButton = nil;
+	[m_phoneNumber release], m_phoneNumber = nil;
+	[m_url release], m_url = nil;
     [super dealloc];
 }
 
@@ -194,6 +202,8 @@ NSString * const kWxDataObject = @"var wx = {}; \n\n" \
 	self.urlLabel = nil;
 	self.urlField = nil;
 	self.loadAdButton = nil;
+	self.phoneNumber = nil;
+	self.url = nil;
 	
 	[super viewDidUnload];
 	NSLog( @"View Did Unload" );
@@ -207,17 +217,6 @@ NSString * const kWxDataObject = @"var wx = {}; \n\n" \
 - (void)viewWillAppear:(BOOL)animated
 {
 	NSLog( @"View Will Appear" );
-//	NSString *path = [[NSBundle mainBundle] pathForResource:@"ormma-test-ad-level-2"
-//													 ofType:@"html"];
-//	NSLog( @"Ad Path is: %@", path );
-//	NSString *adFragment = [NSString stringWithContentsOfFile:path
-//											  encoding:NSUTF8StringEncoding
-//												 error:NULL];
-//	
-//	// refresh the ad
-//	NSURL *url = [NSURL URLWithString:@"http://localhost/~rhedin/ad.html"];
-//	[self.ormmaView loadHTMLCreative:adFragment
-//						 creativeURL:url];
 }
 
 
@@ -405,6 +404,61 @@ NSString * const kWxDataObject = @"var wx = {}; \n\n" \
 - (void)appShouldResumeFromAd:(ORMMAView *)adView
 {
 	NSLog( @"ORMAView Delegate Call: appWillResumeFromAd" );
+}
+
+
+- (void)placePhoneCall:(NSString *)number
+{
+	// confirm the user wants to make a phone call
+	self.phoneNumber = number;
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"ORMMA PHONE CALL"
+													message:@"ORMMA Creative has requested to place a phone call. Continue?"
+												   delegate:self
+										  cancelButtonTitle:@"Cancel"
+										  otherButtonTitles:@"OK", nil]; 
+	[alert show];
+	[alert release];
+}
+
+
+- (void)showURLFullScreen:(NSURL *)url
+			   sourceView:(UIView *)view
+{
+	self.url = url;
+	UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:@"Open URL in..."
+													   delegate:self 
+											  cancelButtonTitle:@"Cancel" 
+										 destructiveButtonTitle:nil 
+											  otherButtonTitles:@"Open in Safari", nil];
+	[sheet showInView:view];
+	[sheet release];
+}
+
+
+#pragma mark Alert View & Action Sheet Delegate
+
+- (void)alertView:(UIAlertView *)alertView 
+clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	if ( buttonIndex != alertView.cancelButtonIndex )
+	{
+		// user decided to continue
+		NSString *urlString = [NSString stringWithFormat:@"tel:%@", self.phoneNumber];
+		NSURL *url = [NSURL URLWithString:urlString];
+		NSLog( @"Executing: %@", url );
+		[[UIApplication sharedApplication] openURL:url]; 
+	}
+}
+
+
+- (void)actionSheet:(UIActionSheet *)actionSheet 
+clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	if ( buttonIndex != actionSheet.cancelButtonIndex )
+	{
+		// launch external browser
+		[[UIApplication sharedApplication] openURL:self.url]; 
+	}
 }
 
 

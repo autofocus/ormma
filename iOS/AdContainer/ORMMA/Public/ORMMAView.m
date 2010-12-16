@@ -40,9 +40,6 @@
 - (void)logFrame:(CGRect)frame
 			text:(NSString *)text;
 
-//- (NSString *)usingWebView:(UIWebView *)webView
-//		 executeJavascript:(NSString *)javascript, ...;
-
 - (NSString *)usingWebView:(UIWebView *)webView
 		 executeJavascript:(NSString *)javascript
 			   withVarArgs:(va_list)varargs;
@@ -83,8 +80,6 @@
 
 static ORMMALocalServer *s_localServer;
 static NSBundle *s_ormmaBundle;
-//static NSString *s_publicAPI;
-//static NSString *s_nativeAPI;
 
 
 #pragma mark -
@@ -147,26 +142,12 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 			ofType:@"js" 
 		fromBundle:s_ormmaBundle 
 			toPath:path];
-	//	path = [s_ormmaBundle pathForResource:@"ormma"
-//								   ofType:@"js"];
-//	NSLog( @"Public API Path is: %@", path );
-//	NSString *js = [NSString stringWithContentsOfFile:path
-//											 encoding:NSUTF8StringEncoding
-//												error:NULL];
-//	s_publicAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
 	
 	// load the Native Javascript API
 	[self copyFile:@"ormma-ios-bridge"
 			ofType:@"js" 
 		fromBundle:s_ormmaBundle 
 			toPath:path];
-//	path = [s_ormmaBundle pathForResource:@"ormma-ios-bridge"
-//								   ofType:@"js"];
-//	NSLog( @"Native API Path is: %@", path );
-//	js = [NSString stringWithContentsOfFile:path
-//								   encoding:NSUTF8StringEncoding
-//									  error:NULL];
-//	s_nativeAPI = [[js stringByAppendingString:@"; return 'OK';"] retain];
 	
 	// done with autorelease pool
 	[pool drain];
@@ -239,6 +220,9 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	
 	// set our initial state
 	self.currentState = ORMMAViewStateDefault;
+	
+	// setup special protocols
+	m_externalProtocols = [[NSMutableArray alloc] init];
 }
 
 
@@ -257,6 +241,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	[m_javascriptBridge restoreServicesToDefaultState], [m_javascriptBridge release], m_javascriptBridge = nil;
 	[m_webBrowser release], m_webBrowser = nil;
 	[m_launchURL release], m_launchURL = nil;
+	[m_externalProtocols removeAllObjects], [m_externalProtocols release], m_externalProtocols = nil;
     [super dealloc];
 }
 
@@ -265,16 +250,6 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 
 #pragma mark -
 #pragma mark Dynamic Properties
-
-- (UIWebView *)currentWebView
-{
-	if ( m_expandedView != nil )
-	{
-		return m_expandedView;
-	}
-	return m_webView;
-}
-
 
 - (NSString *)htmlStub
 {
@@ -324,7 +299,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	}
 
 	// handle iTunes requests
-	NSString * fullUrl = [request.URL absoluteString];
+	NSString *fullUrl = [request.URL absoluteString];
 	if ( ( [fullUrl rangeOfString:@"://itunes.apple.com/"].length > 0 ) || 
 		 ( [fullUrl rangeOfString:@"://phobos.apple.com/"].length > 0 ) )
 	{
@@ -347,27 +322,43 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		return NO;
 	}
 	
-	// not handled by ORMMA, give the delegate a chance
-	if ( self.ormmaDelegate != nil )
+	// not handled by ORMMA, see if the delegate wants it
+	if ( m_externalProtocols.count > 0 )
 	{
-		if ( [self.ormmaDelegate respondsToSelector:@selector(shouldLoadRequest:forAd:)] )
+		if ( [self.ormmaDelegate respondsToSelector:@selector(handleRequest:forAd:)] )
 		{
-			if ( ![self.ormmaDelegate shouldLoadRequest:request
-												  forAd:self] )
+			NSString *scheme = url.scheme;
+			NSLog( @"Scheme is: %@", scheme );
+			for ( NSString *p in m_externalProtocols )
+			{
+				if ( [p isEqualToString:scheme] )
 				{
-					// container handled the call
+					// container handles the call
+					[self.ormmaDelegate handleRequest:request
+												forAd:self];
 					NSLog( @"Container handled request for: %@", request );
 					return NO;
 				}
+			}
 		}
 	}
 	
-	// if we're not an ORMMA ad, special case it
-	if ( !m_loadingAd && !self.isOrmmaAd )
+	// if the user clicked a non-handled link, open it in a new browser
+	if ( !m_loadingAd )
 	{
 		NSLog( @"Delegating Open to web browser." );
+
+		[self fireAppShouldSuspend];
+		
+		if ( self.currentState == ORMMAViewStateExpanded )
+		{
+			self.hidden = YES;
+			m_blockingView.hidden = YES;
+		}
+
 		ORMMAWebBrowserViewController *wbvc = [ORMMAWebBrowserViewController ormmaWebBrowserViewController];
 		wbvc.URL = request.URL;
+		wbvc.browserDelegate = self;
 		UIViewController *vc = [self.ormmaDelegate ormmaViewController];
 		[vc presentModalViewController:wbvc
 							  animated:YES];
@@ -403,6 +394,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// reset our state
 	m_applicationReady = NO;
 	
+	[self restoreToDefaultState];
+	
 	// ads loaded by URL are assumed to be complete as-is, just display it
 	NSLog( @"Load Ad from URL: %@", url );
 	self.creativeURL = url;
@@ -417,10 +410,47 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// reset our state
 	m_applicationReady = NO;
 	
+	[self restoreToDefaultState];
+	
 	self.creativeURL = url;
 	[s_localServer cacheHTML:htmlFragment
 					 baseURL:url
 				withDelegate:self];
+}
+
+
+
+#pragma mark -
+#pragma mark External Protocol Control
+
+- (void)registerProtocol:(NSString *)protocol
+{
+	// don't allow dupes
+	for ( NSString *p in m_externalProtocols )
+	{
+		if ( [p isEqualToString:protocol] )
+		{
+			// already present, ignore
+			return;
+		}
+	}
+	
+	// not yet present, add it
+	[m_externalProtocols addObject:protocol];
+}
+
+
+- (void)deregisterProtocol:(NSString *)protocol
+{
+	for ( NSInteger i = ( m_externalProtocols.count - 1 ); i >= 0; i-- )
+	{
+		NSString *p = [m_externalProtocols objectAtIndex:i];
+		if ( [p isEqualToString:protocol] )
+		{
+			// found a match, remove it
+			[m_externalProtocols removeObjectAtIndex:i];
+		}
+	}
 }
 
 
@@ -440,6 +470,11 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 #pragma mark -
 #pragma mark Javascript Bridge Delegate
+- (UIWebView *)webView
+{
+	return m_webView;
+}
+
 
 - (void)adIsORMMAEnabledForWebView:(UIWebView *)webView
 {
@@ -477,22 +512,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	[self fireAdWillShow];
 	
 	// Nothing special to do, other than making sure the ad is visible
-	NSString *newState;
-	if ( m_expandedView != nil )
-	{
-	    // expanded ad
-		m_expandedView.hidden = NO;
-		m_blockingView.hidden = NO;
-		self.currentState = ORMMAViewStateExpanded;
-		newState = @"expanded";
-	}
-	else
-	{
-		// normal ad
-		self.hidden = NO;
-		self.currentState = ORMMAViewStateDefault;
-		newState = @"default";
-	}
+	NSString *newState = @"default";
+	self.currentState = ORMMAViewStateDefault;
 	
 	// notify that we're done
 	[self fireAdDidShow];
@@ -558,18 +579,46 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	// closing the ad differs based on the current state
 	if ( self.currentState == ORMMAViewStateExpanded )
 	{
-		// make the default view visible
-		m_webView.hidden = NO;
+		// We know we're going to close our state from the expanded state.
+		// So we basically want to reverse the steps we took to get to the
+		// expanded state as follows: (note: we already know we're in a good
+		// state to close)
+		//
+		// so... here's what we're going to do:
+		// step 1: start a new animation, and change our frame
+		// step 2: change our frame to the stored translated frame
+		// step 3: wait for the animation to complete
+		// step 4: restore our frame to the original untranslated frame
+		// step 5: get a handle to the key window
+		// step 6: get a handle to the previous parent view based on the tag
+		// step 7: restore the parent view's original tag
+		// step 8: add ourselves to the original parent window
+		// step 9: remove the blocking view
+		// step 10: fire the size changed ORMMA event
+		// step 11: update the state to default
+		// step 12: fire the state changed ORMMA event
+		// step 13: fire the application did close delegate call
+		//
+		// Now, let's get started
 		
-		// reverse the growth
+		// step 1: start a new animation, and change our frame
+		// step 2: change our frame to the stored translated frame
 		[UIView beginAnimations:kAnimationKeyCloseExpanded
 						context:nil];
 		[UIView setAnimationDuration:0.5];
 		[UIView setAnimationDelegate:self];
-		m_expandedView.frame = m_initialFrame;;
+
+		// step 2: change our frame to the stored translated frame
+		self.frame = m_translatedFrame;
+
+		// update the web view as well
+		CGRect webFrame = CGRectMake( 0, 0, m_translatedFrame.size.width, m_translatedFrame.size.height );
+		webView.frame = webFrame;
+		
 		[UIView commitAnimations];
 
-		// more happens after the animation finishes
+		// step 3: wait for the animation to complete
+		// (more happens after the animation completes)
     }
 	else
 	{
@@ -580,6 +629,10 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		
 		// restore the size
 		self.frame = m_defaultFrame;
+		
+		// update the web view as well
+		CGRect webFrame = CGRectMake( 0, 0, m_defaultFrame.size.width, m_defaultFrame.size.height );
+		webView.frame = webFrame;
 		
 		// notify the app that we are resizing
 		[self fireAdDidResizeToSize:m_defaultFrame.size];
@@ -603,73 +656,115 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
    blockingColor:(UIColor *)blockingColor
 blockingOpacity:(CGFloat)blockingOpacity
 {
-	// NOTE: We can only expand if we are in the default state
+	// OK, here's what we have to do when the creative want's to expand
+	// Note that this is NOT the same as resize.
+	// first, since we have no idea about the surrounding view hierarchy we
+	// need to pull our container to the "top" of the view hierarchy. This
+	// means that we need to be able to restore ourselves when we're done, so
+	// we want to remember our settings from before we kick off the expand
+	// function.
+	//
+	// so... here's what we're going to do:
+	// step 0: make sure we're in a valid state to expand
+	// step 1: fire the application will expand delegate call
+	// step 2: get a handle to the key window
+	// step 3: store the current frame for later re-use
+	// step 4: create a blocking view that fills the current window
+	// step 5: store the current tag for the parent view
+	// step 6: pick a random unused tag
+	// step 7: change the parent view's tag to the new random tag
+	// step 8: create a new frame, based on the current frame but with
+	//         coordinates translated to the window space
+	// step 9: store this new frame for later use
+	// step 10: change our frame to the new one
+	// step 11: add ourselves to the key window
+	// step 12: start a new animation, and change our frame
+	// step 13: wait for the animation to complete
+	// step 14: fire the size changed ORMMA event
+	// step 15: update the state to expanded
+	// step 16: fire the state changed ORMMA event
+    // step 17: fire the application did expand delegate call
+	//
+	// Now, let's get started
+	
+	// step 0: make sure we're in a valid state to expand
 	if ( self.currentState != ORMMAViewStateDefault )
 	{
 		// Already Expanded
 		[self usingWebView:webView
 		 executeJavascript:@"window.ormmaview.fireErrorEvent( 'Can only expand from the default state.', 'expand' );" ]; 
 		return;
-	}
-	
-	// when put into the expanded state, we are showing a URI in a completely
-	// new frame. This frame is attached directly to the key window at the
-	// initial location specified, and will animate to a new location.
-	
-	// Notify the native app that we're preparing to expand
+	}	
+	 
+	// step 1: fire the application will expand delegate call
 	[self fireAdWillExpandToFrame:endingFrame];
-	
-	// ensure that we realize this MUST be an ORMMA capable ad
-	self.isOrmmaAd = YES;
-	
-	// get the key window
+
+	// step 2: get a handle to the key window
 	UIApplication *app = [UIApplication sharedApplication];
 	UIWindow *keyWindow = [app keyWindow];
 	
-	// determine the initial (translated) frame
-	m_initialFrame = [self convertRect:self.frame
-								toView:keyWindow];
+	// step 3: store the current frame for later re-use
+	m_defaultFrame = self.frame;
 								
-	// create the blocker view and add it to the window
+	// step 4: create a blocking view that fills the current window
+	// if the status bar is visible, we need to account for it
 	CGRect f = keyWindow.frame;
 	UIApplication *a = [UIApplication sharedApplication];
 	if ( !a.statusBarHidden )
 	{
 	   // status bar is visible
-	   //f.origin.y += 20;
-	   //f.size.height -= 20;
 	   endingFrame.origin.y -= 20;
+	}
+	if ( m_blockingView != nil )
+	{
+		[m_blockingView removeFromSuperview], m_blockingView = nil;
 	}
 	m_blockingView = [[UIView alloc] initWithFrame:f];
 	m_blockingView.backgroundColor = blockingColor;
 	m_blockingView.alpha = blockingOpacity;
 	[keyWindow addSubview:m_blockingView];
 	
-	// create the new ad View
-	m_expandedView = [[UIWebView alloc] initWithFrame:m_initialFrame];
-	m_expandedView.clipsToBounds = YES;
-	m_expandedView.delegate = self;
-	if ( url == nil )
+	// step 5: store the current tag for the parent view
+	UIView *parentView = self.superview;
+	m_originalTag = parentView.tag;
+	
+	// step 6: pick a random unused tag
+	m_parentTag = 0;
+	do 
 	{
-	   // no url passed, reload default ad
-	   url = m_webView.request.URL;
-	}
-	NSURLRequest *request = [NSURLRequest requestWithURL:url];
-	[m_expandedView loadRequest:request];
-	[keyWindow addSubview:m_expandedView];
+		m_parentTag = arc4random() % 25000;
+	} while ( [keyWindow viewWithTag:m_parentTag] != nil );
 	
-	// make the default web view hidden
-	m_webView.hidden = YES; 
+	// step 7: change the parent view's tag to the new random tag
+	parentView.tag = m_parentTag;
+
+	// step 8: create a new frame, based on the current frame but with
+	//         coordinates translated to the window space
+	// step 9: store this new frame for later use
+	m_translatedFrame = [self convertRect:m_defaultFrame
+								   toView:keyWindow];
 	
-	// Animate the new web view to the correct size and position
+	// step 10: change our frame to the new one
+	self.frame = m_translatedFrame;
+	
+	// step 11: add ourselves to the key window
+	[keyWindow addSubview:self];
+	
+	// step 12: start a new animation, and change our frame
 	[UIView beginAnimations:kAnimationKeyExpand
 					context:nil];
 	[UIView setAnimationDuration:0.5];
 	[UIView setAnimationDelegate:self];
-	m_expandedView.frame = endingFrame;
+	self.frame = endingFrame;
+
+	// Create frame for web view
+	CGRect webFrame = CGRectMake( 0, 0, endingFrame.size.width, endingFrame.size.height );
+	webView.frame = webFrame;
+	
 	[UIView commitAnimations];
 	
-	// more happens after the animation completes
+	// step 13: wait for the animation to complete
+	// (more happens after the animation completes)
 }
 
 
@@ -722,6 +817,14 @@ blockingOpacity:(CGFloat)blockingOpacity
 								  height );
 	self.frame = newFrame;
 	
+	// resize the web view as well
+	newFrame.origin.x = 0;
+	newFrame.origin.y = 0;
+    m_webView.frame = newFrame;
+	
+	// make sure we're on top of everything
+	[self.superview bringSubviewToFront:self];
+	
 	// notify the application that we are done resizing
 	[self fireAdDidResizeToSize:size];
 	
@@ -761,8 +864,11 @@ blockingOpacity:(CGFloat)blockingOpacity
 		// if we're expanded, our view hierarchy is going to be strange
 		// and the modal dialog may come up "under" the expanded web view
 		// let's hide it while the modal is up
-		m_expandedView.hidden = YES;
-		m_blockingView.hidden = YES;
+		if ( self.currentState == ORMMAViewStateExpanded )
+		{
+			m_webView.hidden = YES;
+			m_blockingView.hidden = YES;
+		}
 		
 		// display the modal dialog
 		vc.mailComposeDelegate = self;
@@ -796,8 +902,11 @@ blockingOpacity:(CGFloat)blockingOpacity
 			// if we're expanded, our view hierarchy is going to be strange
 			// and the modal dialog may come up "under" the expanded web view
 			// let's hide it while the modal is up
-			m_expandedView.hidden = YES;
-			m_blockingView.hidden = YES;
+			if ( self.currentState == ORMMAViewStateExpanded )
+			{
+				m_webView.hidden = YES;
+				m_blockingView.hidden = YES;
+			}
 		
 			// now show the dialog
 			[self.ormmaDelegate.ormmaViewController presentModalViewController:vc
@@ -809,10 +918,19 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 - (void)placeCallTo:(NSString *)phoneNumber
 {
-   NSString *urlString = [NSString stringWithFormat:@"tel:%@", phoneNumber];
-   NSURL *url = [NSURL URLWithString:urlString];
-   NSLog( @"Executing: %@", url );
-   [[UIApplication sharedApplication] openURL:url]; 
+	if ( [self.ormmaDelegate respondsToSelector:@selector(placePhoneCall:)] )
+	{
+		// consumer wants to deal with it
+		[self.ormmaDelegate placePhoneCall:phoneNumber];
+	}
+	else
+	{
+		// handle internally
+		NSString *urlString = [NSString stringWithFormat:@"tel:%@", phoneNumber];
+		NSURL *url = [NSURL URLWithString:urlString];
+		NSLog( @"Executing: %@", url );
+		[[UIApplication sharedApplication] openURL:url]; 
+	}
 }
 
 
@@ -820,22 +938,34 @@ blockingOpacity:(CGFloat)blockingOpacity
 						withTitle:(NSString *)title
 						 withBody:(NSString *)body
 {
-    EKEventStore *eventStore = [[EKEventStore alloc] init];
-
-    EKEvent *event  = [EKEvent eventWithEventStore:eventStore];
-    event.title = title;
-	event.notes = body;
-
-    event.startDate = date;
-    event.endDate   = [[NSDate alloc] initWithTimeInterval:600 
-												 sinceDate:event.startDate];
-
-    NSError *err;
-    [event setCalendar:[eventStore defaultCalendarForNewEvents]];
-    [eventStore saveEvent:event 
-					 span:EKSpanThisEvent 
-					error:&err];       
+	if ( [self.ormmaDelegate respondsToSelector:@selector(createCalendarEntryForDate:title:body:)] )
+	{
+		// consumer wants to deal with it
+		[self.ormmaDelegate createCalendarEntryForDate:date
+												 title:title
+												  body:body];
+	}
+	else
+	{
+		// handle internally
+		EKEventStore *eventStore = [[EKEventStore alloc] init];
+		
+		EKEvent *event  = [EKEvent eventWithEventStore:eventStore];
+		event.title = title;
+		event.notes = body;
+		
+		event.startDate = date;
+		event.endDate   = [[NSDate alloc] initWithTimeInterval:600 
+													 sinceDate:event.startDate];
+		
+		NSError *err;
+		[event setCalendar:[eventStore defaultCalendarForNewEvents]];
+		[eventStore saveEvent:event 
+						 span:EKSpanThisEvent 
+						error:&err];       
+	}
 }
+
 
 - (CGRect)getAdFrameInWindowCoordinates
 {
@@ -865,9 +995,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 	[self fireAppShouldSuspend];
 	
 	// if the expanded view is on screen, hide it so we don't interfere with the full screen
-	if ( m_expandedView != nil )
+	if ( self.currentState == ORMMAViewStateExpanded )
 	{
-	   m_expandedView.hidden = YES;
+	   self.hidden = YES;
 	   m_blockingView.hidden = YES;
 	}
 
@@ -879,6 +1009,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 	self.webBrowser.backButtonEnabled = back;
 	self.webBrowser.forwardButtonEnabled = forward;
 	self.webBrowser.refreshButtonEnabled = refresh;
+	if ( [self.ormmaDelegate respondsToSelector:@selector(showURLFullScreen:)] )
+	{
+	}
 	self.webBrowser.URL = url;
 	[self.ormmaDelegate.ormmaViewController presentModalViewController:self.webBrowser
 															   animated:YES];
@@ -895,9 +1028,10 @@ blockingOpacity:(CGFloat)blockingOpacity
 	self.webBrowser = nil;
 	
 	// if the expanded view should be visible, make it so
-	if ( m_expandedView != nil )
+	if ( self.currentState == ORMMAViewStateExpanded )
 	{
-	   m_expandedView.hidden = NO;
+		self.hidden = NO;
+		m_blockingView.hidden = NO;
 	}
 	
 	// called when the ad needs to be made visible
@@ -911,6 +1045,17 @@ blockingOpacity:(CGFloat)blockingOpacity
 }
 
 
+- (void)showURLFullScreen:(NSURL *)url
+			   sourceView:(UIView *)view
+{
+	// we want to give the user the opportunity to launch in safari
+	if ( [self.ormmaDelegate respondsToSelector:@selector(showURLFullScreen:sourceView:view:)] )
+	{
+		[self.ormmaDelegate showURLFullScreen:url
+								   sourceView:view];
+	}
+}
+
 
 #pragma mark -
 #pragma mark Animation View Delegate
@@ -922,32 +1067,55 @@ blockingOpacity:(CGFloat)blockingOpacity
 	if ( [animationID isEqualToString:kAnimationKeyCloseExpanded] )
 	{
 		// finish the close expanded function
+		// step 4: restore our frame to the original untranslated frame
+		self.frame = m_defaultFrame;
 		
-		// remove the blocker view from the view hierarcy
+		// step 5: get a handle to the key window
+		UIApplication *app = [UIApplication sharedApplication];
+		UIWindow *keyWindow = [app keyWindow];
+		
+		// step 6: get a handle to the previous parent view based on the tag
+		UIView *parentView = [keyWindow viewWithTag:m_parentTag];
+		
+		// step 7: restore the parent view's original tag
+		parentView.tag = m_originalTag;
+		
+		// step 8: add ourselves to the original parent window
+		[parentView addSubview:self];
+		
+		// step 9: remove the blocking view
 		[m_blockingView removeFromSuperview], m_blockingView = nil;
 		
-		// remove the expanded view
-		[m_expandedView removeFromSuperview], m_expandedView = nil;
+		// step 10: fire the size changed ORMMA event
+		[self usingWebView:m_webView
+		 executeJavascript:@"window.ormmaview.fireChangeEvent( { size: { width: %f, height: %f } } );", self.frame.size.width, self.frame.size.height ];
 		
-		// now notify the app that we're done
-		[self fireAdDidClose];
-		
-		// update our internal state
+		// step 11: update the state to default
 		self.currentState = ORMMAViewStateDefault;
 		
-		// Final Step: send state changed event
+		// step 12: fire the state changed ORMMA event
 		[self usingWebView:m_webView
-		 executeJavascript:@"window.ormmaview.fireChangeEvent( { state: 'default', size: { width: %f, height: %f } } );", self.frame.size.width, self.frame.size.height ];
+		 executeJavascript:@"window.ormmaview.fireChangeEvent( { state: 'default' } );" ];
+		
+		// step 13: fire the application did close delegate call
+		[self fireAdDidClose];
 	}
 	else
 	{
 		// finish the expand function
-
-		// notify the app that we're done
-		[self fireAdDidExpandToFrame:m_expandedView.frame];
+		// step 14: fire the size changed ORMMA event
+		[self usingWebView:m_webView
+		 executeJavascript:@"window.ormmaview.fireChangeEvent( { size: { width: %f, height: %f } } );", self.frame.size.width, self.frame.size.height ];
 		
-		// update our internal state
+		// step 15: update the state to expanded
 		self.currentState = ORMMAViewStateExpanded;
+		
+		// step 16: fire the state changed ORMMA event
+		[self usingWebView:m_webView
+		 executeJavascript:@"window.ormmaview.fireChangeEvent( { state: 'expanded' } );" ];
+
+		// step 17: fire the application did expand delegate call
+		[self fireAdDidExpandToFrame:m_webView.frame];
 	}
 }
 
@@ -1014,7 +1182,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 	
 	// redisplay the expanded view if necessary
-	m_expandedView.hidden = NO;
+	m_webView.hidden = NO;
 	m_blockingView.hidden = NO;
 }
 
@@ -1026,7 +1194,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 	
 	// redisplay the expanded view if necessary
-	m_expandedView.hidden = NO;
+	m_webView.hidden = NO;
 	m_blockingView.hidden = NO;
 }
 
@@ -1051,29 +1219,32 @@ blockingOpacity:(CGFloat)blockingOpacity
 	[self fireAdWillShow];
 	
 	// assume we are not an ORMMA ad until told otherwise
-	// UNLESS we are the expanded view; in that case we MUST be ORMMA capable
-	self.isOrmmaAd = ( webView == m_expandedView );
-
+	NSString *test = [self usingWebView:webView executeJavascript:@"typeof ormmaview"];
+	self.isOrmmaAd = ( [test isEqualToString:@"object"] );
+	
 	// always inject the ORMMA code
-	NSLog( @"Ad requires ORMMA, inject code" );
-	[self injectORMMAJavaScriptIntoWebView:webView];
-		
-	// now inject the current state
-	[self injectORMMAStateIntoWebView:webView];
-		
-	// now allow the app to inject it's own javascript if needed
-	if ( self.ormmaDelegate != nil )
+	if ( self.isOrmmaAd )
 	{
-	   if ( [self.ormmaDelegate respondsToSelector:@selector(javascriptForInjection)] )
-	   {
-	       NSString *js = [self.ormmaDelegate javascriptForInjection];
-		   [self usingWebView:webView executeJavascript:js];
-	   }
-	}
+		NSLog( @"Ad requires ORMMA, inject code" );
+		[self injectORMMAJavaScriptIntoWebView:webView];
 		
-	// notify the creative that ORMMA is done
-	m_applicationReady = YES;
-	[self usingWebView:webView executeJavascript:@"ormmaview.enableORMMA();"];
+		// now allow the app to inject it's own javascript if needed
+		if ( self.ormmaDelegate != nil )
+		{
+			if ( [self.ormmaDelegate respondsToSelector:@selector(javascriptForInjection)] )
+			{
+				NSString *js = [self.ormmaDelegate javascriptForInjection];
+				[self usingWebView:webView executeJavascript:js];
+			}
+		}
+		
+		// now inject the current state
+		[self injectORMMAStateIntoWebView:webView];
+		
+		// notify the creative that ORMMA is done
+		m_applicationReady = YES;
+		self.isOrmmaAd = YES;
+	}
 	
 	// Notify app that the ad has been shown
 	[self fireAdDidShow];
@@ -1111,16 +1282,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 	NSLog( @"Injecting ORMMA State into creative." );
 	
 	// setup the default state
-	BOOL expanded = ( m_expandedView != nil );
 	self.currentState = ORMMAViewStateDefault;
-	if ( expanded )
-	{
-		self.currentState = ORMMAViewStateExpanded;
-	}
-	else
-	{
-		[self fireAdWillShow];
-	}
+	[self fireAdWillShow];
 	
 	// add the various features the device supports
 	NSMutableString *features = [NSMutableString stringWithCapacity:100];
@@ -1140,7 +1303,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// allow LBS if app allows it
 	if ( self.allowLocationServices )
 	{
-		[features appendString:@", 'email'"]; 
+		[features appendString:@", 'location'"]; 
 	}
 	
 	NSInteger platformType = [m_currentDevice platformType];
@@ -1184,8 +1347,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	}
 	
 	// setup the ad size
-	UIWebView *wv = ( expanded ) ? m_expandedView : m_webView;
-	CGSize size = wv.frame.size;
+	CGSize size = m_webView.frame.size;
 	
 	// setup orientation
 	UIDeviceOrientation orientation = m_currentDevice.orientation;
@@ -1207,7 +1369,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	NSString *network = m_javascriptBridge.networkStatus;
 	
 	// build the initial properties
-	NSString *properties = [NSString stringWithFormat:kInitialORMMAPropertiesFormat, ( expanded ? @"expanded" : @"default" ),
+	NSString *properties = [NSString stringWithFormat:kInitialORMMAPropertiesFormat, @"default",
 																					 network,
 																					 size.width, size.height,
 																					 self.maxSize.width, self.maxSize.height,
@@ -1219,10 +1381,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	 executeJavascript:@"window.ormmaview.fireChangeEvent( %@ );", properties];
 
 	// make sure things are visible
-	if ( !expanded )
-	{
-		[self fireAdDidShow];
-	}
+	[self fireAdDidShow];
 }
 
 
@@ -1428,7 +1587,6 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 #pragma mark -
 #pragma mark Launch App Store
-
 
 -(void)verifyAppStoreLaunchWithURL:(NSURL*)url 
 {

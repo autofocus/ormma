@@ -61,7 +61,7 @@
 
 @required
 
-@property( nonatomic, assign, readonly ) UIWebView *currentWebView;
+@property( nonatomic, assign, readonly ) UIWebView *webView;
 
 - (void)adIsORMMAEnabledForWebView:(UIWebView *)webView;
 

@@ -53,6 +53,7 @@
 @property( nonatomic, assign ) BOOL backButtonEnabled;
 @property( nonatomic, assign ) BOOL forwardButtonEnabled;
 @property( nonatomic, assign ) BOOL refreshButtonEnabled;
+@property( nonatomic, assign ) BOOL safariButtonEnabled;
 @property( nonatomic, assign ) BOOL closeButtonEnabled;
 
 
@@ -81,7 +82,13 @@
 - (void)doneWithBrowser;
 
 @optional
+// allows the consumer to veto loading a given request
 - (BOOL)shouldLoadRequest:(NSURLRequest *)request
 			   forBrowser:(ORMMAWebBrowserViewController *)browserController;
+
+// called when the user presses the "safari" button (i.e. wants to do something
+// "special" with the url such as book mark it)
+- (void)showURLFullScreen:(NSURL *)url
+			   sourceView:(UIView *)view;
 
 @end
