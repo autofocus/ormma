@@ -57,6 +57,7 @@ static NSString *s_scale = nil;
 @dynamic backButtonEnabled;
 @dynamic forwardButtonEnabled;
 @dynamic refreshButtonEnabled;
+@dynamic safariButtonEnabled;
 @dynamic closeButtonEnabled;
 
 
@@ -274,6 +275,18 @@ static NSString *s_scale = nil;
 }
 
 
+- (BOOL)safariButtonEnabled
+{
+	return self.safariButton.hidden;
+}
+
+
+- (void)setSafariButtonEnabled:(BOOL)enabled
+{
+	self.safariButton.hidden = enabled;
+}
+
+
 - (BOOL)closeButtonEnabled
 {
 	return self.closeButton.hidden;
@@ -313,6 +326,11 @@ static NSString *s_scale = nil;
 - (IBAction)safariButtonPressed:(id)sender
 {
 	NSLog( @"Safari Button Pressed." );
+	if ( [self.browserDelegate respondsToSelector:@selector(showURLFullScreen:sourceView:)] )
+	{
+		[self.browserDelegate showURLFullScreen:self.webView.request.URL
+									 sourceView:self.view];
+	}
 }
 
 

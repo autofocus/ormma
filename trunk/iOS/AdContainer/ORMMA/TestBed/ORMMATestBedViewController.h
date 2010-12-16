@@ -12,7 +12,8 @@
 
 
 @interface ORMMATestBedViewController : UIViewController <ORMMAViewDelegate,
-														  UITextFieldDelegate>
+														  UITextFieldDelegate,
+														  UIActionSheetDelegate>
 {
 @private
 	ORMMAView *m_ormmaView;
@@ -24,6 +25,9 @@
 	UILabel *m_urlLabel;
 	UITextField *m_urlField;
 	UIButton *m_loadAdButton;
+	
+	NSString *m_phoneNumber;
+	NSURL *m_url;
 }
 @property( nonatomic, retain ) IBOutlet ORMMAView *ormmaView;
 
