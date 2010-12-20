@@ -106,22 +106,38 @@ static const NSUInteger kDomainSection = 1;
 
 - (void)keyboardWillShow:(NSNotification *)notification
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-#endif
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_2
-		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey];
-#else
-		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardBoundsUserInfoKey];
-#endif
+	if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone )
+	{
+		NSString *key = @"UIKeyboardBoundsUserInfoKey";
+		if ( &UIKeyboardFrameEndUserInfoKey != NULL )
+		{
+			key = @"UIKeyboardFrameEndUserInfoKey";
+		}
+		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:key];
+										
 		CGRect keyboardBounds;
 		[keyboardBoundsValue getValue:&keyboardBounds];
 		UIEdgeInsets e = UIEdgeInsetsMake(0, 0, keyboardBounds.size.height, 0);
 		[[self tableView] setScrollIndicatorInsets:e];
 		[[self tableView] setContentInset:e];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
-#endif
+//#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+//	if ( UIUserInterfaceIdiomPhone )
+//	{
+//#endif
+//#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_2
+//		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey];
+//#else
+//		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardBoundsUserInfoKey];
+//#endif
+//		CGRect keyboardBounds;
+//		[keyboardBoundsValue getValue:&keyboardBounds];
+//		UIEdgeInsets e = UIEdgeInsetsMake(0, 0, keyboardBounds.size.height, 0);
+//		[[self tableView] setScrollIndicatorInsets:e];
+//		[[self tableView] setContentInset:e];
+//#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+//	}
+//#endif
 }
 
 // Manually handles orientation changes on iPhone
