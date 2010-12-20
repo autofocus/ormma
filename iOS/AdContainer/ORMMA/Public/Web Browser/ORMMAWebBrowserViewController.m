@@ -155,11 +155,13 @@ static NSString *s_scale = nil;
 	[self updateButton:self.refreshButton
 		withImageNamed:@"refresh"
 		   disableable:NO];
-	[self updateButton:self.safariButton
-		withImageNamed:@"openbrowser"
-		   disableable:NO];
 	[self updateButton:self.closeButton
 		withImageNamed:@"close"
+		   disableable:NO];
+	
+	// see if we need to enable the safari button or not
+	[self updateButton:self.safariButton
+		withImageNamed:@"openbrowser"
 		   disableable:NO];
 }
 

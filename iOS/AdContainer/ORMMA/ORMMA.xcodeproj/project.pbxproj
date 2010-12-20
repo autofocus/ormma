@@ -114,7 +114,7 @@
 		FAD905CE129D8B4900C3F5DE /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A520124159BE00285B32 /* EventKitUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAD905CF129D8B4900C3F5DE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		FAD905D0129D8B4900C3F5DE /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89E12429F8B00285B32 /* libz.1.2.3.dylib */; };
-		FAD905D1129D8B4900C3F5DE /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89412429F8B00285B32 /* MessageUI.framework */; };
+		FAD905D1129D8B4900C3F5DE /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89412429F8B00285B32 /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAD905D2129D8B4900C3F5DE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89612429F8B00285B32 /* MobileCoreServices.framework */; };
 		FAD905D3129D8B4900C3F5DE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89812429F8B00285B32 /* QuartzCore.framework */; };
 		FAD905D4129D8B4900C3F5DE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89A12429F8B00285B32 /* SystemConfiguration.framework */; };
@@ -1101,6 +1101,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/UIKit.framework/Headers/UIKit.h";
 				INFOPLIST_FILE = "ORMMATestBed-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
@@ -1127,6 +1128,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/UIKit.framework/Headers/UIKit.h";
 				INFOPLIST_FILE = "ORMMATestBed-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",

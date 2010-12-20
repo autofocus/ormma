@@ -322,12 +322,42 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		return NO;
 	}
 	
+	// handle maps and mailto
+	NSString *scheme = url.scheme;
+	if ( [@"mailto" isEqualToString:scheme] )
+	{
+		// handle mail to
+		NSLog( @"MAILTO: %@", url );
+		NSString *addr = [url.absoluteString substringFromIndex:7];
+		if ( [addr hasPrefix:@"//"] )
+		{
+			NSString *addr = [addr substringFromIndex:2];
+		}
+		
+		[self sendEMailTo:addr
+			  withSubject:nil
+				 withBody:nil
+				   isHTML:NO];
+		
+		return NO;
+	}
+	else if ( [@"http" isEqualToString:scheme] )
+	{
+		// handle special cased URLs
+		if ( [@"maps.google.com" isEqualToString:url.host] )
+		{
+			// handle google maps
+			UIApplication *app = [UIApplication sharedApplication];
+			[app openURL:url];
+			return NO;
+		}
+	}
+	
 	// not handled by ORMMA, see if the delegate wants it
 	if ( m_externalProtocols.count > 0 )
 	{
 		if ( [self.ormmaDelegate respondsToSelector:@selector(handleRequest:forAd:)] )
 		{
-			NSString *scheme = url.scheme;
 			NSLog( @"Scheme is: %@", scheme );
 			for ( NSString *p in m_externalProtocols )
 			{
@@ -1009,9 +1039,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 	self.webBrowser.backButtonEnabled = back;
 	self.webBrowser.forwardButtonEnabled = forward;
 	self.webBrowser.refreshButtonEnabled = refresh;
-	if ( [self.ormmaDelegate respondsToSelector:@selector(showURLFullScreen:)] )
-	{
-	}
+	BOOL safariEnabled = [self.ormmaDelegate respondsToSelector:@selector(showURLFullScreen:)];
+	self.webBrowser.safariButtonEnabled = safariEnabled;
 	self.webBrowser.URL = url;
 	[self.ormmaDelegate.ormmaViewController presentModalViewController:self.webBrowser
 															   animated:YES];
@@ -1049,7 +1078,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 			   sourceView:(UIView *)view
 {
 	// we want to give the user the opportunity to launch in safari
-	if ( [self.ormmaDelegate respondsToSelector:@selector(showURLFullScreen:sourceView:view:)] )
+	if ( [self.ormmaDelegate respondsToSelector:@selector(showURLFullScreen:sourceView:)] )
 	{
 		[self.ormmaDelegate showURLFullScreen:url
 								   sourceView:view];
@@ -1602,9 +1631,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 }
 
 
-- (void)alertView:(UIAlertView *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if ( buttonIndex == 0 )
+	if ( buttonIndex != alertView.cancelButtonIndex )
 	{
 		[[UIApplication sharedApplication] openURL:self.launchURL];
 	}
