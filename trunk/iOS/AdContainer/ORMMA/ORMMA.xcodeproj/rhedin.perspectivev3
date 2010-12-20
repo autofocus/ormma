@@ -234,6 +234,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -271,17 +273,17 @@
 							<array>
 								<string>0867D691FE84028FC02AAC07</string>
 								<string>FAD28BB712381B2A00562D0B</string>
-								<string>FAD28BB812381B2A00562D0B</string>
 								<string>FAD28BC012381B2A00562D0B</string>
 								<string>FAE2E8E0128C3C9500A1B1ED</string>
-								<string>FAD28C5912381C3400562D0B</string>
-								<string>FAD28C5A12381C3F00562D0B</string>
+								<string>FAD90447129D8A5000C3F5DE</string>
+								<string>1C37FBAC04509CD000000102</string>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>10</integer>
-									<integer>8</integer>
+									<integer>11</integer>
+									<integer>9</integer>
+									<integer>6</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -303,7 +305,7 @@
 							<real>301</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>249 360 1191 793 0 0 1920 1178 </string>
+						<string>203 313 1191 793 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -314,14 +316,12 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>FAD28C4412381BE900562D0B</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>ORMMAView.m</string>
+								<string>ORMMAWebBrowserViewController.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -329,11 +329,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>FAD28C4512381BE900562D0B</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>ORMMAView.m</string>
+										<string>ORMMAWebBrowserViewController.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>FAD451E712B81C3B002494A9</string>
+										<string>FA64269012C010560004E6ED</string>
 										<key>history</key>
 										<array>
 											<string>FAE3A5171241576F00285B32</string>
@@ -362,7 +362,6 @@
 											<string>FACA439B1287596D00261A12</string>
 											<string>FACA439C1287596D00261A12</string>
 											<string>FACA43A3128759DB00261A12</string>
-											<string>FACA43A4128759DB00261A12</string>
 											<string>FACA443F1287658200261A12</string>
 											<string>FACA4454128769E500261A12</string>
 											<string>FACA4455128769E500261A12</string>
@@ -388,19 +387,23 @@
 											<string>FADAA06912B6B37300721DDA</string>
 											<string>FADAA06A12B6B37300721DDA</string>
 											<string>FADAA0F512B6EA1400721DDA</string>
-											<string>FAD450CE12B7D36D002494A9</string>
 											<string>FAD450CF12B7D36D002494A9</string>
-											<string>FAD4512112B7DCE7002494A9</string>
-											<string>FAD4513412B7E41E002494A9</string>
-											<string>FAD4515B12B7EB97002494A9</string>
-											<string>FAD4518812B7EF4F002494A9</string>
-											<string>FAD4518912B7EF4F002494A9</string>
-											<string>FAD451A212B80D46002494A9</string>
-											<string>FAD451A312B80D46002494A9</string>
 											<string>FAD451A412B80D46002494A9</string>
 											<string>FAD451A512B80D46002494A9</string>
 											<string>FAD451A612B80D46002494A9</string>
-											<string>FAD451D812B81BD5002494A9</string>
+											<string>FA7F9B8412BC083600E059B0</string>
+											<string>FA7F9B8512BC083600E059B0</string>
+											<string>FA64252212BFF41C0004E6ED</string>
+											<string>FA64252412BFF41C0004E6ED</string>
+											<string>FA64258A12BFF7390004E6ED</string>
+											<string>FA64258B12BFF7390004E6ED</string>
+											<string>FA64258C12BFF7390004E6ED</string>
+											<string>FA64268A12C010560004E6ED</string>
+											<string>FA64268B12C010560004E6ED</string>
+											<string>FA64268C12C010560004E6ED</string>
+											<string>FA64268D12C010560004E6ED</string>
+											<string>FA64268E12C010560004E6ED</string>
+											<string>FA64268F12C010560004E6ED</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -414,18 +417,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {868, 489}}</string>
+								<string>{{0, 0}, {868, 467}}</string>
 								<key>RubberWindowFrame</key>
-								<string>249 360 1191 793 0 0 1920 1178 </string>
+								<string>203 313 1191 793 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>489pt</string>
+							<string>467pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>258pt</string>
+							<string>280pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -439,7 +442,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {868, 230}}</string>
+										<string>{{10, 27}, {868, 253}}</string>
+										<key>RubberWindowFrame</key>
+										<string>203 313 1191 793 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -455,7 +460,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{0, 0}, {614, 336}}</string>
+										<string>{{10, 27}, {868, 253}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXProjectFindModule</string>
@@ -493,9 +498,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {868, 231}}</string>
-										<key>RubberWindowFrame</key>
-										<string>249 360 1191 793 0 0 1920 1178 </string>
+										<string>{{10, 27}, {868, 253}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -523,11 +526,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>FAD44F9712B7A904002494A9</string>
+				<string>FA6424F812BFF2980004E6ED</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>FAD44F9812B7A904002494A9</string>
+				<string>FA6424F912BFF2980004E6ED</string>
 				<string>FAD28C4412381BE900562D0B</string>
-				<string>FAD44F9912B7A904002494A9</string>
+				<string>FA6424FA12BFF2980004E6ED</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -678,14 +681,14 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>FAD44F9F12B7A96D002494A9</string>
+				<string>FA6424FB12BFF2980004E6ED</string>
 				<string>1CCC7628064C1048000F2A68</string>
 				<string>1CCC7629064C1048000F2A68</string>
-				<string>FAD44FA012B7A96D002494A9</string>
-				<string>FAD44FA112B7A96D002494A9</string>
-				<string>FAD44FA212B7A96D002494A9</string>
-				<string>FAD44FA312B7A96D002494A9</string>
-				<string>FAD44FA412B7A96D002494A9</string>
+				<string>FA6424FC12BFF2980004E6ED</string>
+				<string>FA6424FD12BFF2980004E6ED</string>
+				<string>FA6424FE12BFF2980004E6ED</string>
+				<string>FA6424FF12BFF2980004E6ED</string>
+				<string>FA64250012BFF2980004E6ED</string>
 			</array>
 			<key>ToolbarConfigUserDefaultsMinorVersion</key>
 			<string>2</string>
@@ -719,13 +722,12 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>FAD451DA12B81BD5002494A9</string>
-		<string>FAD44FC612B7AEA9002494A9</string>
-		<string>FAD44FA612B7A96D002494A9</string>
-		<string>/Users/rhedin/source/iOS/ORMMA-CombinedWebView/ORMMA.xcodeproj</string>
+		<string>FA64250912BFF3750004E6ED</string>
+		<string>FA64250212BFF2980004E6ED</string>
+		<string>/Users/rhedin/source/iOS/ORMMA/ORMMA/ORMMA.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>249 360 1191 793 0 0 1920 1178 </string>
+	<string>203 313 1191 793 0 0 1920 1178 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
