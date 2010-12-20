@@ -36,68 +36,6 @@ typedef enum OTBAdAnimationDirectionEnum
 #pragma mark -
 #pragma mark Constants
 
-NSString * const kWxDataObject = @"var wx = {}; \n\n" \
-                                   "wx.config = {\n" \
-                                   "  page: {\n" \
-                                   "    pageId:  'testbed',\n" \
-                                   "    pageURL: '',\n" \
-                                   "    version: '1.0'\n" \
-                                   "  },\n" \
-                                   "\n" \
-                                   "  user: {\n" \
-                                   "    age:       '',\n" \
-                                   "    gender:    '',\n" \
-                                   "    asi:       '',\n" \
-                                   "    view:      '',\n" \
-                                   "    cobrand:   '',\n" \
-                                   "    dec:       '',\n" \
-                                   "    entry:     '',\n" \
-                                   "    skin:      '',\n" \
-                                   "    installed: ''\n" \
-                                   "  },\n" \
-                                   "\n" \
-                                   "  ad: {\n" \
-                                   "    mode:     '',\n" \
-                                   "    site:     '',\n" \
-                                   "    testsite: '',\n" \
-                                   "    zone:     '',\n" \
-                                   "    layout:   '',\n" \
-                                   "    ord:      '',\n" \
-                                   "    keywords: '',\n" \
-                                   "    sequence: '',\n" \
-                                   "    postions: {},\n" \
-                                   "    wap:      ''\n" \
-                                   "  },\n" \
-                                   "\n" \
-                                   "  loc: {\n" \
-                                   "    gpr:      '',\n" \
-                                   "    country:  'US',\n" \
-                                   "    state:    'GA',\n" \
-                                   "    dma:      '524',\n" \
-                                   "    zip:      '30339',\n" \
-                                   "    claritas: '8',\n" \
-                                   "    locId:    '30339',\n" \
-                                   "    locType:  '4',\n" \
-                                   "    city:     ''\n" \
-                                   "  },\n" \
-                                   "\n" \
-                                   "  wx: {\n" \
-                                   "    temp:             '32',\n" \
-                                   "    tempR:            '',\n" \
-                                   "    realTemp:         '',\n" \
-                                   "    cond:             'sun',\n" \
-                                   "    pollen:           ''\n" \
-                                   "    wind:             '',\n" \
-                                   "    windSpeed:        '13',\n" \
-                                   "    uv:               '',\n" \
-                                   "    uvIndex:          '3',\n" \
-                                   "    hum:              '52',\n" \
-                                   "    relativeHumidity: '',\n" \
-                                   "    severe:           '',\n" \
-                                   "    wxIcon:           '%7@'\n" \
-                                   "  }\n" \
-                                   "};";
-
 
 
 #pragma mark -
@@ -258,12 +196,6 @@ NSString * const kWxDataObject = @"var wx = {}; \n\n" \
 - (UIViewController *)ormmaViewController
 {
 	return self;
-}
-
-
-- (NSString *)javascriptForInjection
-{
-	return kWxDataObject;
 }
 
 
