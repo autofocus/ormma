@@ -900,11 +900,22 @@ blockingOpacity:(CGFloat)blockingOpacity
 			m_blockingView.hidden = YES;
 		}
 		
+		// notify the app that it should stop work
+		[self fireAppShouldSuspend];
+
 		// display the modal dialog
 		vc.mailComposeDelegate = self;
 		[self.ormmaDelegate.ormmaViewController presentModalViewController:vc
 																   animated:YES];
 	}
+	else
+	{
+		// email isn't setup, let the app decide what to do
+		if ( [self.ormmaDelegate respondsToSelector:@selector(emailNotSetupForAd:)] )
+		{
+			[self.ormmaDelegate emailNotSetupForAd:self];
+		}
+	}	
 }
 
 
@@ -938,6 +949,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 				m_blockingView.hidden = YES;
 			}
 		
+			// notify the app that it should stop work
+			[self fireAppShouldSuspend];
+			
 			// now show the dialog
 			[self.ormmaDelegate.ormmaViewController presentModalViewController:vc
 																	   animated:YES];
@@ -1222,6 +1236,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 		  didFinishWithResult:(MFMailComposeResult)result 
 						error:(NSError*)error
 {
+	// notify the app that it should stop work
+	[self fireAppShouldResume];
+	
 	// close the dialog
 	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 	
@@ -1234,6 +1251,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller 
 				 didFinishWithResult:(MessageComposeResult)result
 {
+	// notify the app that it should stop work
+	[self fireAppShouldResume];
+	
 	// close the dialog
 	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 	

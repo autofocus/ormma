@@ -191,4 +191,6 @@ typedef enum ORMMAViewStateEnum
 - (void)showURLFullScreen:(NSURL *)url
 			   sourceView:(UIView *)view;
 
+- (void)emailNotSetupForAd:(ORMMAView *)adView;
+
 @end
