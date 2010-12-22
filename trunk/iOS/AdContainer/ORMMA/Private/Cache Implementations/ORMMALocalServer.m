@@ -17,7 +17,8 @@
 + (unsigned long long)removeObjectsInDirectory:(NSString *)directory
 								  includeFiles:(BOOL)files;
 
-- (NSString *)processHTMLStubUsingFragment:(NSString *)fragment;
+- (NSString *)processHTMLStubUsingFragment:(NSString *)fragment
+								  delegate:(id<ORMMALocalServerDelegate>)delegate;
 
 + (void)reapCache;
 
@@ -43,6 +44,7 @@ static NSTimer *s_timer;
 const NSTimeInterval kCacheReaperTimeInterval = 3600; // every hour
 
 NSString * const kAdContentToken    = @"<!--AD-CONTENT-->";
+NSString * const kInjectedContentToken    = @"<!-- INJECTED-CONTENT -->";
 
 NSString * const kORMMALocalServerWebRoot = @"ormma-web-root";
 NSString * const kORMMALocalServerDelegateKey = @"delegate";
@@ -302,7 +304,8 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	}
 	else
 	{
-		html = [self processHTMLStubUsingFragment:baseHtml];
+		html = [self processHTMLStubUsingFragment:baseHtml
+										 delegate:delegate];
 	}
 
 	// determine the hash for this creative
@@ -488,6 +491,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 #pragma mark HTML Stub Control
 
 - (NSString *)processHTMLStubUsingFragment:(NSString *)fragment
+								  delegate:(id<ORMMALocalServerDelegate>)delegate
 {
 	// select the correct stub
 	NSString *stub = self.htmlStub;
@@ -510,6 +514,17 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	// build the string
 	NSString *output = [stub stringByReplacingOccurrencesOfString:kAdContentToken
 													   withString:fragment];
+	NSString *js = nil;
+	if ( [delegate respondsToSelector:@selector(javascriptForInjection)] )
+	{
+		js = [delegate javascriptForInjection];
+	}
+	if ( js == nil )
+	{
+		js = @"";
+	}
+	output = [output stringByReplacingOccurrencesOfString:kInjectedContentToken
+											   withString:js];
 	return output;
 }
 

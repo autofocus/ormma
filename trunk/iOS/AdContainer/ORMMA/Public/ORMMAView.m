@@ -1199,6 +1199,21 @@ blockingOpacity:(CGFloat)blockingOpacity
 }
 
 
+// get JS to inject
+- (NSString *)javascriptForInjection
+{
+	NSString *js = nil;
+	if ( self.ormmaDelegate != nil )
+	{
+		if ( [self.ormmaDelegate respondsToSelector:@selector(javascriptForInjection)] )
+		{
+			js = [self.ormmaDelegate javascriptForInjection];
+		}
+	}
+	return js;
+}
+
+
 
 #pragma mark -
 #pragma mark Mail and SMS Composer Delegate
@@ -1252,20 +1267,20 @@ blockingOpacity:(CGFloat)blockingOpacity
 	self.isOrmmaAd = ( [test isEqualToString:@"object"] );
 	
 	// always inject the ORMMA code
-	if ( self.isOrmmaAd )
-	{
+//	if ( self.isOrmmaAd )
+//	{
 		NSLog( @"Ad requires ORMMA, inject code" );
 		[self injectORMMAJavaScriptIntoWebView:webView];
 		
 		// now allow the app to inject it's own javascript if needed
-		if ( self.ormmaDelegate != nil )
-		{
-			if ( [self.ormmaDelegate respondsToSelector:@selector(javascriptForInjection)] )
-			{
-				NSString *js = [self.ormmaDelegate javascriptForInjection];
-				[self usingWebView:webView executeJavascript:js];
-			}
-		}
+//		if ( self.ormmaDelegate != nil )
+//		{
+//			if ( [self.ormmaDelegate respondsToSelector:@selector(javascriptForInjection)] )
+//			{
+//				NSString *js = [self.ormmaDelegate javascriptForInjection];
+//				[self usingWebView:webView executeJavascript:js];
+//			}
+//		}
 		
 		// now inject the current state
 		[self injectORMMAStateIntoWebView:webView];
@@ -1273,7 +1288,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 		// notify the creative that ORMMA is done
 		m_applicationReady = YES;
 		self.isOrmmaAd = YES;
-	}
+//	}
 	
 	// Notify app that the ad has been shown
 	[self fireAdDidShow];

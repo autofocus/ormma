@@ -13,7 +13,7 @@
 
 
 
-@protocol ORMMALocalServerDelegate
+@protocol ORMMALocalServerDelegate <NSObject>
 
 @required
 
@@ -37,6 +37,9 @@
 // called when a resource has been cached
 - (void)cachedResourceRemoved:(NSURL *)url
 				  forCreative:(long)creativeId;
+
+// called to get injectable javascript
+- (NSString *)javascriptForInjection;
 
 @end
 
