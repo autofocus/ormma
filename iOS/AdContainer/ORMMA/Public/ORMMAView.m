@@ -341,6 +341,13 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		
 		return NO;
 	}
+	else if ( [@"tel" isEqualToString:scheme] )
+	{
+		// handle telephone call
+		UIApplication *app = [UIApplication sharedApplication];
+		[app openURL:url];
+		return NO;
+	}
 	else if ( [@"http" isEqualToString:scheme] )
 	{
 		// handle special cased URLs
