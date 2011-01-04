@@ -274,7 +274,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 - (void)webView:(UIWebView *)webView 
 didFailLoadWithError:(NSError *)error
 {
-	NSLog( @"Failed to load URL into Web View" );
+	NSLog( @"Failed to load URL into Web View: %@", error );
 	self.lastError = error;
 	if ( ( self.ormmaDelegate != nil ) && 
 		( [self.ormmaDelegate respondsToSelector:@selector(failureLoadingAd:)] ) )
@@ -903,7 +903,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 		// let's hide it while the modal is up
 		if ( self.currentState == ORMMAViewStateExpanded )
 		{
-			m_webView.hidden = YES;
+			self.hidden = YES;
 			m_blockingView.hidden = YES;
 		}
 		
@@ -913,7 +913,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 		// display the modal dialog
 		vc.mailComposeDelegate = self;
 		[self.ormmaDelegate.ormmaViewController presentModalViewController:vc
-																   animated:YES];
+																  animated:YES];
 	}
 	else
 	{
@@ -952,7 +952,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 			// let's hide it while the modal is up
 			if ( self.currentState == ORMMAViewStateExpanded )
 			{
-				m_webView.hidden = YES;
+				self.hidden = YES;
 				m_blockingView.hidden = YES;
 			}
 		
@@ -1087,8 +1087,11 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// called when the ad needs to be made visible
 	[self fireAdWillShow];
 	
-	// notify the app that it should start work
-	[self fireAppShouldResume];
+	// notify the app that it should start work, but only if we're not expanded
+	if ( self.currentState != ORMMAViewStateExpanded )
+	{
+		[self fireAppShouldResume];
+	}
 	
 	// called when the ad needs to be made visible
 	[self fireAdDidShow];
@@ -1250,7 +1253,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 	
 	// redisplay the expanded view if necessary
-	m_webView.hidden = NO;
+	self.hidden = NO;
 	m_blockingView.hidden = NO;
 }
 
@@ -1265,7 +1268,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	[self.ormmaDelegate.ormmaViewController dismissModalViewControllerAnimated:YES];
 	
 	// redisplay the expanded view if necessary
-	m_webView.hidden = NO;
+	self.hidden = NO;
 	m_blockingView.hidden = NO;
 }
 
