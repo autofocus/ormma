@@ -1087,11 +1087,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// called when the ad needs to be made visible
 	[self fireAdWillShow];
 	
-	// notify the app that it should start work, but only if we're not expanded
-	if ( self.currentState != ORMMAViewStateExpanded )
-	{
-		[self fireAppShouldResume];
-	}
+	// notify the app that it should start work
+	[self fireAppShouldResume];
 	
 	// called when the ad needs to be made visible
 	[self fireAdDidShow];
