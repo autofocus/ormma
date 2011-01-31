@@ -24,5 +24,3 @@ http://api.crispwireless.com/adRequest.v1/single/ad.html?sitekey=ORMMA&zonekey=L
 
 HTML banner, ORMMA Level 3
 http://api.crispwireless.com/adRequest.v1/single/ad.html?sitekey=ORMMA&zonekey=Level_3&partnerkey=945344a4ac19d2b72d29bf03edecf5b5&random=1234
-
-
