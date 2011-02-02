@@ -3,9 +3,9 @@ This ad is also available from Crisp Ad Server with the following URL
 http://api.crispwireless.com/adRequest.v1/single/ad.html?sitekey=ORMMA&zonekey=Level_1&partnerkey=945344a4ac19d2b72d29bf03edecf5b5&random=1234
 
 -->
-<link href="http://ormma.googlecode.com/svn/trunk/AdSamples/OrmmaOneAd/ormmaone.css" rel="stylesheet" type="text/css"/>
-<script src="http://ormma.googlecode.com/svn/trunk/iOS/AdController/ormmastub.js" type="text/javascript" language="javascript"></script>
-<script src="http://ormma.googlecode.com/svn/trunk/AdSamples/OrmmaOneAd/ormmaone.js" type="text/javascript" language="javascript"></script>
+<div id="adSpace" style="height:50px">
+<link href="http://ormma.googlecode.com/svn/trunk/AdSamples/OrmmaOneAd/OrmmaOne.css" rel="stylesheet" type="text/css"/>
+<script src="OrmmaOne.js" type="text/javascript" language="javascript"></script>
 <div id='ad'>
 <div id='banner'><img src="http://media.crispadvertising.com/adframework/1.2/components/img/300x50.gif" alt="banner advertisement" onclick="return(resizeAd());" /></div>
 <div id='closebanner'><img src="http://media.crispadvertising.com/adframework/1.2/components/img/btn_close.gif" alt="" onclick="return(hideBanner());" /></div>
@@ -16,4 +16,62 @@ http://api.crispwireless.com/adRequest.v1/single/ad.html?sitekey=ORMMA&zonekey=L
     <div id='ajax'></div>
 </div>
 </div>
-<script type="text/javascript" language="javascript">initAd();</script>
+</div>
+
+<div>
+<h1>ORMMA Level One Sample Ad</h1>
+<h2>Overview</h2>
+<p>This ad exercises all the functions of the <a href="http://code.google.com/p/ormma/wiki/Level1_Requirements">Level1 specification</a>. The JavaScript source is not minimized, so you can view it  directly, <a href="http://ormma.googlecode.com/svn/trunk/AdSamples/OrmmaOneAd/OrmmaOne.js">http://ormma.googlecode.com/svn/trunk/AdSamples/OrmmaOneAd/OrmmaOne.js</a>.</p>
+
+<h2>To run this ad in the web tester:</h2>
+<ul>
+<li>Use the URL, "http://ormma.google.com/svn/trunk/AdSamples/OrmmaOneAd/OrmmaOneFragment.html" and check the "fragment" option</li>
+<li>Use the HTML tag, and paste in:<br/>
+<pre>
+&lt;link href="http://ormma.googlecode.com/svn/trunk/AdSamples/OrmmaOneAd/OrmmaOne.css" rel="stylesheet" type="text/css"/&gt;
+&lt;script src="http://ormma.googlecode.com/svn/trunk/iOS/AdController/ormmastub.js" type="text/javascript" language="javascript"&gt;&lt;/script&gt;
+&lt;script src="http://ormma.googlecode.com/svn/trunk/AdSamples/OrmmaOneAd/OrmmaOne.js" type="text/javascript" language="javascript"&gt;&lt;/script&gt;
+&lt;div id='ad'&gt;
+&lt;div id='banner'&gt;&lt;img src="http://media.crispadvertising.com/adframework/1.2/components/img/300x50.gif" alt="banner advertisement" onclick="return(resizeAd());" /&gt;&lt;/div&gt;
+&lt;div id='closebanner'&gt;&lt;img src="http://media.crispadvertising.com/adframework/1.2/components/img/btn_close.gif" alt="" onclick="return(hideBanner());" /&gt;&lt;/div&gt;
+&lt;div id='panel'&gt;
+	&lt;div id='background'&gt;&lt;img src="http://media.crispadvertising.com/adframework/1.2/components/img/300x250.gif" alt="panel" /&gt;&lt;/div&gt;
+    &lt;div id='hotspot'&gt;&lt;a href="http://ormma.org/" onclick="return sendOrmmaRequest(this.href);"&gt;&lt;img src="http://media.crispadvertising.com/adframework/1.2/components/img/btn_facebook.gif" alt="facebook" /&gt;&lt;/a&gt;&lt;/div&gt;
+    &lt;div id='close'&gt;&lt;img src="http://media.crispadvertising.com/adframework/1.2/components/img/btn_close.gif" alt="close" onClick="collapse();" /&gt;&lt;/div&gt;
+    &lt;div id='ajax'&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+</li>
+</ul>
+
+<h2>User testing</h2>
+<p>The expected behavior of this ad is to display the banner automatically, click to banner expand, click the X to collapse and click the X again to hide the ad. Clicking on the Facebook icon will open the <a href="http://ormma.org">http://ormma.org</a> site.</p> This ad will work in a standard browser, although you will see comments in the JavaScript console that ORMMA is not found. The fragment ad which does not include these instructions will work in a standard browser, web tester, and ORMMA-compatible SDKs.
+
+<h2>methods called</h2>
+<ul>
+   <li>ORMMAReady</li>
+   <li>supports</li>
+   <li>addEventListener</li>
+   <li>removeEventListener</li>
+   <li>getState</li>
+   <li>show</li>
+   <li>expand</li>
+   <li>resize</li>
+   <li>getMaxSize</li>
+   <li>getSize</li>
+   <li>getDefaultPosition</li>
+   <li>close</li>
+   <li>hide</li>
+   <li>getExpandProperties, setExpandProperties</li>
+   <li>getResizeProperties, setResizeProperties</li>
+   <li>open</li>
+</ul>
+
+<h2>events listened for</h2>
+<ul>
+   <li>error</li>
+   <li>stateChanged</li>
+   <li>sizeChange</li>  
+</ul>
+</div>
