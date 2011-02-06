@@ -1,13 +1,20 @@
-/*global window, ormma */
+/*global window, document, ormma, console	 */
 
 /**
- * @fileOverview This sample file demonstrates a functional style usage of the ORMMA JavaScript SDK
+ * @fileOverview This sample file demonstrates a functional style usage of
+ *  the ORMMA JavaScript SDK. 
  *  All Level One methods are exercised.
  *
- * @author <a href="mailto:nathan.carver@crispmedia.com">Nathan Carver</a>
+ * @author <a href='mailto:nathan.carver@crispmedia.com'>Nathan Carver</a>
  * @version 1.0.1
  */
- 
+
+
+/* 
+================================================================
+DEBUGGING METHODS TO HELP WITH UNDERSTANDING AND TROUBLESHOOTING
+================================================================
+*/
 
 /**
 * helper function to output debugging data to the console
@@ -15,7 +22,7 @@
 * @param {String} msg text to output
 */
 function logit(msg) {
-	if (typeof(console)!=='undefined') {
+	if (typeof (console) !== 'undefined') {
 		console.log((new Date()).getTime() + '-' + msg);
 	}
 }
@@ -26,239 +33,271 @@ function logit(msg) {
 * @param {Event} evt event to get information on
 */
 function reportEvent(evt) {
-	var msg = 'Event fired: ' + evt.type 
+	var msg = 'Event fired: ' + evt.type;
 	if (evt.data) {
-		msg = msg + ':' + evt.data
+		msg = msg + ':' + evt.data;
 	}
 	logit(msg);
 }
 
 /**
-* triggered by initAd, clean-up after ad is shown
+* stub function to highlight when ORMMA is not found
+*/
+function ORMMANotFound() {
+	logit('ORMMA not found');
+}
+
+
+/*
+==============================================
+ORMMA-SPECIFIC METHODS FOR IN-APP PRESENTATION
+==============================================
+*/
+
+/**
+* called by confirmShow
+* simply resizes the ad to test the ORMMA resize methods
+* ad is returned to default size
 *
-* @see initAd
+* @see confirmShow
+* @requires ormma
+*/
+function testOrmmaResize() {
+	// get the properties needed
+	var props = ormma.getResizeProperties(),
+		size = ormma.getSize(),
+		maxSize = ormma.getMaxSize();
+	
+	// resize to the same size, same properties
+	ormma.setResizeProperties(props);
+	ormma.addEventListener('resizeChange', function () {
+		logit('ad is resized to same size');
+		ormma.removeEventListener('resizeChange');
+
+	// resize to maximum size
+		ormma.addEventListener('resizeChange', function () {
+			logit('ad is max sized');
+			ormma.removeEventListener('resizeChange');
+
+	// back to normal
+			logit('reverting to starting size');		
+			ormma.resize(size);
+		});
+		ormma.resize(maxSize);
+	});
+	ormma.resize(size);
+}
+
+/**
+* triggered by ORMMAReady, clean-up after ad is shown
+* starts exercizing the ormma.resize methods
+*
+* @see ORMMAReady
 * @requires ormma
 */
 function confirmShow() {
-	try {
-		ormma.removeEventListener('stateChange', confirmShow);
-		logit('ad is showing');
-	} catch (e) {logit('ORMMA not found');}
-	var oEl = document.getElementById('banner');
-	oEl.style.display = 'block';
-}
-
-/**
-* ORMMAReady called by the SDK, initializes the ad
-* register event listeners and initialize the ad
-*
-* @requires ormma
-*
-*/
-function ORMMAReady(evt) {
-	clearTimeout(ormmaWaitId);
-	var myState = ormma.getState();
+	ormma.removeEventListener('stateChange', confirmShow);
+	logit('ad is no longer hidden');
 	
-	ormma.addEventListener('error', reportEvent);
-	ormma.addEventListener('response', reportEvent); /* confirm this is level1 */
-	ormma.addEventListener('sizeChange', reportEvent);
-	ormma.addEventListener('stateChange', reportEvent);
+	testOrmmaResize();
 
-	if (myState !== 'hidden') {
-		ormma.addEventListener('stateChange', confirmShow);
-		ormma.show();
-	}
 }
 
 /**
-* triggered by resizeChange from confirmResizeToMaxSize call,
-*  clean-up on expand, show/hide the ad creative elements,
-*  discovers if there is support for the native tilt functionality
+* called by expand, calls the ormma.expand method
 * 
-* @see confirmResizeToMaxSize
+* @see expand
 * @requires ormma
+* @returns {Boolean} false - so click event can stop propogating
 */
-function confirmExpand() {
-	logit('ad is expanded');
-	try {
-		ormma.removeEventListener('stateChange', confirmExpand);
-	} catch (e) {
-		logit("ORMMA not found for confirmExpand");
-	}
-	var oEl = document.getElementById('panel');
-	oEl.style.display = 'block';
-	oEl = document.getElementById('banner');
-	oEl.style.display = 'none';
-	
-	if (typeof(ormma)!=='undefined' && ormma.supports('tilt')) {
-		logit('ad supports tilt');
-	} else {
-		logit('ad does not support tilt or ORMMA not found');
-	}
-}
+function ormmaExpand() {
+	if (!window.ormmaAvial) return (false);	
 
-/**
-* triggered by resizeChange event from confirmResizeToSameSize call,
-*   clean-up on resize, then attempts to expand the ad
-*
-* @see confirmResizeToSameSize
-* @requires ormma
-*/
-function confirmResizeToMaxSize() {
-	logit('ad is max sized');
-	ormma.removeEventListener('resizeChange', confirmResizeToMaxSize);
 	var props = ormma.getExpandProperties();
 	ormma.setExpandProperties(props);
-	ormma.addEventListener('stateChange', confirmExpand);
-	ormma.expand({'top' : 0, 'left' : 0, 'bottom' : 100, 'right' : 100}, {'top' : 0, 'left' : 0, 'bottom' : 300, 'right' : 300});
-}
-
-/** 
-* triggered by resizeChange event from resizeAd call, 
-*  clean-up on resize, then attempts to resize to max size
-*
-* @see resizeAd
-* @requires ormma
-*/
-function confirmResizeToSameSize() {
-	logit('ad is resized');
 	
-	try {
-		ormma.removeEventListener('resizeChange', confirmResizeToSameSize);
-		var props = ormma.getMaxSize();
-		ormma.setResizeProperties(props);
-		ormma.addEventListener('resizeChange', confirmResizeToMaxSize);
-		ormma.resize(250, 300);
-	} catch (e) {
-		logit("ORMMA not found for confirmResizeToSameSize");
-		confirmExpand();
-	}
-}
-
-/**
-* triggered by user interaction, attempts to resize ad to same size
-*
-* @returns {Boolean} false - so click event can stop propogating
-* @requires ormma
-*/
-function resizeAd() {
-	try {
-		var props = ormma.getResizeProperties();
-		ormma.setResizeProperties(props);
-		ormma.addEventListener('resizeChange', confirmResizeToSameSize);
-		ormma.resize(props);
-	} catch (e) {
-		logit("ORMMA not found for resizeAd");
-		confirmResizeToSameSize();
-	}
+	ormma.addEventListener('stateChange', function () {
+		logit('ad is expanded');
+		ormma.removeEventListener('stateChange');
+	});
+	ormma.expand({'top' : 0, 'left' : 0, 'bottom' : 100, 'right' : 100}, 
+				 {'top' : 0, 'left' : 0, 'bottom' : 300, 'right' : 300});
 	return (false);
 }
 
 /**
-* triggered by response event from sendOrmmaRequest call, tries to embed the data into the ad
-* 
-* @param {Event} evt The event
-* @requires ormma
-*/
-function receiveResponse(evt) {
-	logit('response received');
-	ormma.removeEventListener('response', receiveResponse);
-	var data = evt.data;
-	var ajaxResponse = data.split(',')[1];
-	document.getElementById('ajax').innerHTML = ajaxResponse;
-}
-
-
-/**
-* triggered by user interaction, tries to view new url in internal viewer
-* 
-* @param {String} href The URL to request
-* @returns {Boolean} false response from ormma.request so click event can be cancelled
-* @requires ormma
-*/
-function sendOrmmaRequest(href) {
-	try {
-		ormma.addEventListener('response', receiveResponse);
-		ormma.request('http://ajax.com/', 'proxy');
-		return ormma.request(href, 'internal');
-	} catch (e) {
-		logit ("ORMMA not found for sendOrmmaRequest");
-		return (true);
-	}
-}
-
-/**
-* triggered by stateChange event from hideBanner call
-*   does some clean-up
-* 
-* @requires ormma
-*/
-function confirmHide() {
-	logit('ad is hidden');
-	try {
-		ormma.removeEventListener('stateChange', confirmHide);
-	} catch (e) {
-		logit("ORMMA not found for confirmHide");
-	}
-	var oEl = document.getElementById('banner');
-	oEl.style.display = 'none';
-	oEl = document.getElementById('closebanner');
-	oEl.style.display = 'none';
-}
-
-/**
-* triggered by user interaction, attempts to hide the ad
+* called by collapse, calls the ormma.close method
 *
-* @returns {Boolean} false - so event can be cancelled
+* @see collapse
 * @requires ormma
+* @returns {Boolean} false - so click event can stop propogating
 */
-function hideBanner() {
-	try {
-		ormma.addEventListener('stateChange', confirmHide);
-		ormma.hide();
-	} catch (e) {
-		logit("ormma not defined for hideBanner");
-		confirmHide();
-	}
-	return(false);
+function ormmaClose() {
+	if (!window.ormmaAvial) return (false);	
+
+	ormma.addEventListener('stateChange', function () {
+		logit('ad is no longer expanded');
+		ormma.removeEventListener('stateChange');
+	});
+	ormma.close();
+	return (false);
 }
 
 /**
-* triggered by stateChange event from collapse call,
-*   does some clean up and then shows/hides the banner/panel
+* called by hide, calls the ormma.hide method
+* 
+* @see hide
+* @requires ormma
+* @returns {Boolean} false - so click event can stop propogating
+*/
+function ormmaHide() {
+
+	if (!window.ormmaAvail) return (false);
+
+	ormma.addEventListener('stateChange', function () {
+		logit('ad is hidden');
+		ormma.removeEventListener('stateChange');	
+	});
+	ormma.hide();
+	return (false);
+}
+
+/**
+* called by open, calls the ormma.open method
+*
+* @see open 
+* @requires ormma
+* @returns {Boolean} false - so click event can stop propogating
+*/
+function ormmaOpen(url) {
+	if (!window.ormmaAvail) return (true);
+	
+	ormma.open(url);
+	return (false);
+}
+
+
+/*
+================================
+PRIMARY ENTRY POINT: ORMMA READY
+================================
+*/
+
+
+/**
+* ORMMAReady called by the SDK, initializes the ORMMA
+*  event listeners and exercises other level1 properties
+*  Sets global 'ormmaAvail' to true
 *
 * @requires ormma
+*
 */
-function confirmCollapse() {
-	logit('ad is no longer expanded');
-	try {
-		ormma.removeEventListener('stateChange', confirmCollapse);
-	} catch (e) {
-		logit("ORMMA not found for confirmCollapse");
+window.ormmaAvail = false;
+function ORMMAReady(evt) {
+	//clear any timers that have been waiting for ORMMA
+	window.clearTimeout(window.ormmaWaitId);
+	window.ormmaAvail = true;
+
+	//show ormma confirmation to user
+	document.getElementById('ormma').style.display = 'block';
+	logit('ORMMA found');
+
+	//register the event listeners
+	ormma.addEventListener('error', reportEvent);
+	ormma.addEventListener('sizeChange', reportEvent);
+	ormma.addEventListener('stateChange', reportEvent);
+
+	//load all the level1 properties - some are unused in this example
+	var screenSize = ormma.getSize(),
+	    maxAdSize = ormma.getMaxSize(),
+		myState = ormma.getState(),
+		myPosition = ormma.getDefaultPosition(),
+		expandProps = ormma.getExpandProperties(),
+		resizeProps = ormma.getResizeProperties(),
+		supportsTilt = ormma.supports('tilt');
+
+	//show the ad if originally loaded by developer as hidden
+	if (myState === 'hidden') {
+		ormma.addEventListener('stateChange', confirmShow);
+		ormma.show(); //side-effect will exercise ormma.resize methods
 	}
 	
+	//identify is ormma container supports tilt
+	if (supportsTilt) {
+		logit('ad supports tilt');
+	}
+}
+
+
+/*
+=============================================
+BASIC JAVASCRIPT METHODS FOR USER INTERACTION
+=============================================
+*/
+
+/**
+* triggered by user interaction, expands banner ad to panel
+* attempts to call ormma.expand
+*
+* @returns {Boolean} false - so click event can stop propogating
+*/
+function expand() {
+	var oEl = document.getElementById('panel');
+	oEl.style.display = 'block';
+	oEl = document.getElementById('banner');
+	oEl.style.display = 'none';
+	
+	return (ormmaExpand());	
+}
+
+
+/**
+* triggered by user interaction to close panel ad back to banner
+* attempts to call ormma.close
+*
+* @returns {Boolean} false - so click event can stop propogating
+*/
+function collapse() {
 	var oEl = document.getElementById('panel');
 	oEl.style.display = 'none';
 	oEl = document.getElementById('banner');
 	oEl.style.display = 'block';
 	oEl = document.getElementById('closebanner');
 	oEl.style.display = 'block';
+
+	return (ormmaClose());
 }
 
 /**
-* triggered by user interaction to close expanded add, attempts
-*   to close the ad in-app
+* triggered by user interaction, to hide the baner completely
+* attempts to call ormma.close
 *
-* @requires ormma
+* @returns {Boolean} false - so click event can stop propogating
 */
-function collapse() {
-	try {
-		ormma.addEventListener('stateChange', confirmCollapse);
-		ormma.close();
-	} catch (e) {
-		logit("ORMMA not found for collapse");
-		confirmCollapse();
-	}
+function hide() {
+	var oEl = document.getElementById('banner');
+	oEl.style.display = 'none';
+	oEl = document.getElementById('closebanner');
+	oEl.style.display = 'none';
+
+	return (ormmaHide());
 }
 
-ormmaWaitId = setTimeout(confirmShow,2000);
+/**
+* triggered by user interaction, to follow link
+* attempts to call ormma.open
+*
+* @returns {Boolean} true to follow link, 
+                     false that ORMMA already followed link
+*/
+function open(url) {
+	return (ormmaOpen(url));
+}
+
+
+/*
+==========================================
+TIMER TO WAIT FOR ORMMA-SDK INITIALIZATION
+==========================================
+*/
+window.ormmaWaitId = window.setTimeout(ORMMANotFound, 2000);
