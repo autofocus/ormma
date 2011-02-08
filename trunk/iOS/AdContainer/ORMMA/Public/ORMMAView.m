@@ -180,6 +180,9 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	m_javascriptBridge = [[ORMMAJavascriptBridge alloc] init];
 	m_javascriptBridge.bridgeDelegate = self;
 	
+	// set our modality
+	m_modalityCounter = 0;
+	
 	// it's up to the client to set any resizing policy for this container
 	
 	// make sure our default background color is transparent,
@@ -501,6 +504,13 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	{
 		[self closeAd:m_webView];
 	}
+	if ( m_modalityCounter > 0 )
+	{
+		// force ourselves to resume the app if we're still suspended
+		m_modalityCounter = 1;
+		[self fireAppShouldResume];
+	}
+	m_modalityCounter = 0;
 }
 
 
@@ -637,6 +647,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		// step 13: fire the application did close delegate call
 		//
 		// Now, let's get started
+		[self fireAppShouldResume];
 		
 		// step 1: start a new animation, and change our frame
 		// step 2: change our frame to the stored translated frame
@@ -735,6 +746,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	 
 	// step 1: fire the application will expand delegate call
 	[self fireAdWillExpandToFrame:endingFrame];
+	[self fireAppShouldSuspend];
 
 	// step 2: get a handle to the key window
 	UIApplication *app = [UIApplication sharedApplication];
@@ -1565,20 +1577,34 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 - (void)fireAppShouldSuspend
 {
-	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(appShouldSuspendForAd:)] ) )
+	m_modalityCounter++;
+	NSLog( @"Suspend Called, Counter at: %i", m_modalityCounter );
+	if ( m_modalityCounter == 1 )
 	{
-		[self.ormmaDelegate appShouldSuspendForAd:self];
+		// notify app on the first call
+		NSLog( @"Created first modal view; app should suspend." );
+		if ( ( self.ormmaDelegate != nil ) && 
+			( [self.ormmaDelegate respondsToSelector:@selector(appShouldSuspendForAd:)] ) )
+		{
+			[self.ormmaDelegate appShouldSuspendForAd:self];
+		}
 	}
 }
 
 
 - (void)fireAppShouldResume
 {
-	if ( ( self.ormmaDelegate != nil ) && 
-		( [self.ormmaDelegate respondsToSelector:@selector(appShouldResumeFromAd:)] ) )
+	m_modalityCounter--;
+	NSLog( @"Resume Called, Counter at: %i", m_modalityCounter );
+	if ( m_modalityCounter == 0 )
 	{
-		[self.ormmaDelegate appShouldResumeFromAd:self];
+		// notify app when we remove the last
+		NSLog( @"Removed last modal view; safe to resume." );
+		if ( ( self.ormmaDelegate != nil ) && 
+			( [self.ormmaDelegate respondsToSelector:@selector(appShouldResumeFromAd:)] ) )
+		{
+			[self.ormmaDelegate appShouldResumeFromAd:self];
+		}
 	}
 }
 
