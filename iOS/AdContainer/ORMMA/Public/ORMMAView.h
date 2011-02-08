@@ -68,6 +68,8 @@ typedef enum ORMMAViewStateEnum
 	NSURL *m_launchURL;
 	BOOL m_loadingAd;
 	
+	NSInteger m_modalityCounter;
+	
 	NSMutableArray *m_externalProtocols;
 }
 @property( nonatomic, assign ) id<ORMMAViewDelegate> ormmaDelegate;
