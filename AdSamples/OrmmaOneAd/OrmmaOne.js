@@ -111,7 +111,7 @@ function confirmShow() {
 * @returns {Boolean} false - so click event can stop propogating
 */
 function ormmaExpand() {
-	if (!window.ormmaAvial) return (false);	
+	if (!window.ormmaAvail) return (false);	
 
 	var props = ormma.getExpandProperties();
 	ormma.setExpandProperties(props);
@@ -133,7 +133,7 @@ function ormmaExpand() {
 * @returns {Boolean} false - so click event can stop propogating
 */
 function ormmaClose() {
-	if (!window.ormmaAvial) return (false);	
+	if (!window.ormmaAvail) return (false);	
 
 	ormma.addEventListener('stateChange', function () {
 		logit('ad is no longer expanded');
