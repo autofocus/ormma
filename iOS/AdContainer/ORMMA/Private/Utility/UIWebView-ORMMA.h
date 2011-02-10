@@ -10,6 +10,7 @@
 
 @interface UIWebView (ORMMA)
 
-- (void)disableBounces;
+- (void)disableBouncesAndScrolling;
+
 
 @end

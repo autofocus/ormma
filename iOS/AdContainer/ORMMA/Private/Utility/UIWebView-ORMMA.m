@@ -10,13 +10,15 @@
 
 @implementation UIWebView (ORMMA)
 
-- (void)disableBounces
+- (void)disableBouncesAndScrolling
 {
-	for (id subview in self.subviews)
+	for ( id subview in self.subviews )
 	{
-		if ([[subview class] isSubclassOfClass: [UIScrollView class]])
+		if ( [[subview class] isSubclassOfClass:[UIScrollView class]] )
 		{
-			((UIScrollView *)subview).bounces = NO;
+			UIScrollView *sv = (UIScrollView *)subview;
+			sv.scrollEnabled = NO;
+			sv.bounces = NO;
 		}
 	}
 }

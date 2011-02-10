@@ -197,7 +197,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 									  self.frame.size.width, 
 									  self.frame.size.height );
 	m_webView = [[UIWebView alloc] initWithFrame:webViewFrame];
-	[m_webView disableBounces];
+	[m_webView disableBouncesAndScrolling];
 	
 	// make sure the webview will expand/contract as needed
 	m_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | 
@@ -417,7 +417,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 {
 	// we've finished loading the URL
 	[self injectJavaScriptIntoWebView:webView];
-	[m_webView disableBounces];
+	[m_webView disableBouncesAndScrolling];
 	m_loadingAd = NO;
 }
 
@@ -1205,7 +1205,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 		NSURLRequest *request = [NSURLRequest requestWithURL:url];
 		m_loadingAd = YES;
 		[m_webView loadRequest:request];
-		[m_webView disableBounces];
+		[m_webView disableBouncesAndScrolling];
 	}
 }
 
