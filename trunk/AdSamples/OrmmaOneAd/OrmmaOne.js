@@ -33,10 +33,7 @@ function logit(msg) {
 * @param {Event} evt event to get information on
 */
 function reportEvent(evt) {
-	var msg = 'Event fired: ' + evt.type;
-	if (evt.data) {
-		msg = msg + ':' + evt.data;
-	}
+	var msg = 'Event fired: ' + evt;
 	logit(msg);
 }
 
@@ -113,15 +110,15 @@ function confirmShow() {
 function ormmaExpand() {
 	if (!window.ormmaAvail) return (false);	
 
-	var props = ormma.getExpandProperties();
+	var props = ormma.getExpandProperties(),
+		pos = ormma.getDefaultPosition();
+		
 	ormma.setExpandProperties(props);
-	
 	ormma.addEventListener('stateChange', function () {
 		logit('ad is expanded');
 		ormma.removeEventListener('stateChange');
 	});
-	ormma.expand({'top' : 0, 'left' : 0, 'bottom' : 100, 'right' : 100}, 
-				 {'top' : 0, 'left' : 0, 'bottom' : 300, 'right' : 300});
+	ormma.expand({'x' : pos.x, 'y' : pos.y, 'width' : 300, 'height' : 300}, null);
 	return (false);
 }
 
