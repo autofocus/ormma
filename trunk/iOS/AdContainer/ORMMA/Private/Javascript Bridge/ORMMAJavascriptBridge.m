@@ -593,6 +593,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 											 withTitle:title
 											  withBody:body];
 	}
+	[formatter release];
 	return YES;
 }
 
