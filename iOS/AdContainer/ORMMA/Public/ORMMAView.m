@@ -65,7 +65,8 @@
 - (void)fireAppShouldResume;
 
 
--(void)verifyAppStoreLaunchWithURL:(NSURL*)url;
+-(void)verifyExternalLaunchWithTitle:(NSString *)title
+								 URL:(NSURL*)url;
 
 @end
 
@@ -307,7 +308,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		 ( [fullUrl rangeOfString:@"://phobos.apple.com/"].length > 0 ) )
 	{
 		NSLog( @"Treating URL %@ as call to app store", request.URL );
-		[self verifyAppStoreLaunchWithURL:request.URL];
+		[self verifyExternalLaunchWithTitle:@"Launch AppStore"
+										URL:request.URL];
 		return NO;
 	}
 	
@@ -357,8 +359,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		if ( [@"maps.google.com" isEqualToString:url.host] )
 		{
 			// handle google maps
-			UIApplication *app = [UIApplication sharedApplication];
-			[app openURL:url];
+			[self verifyExternalLaunchWithTitle:@"Launch Maps"
+											URL:request.URL];
 			return NO;
 		}
 	}
@@ -1683,13 +1685,14 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 
 #pragma mark -
-#pragma mark Launch App Store
+#pragma mark Launch External Locations
 
--(void)verifyAppStoreLaunchWithURL:(NSURL*)url 
+-(void)verifyExternalLaunchWithTitle:(NSString *)title
+								 URL:(NSURL*)url 
 {
 	self.launchURL = url;
 	
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Launch AppStore" 
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title 
 													message:@"Application will exit.\nDo you wish to continue?"
 												   delegate:self 
 										  cancelButtonTitle:@"Cancel" 
@@ -1699,7 +1702,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 }
 
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void)alertView:(UIAlertView *)alertView 
+clickedButtonAtIndex:(NSInteger)buttonIndex
 {
 	if ( buttonIndex != alertView.cancelButtonIndex )
 	{
@@ -1708,7 +1712,6 @@ blockingOpacity:(CGFloat)blockingOpacity
 	
 	self.launchURL = nil;
 }
-
 
 
 
