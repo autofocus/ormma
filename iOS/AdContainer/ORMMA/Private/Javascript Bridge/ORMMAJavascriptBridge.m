@@ -138,7 +138,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 		// check for the availability of Core Motion
 		if ( NSClassFromString( @"CMMotionManager" ) != nil )
 		{
-			self.motionManager = [[CMMotionManager alloc] init];
+			self.motionManager = [[[CMMotionManager alloc] init] autorelease];
 		}
 		
 		// setup our network reachability
