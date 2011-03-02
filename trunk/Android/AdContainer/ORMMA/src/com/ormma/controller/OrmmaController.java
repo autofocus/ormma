@@ -1,3 +1,6 @@
+/**
+ * @author jsodos
+ */
 package com.ormma.controller;
 
 import java.lang.reflect.Field;
@@ -14,10 +17,18 @@ import com.ormma.controller.util.NavigationStringEnum;
 import com.ormma.controller.util.TransitionStringEnum;
 import com.ormma.view.OrmmaView;
 
-public class OrmmaController {
+/**
+ * Abstract class fort all controller objects
+ * Controller objects implent pieces of the java/javascript interface
+ */
+public abstract class OrmmaController {
 
+	//view it is attached to
 	protected OrmmaView mOrmmaView;
+	//context it is in
+	protected Context mContext;
 
+	//class types for converting JSON
 	private static final String STRING_TYPE = "class java.lang.String";
 	private static final String INT_TYPE = "int";
 	private static final String BOOLEAN_TYPE = "boolean";
@@ -25,10 +36,15 @@ public class OrmmaController {
 	private static final String NAVIGATION_TYPE = "class com.ormma.NavigationStringEnum";
 	private static final String TRANSITION_TYPE = "class com.ormma.TransitionStringEnum";
 
-	protected Context mContext;
 
+	/**
+	 * The Class Dimensions.  Holds dimensions coming from javascript
+	 */
 	public static class Dimensions extends ReflectedParcelable {
 
+		/**
+		 * Instantiates a new dimensions.
+		 */
 		public Dimensions() {
 			x = -1;
 			y = -1;
@@ -36,6 +52,9 @@ public class OrmmaController {
 			height = -1;
 		};
 
+		/**
+		 * The Constant CREATOR.
+		 */
 		public static final Parcelable.Creator<Dimensions> CREATOR = new Parcelable.Creator<Dimensions>() {
 			public Dimensions createFromParcel(Parcel in) {
 				return new Dimensions(in);
@@ -46,29 +65,49 @@ public class OrmmaController {
 			}
 		};
 
+		/**
+		 * Instantiates a new dimensions from a parcel.
+		 *
+		 * @param in the in
+		 */
 		protected Dimensions(Parcel in) {
 			super(in);
-			// TODO Auto-generated constructor stub
 		}
 
+		/**
+		 * The dimenstion values
+		 */
 		public int x, y, width, height;
 
 	}
 
+	/**
+	 * The Class Properties for holding properties coming from javascript
+	 */
 	public static class Properties extends ReflectedParcelable {
+		
+		/**
+		 * Instantiates a new properties from a parcel
+		 *
+		 * @param in the in
+		 */
 		protected Properties(Parcel in) {
 			super(in);
 		}
 
+		/**
+		 * Instantiates a new properties.
+		 */
 		public Properties() {
-			transition = TransitionStringEnum.DEFAULT;
-			navigation = NavigationStringEnum.NONE;
-			use_background = false;
-			background_color = 0;
-			background_opacity = 0;
-			is_modal = true;
+			useBackground = false;
+			backgroundColor = 0;
+			backgroundOpacity = 0;
+			isModal = true;
 		};
 
+		/**
+		 * The Constant CREATOR.
+		 */
 		public static final Parcelable.Creator<Properties> CREATOR = new Parcelable.Creator<Properties>() {
 			public Properties createFromParcel(Parcel in) {
 				return new Properties(in);
@@ -78,19 +117,36 @@ public class OrmmaController {
 				return new Properties[size];
 			}
 		};
-		public TransitionStringEnum transition;
-		public NavigationStringEnum navigation;
-		public boolean use_background;
-		public int background_color;
-		public float background_opacity;
-		public boolean is_modal;
+		
+		//property values
+		public boolean useBackground;
+		public int backgroundColor;
+		public float backgroundOpacity;
+		public boolean isModal;
 	}
 
+	/**
+	 * Instantiates a new ormma controller.
+	 *
+	 * @param adView the ad view
+	 * @param context the context
+	 */
 	public OrmmaController(OrmmaView adView, Context context) {
 		mOrmmaView = adView;
 		mContext = context;
 	}
 
+	/**
+	 * Constructs an object from json via reflection
+	 *
+	 * @param json the json
+	 * @param c the class to convert into
+	 * @return the instance constructed
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws InstantiationException the instantiation exception
+	 * @throws NumberFormatException the number format exception
+	 * @throws NullPointerException the null pointer exception
+	 */
 	protected static Object getFromJSON(JSONObject json, Class<?> c) throws IllegalAccessException,
 			InstantiationException, NumberFormatException, NullPointerException {
 		Field[] fields = null;
@@ -109,7 +165,7 @@ public class OrmmaController {
 					value = json.getString(JSONName);
 					int iVal;
 					if (value.startsWith("#")) {
-						iVal = Integer.parseInt(value.substring(2), 16);
+						iVal = Integer.parseInt(value.substring(1), 16);
 					} else
 						iVal = Integer.parseInt(value);
 
@@ -139,17 +195,31 @@ public class OrmmaController {
 		return obj;
 	}
 
+	/**
+	 * The Class ReflectedParcelable.
+	 */
 	public static class ReflectedParcelable implements Parcelable {
 
+		/**
+		 * Instantiates a new reflected parcelable.
+		 */
 		public ReflectedParcelable() {
 
 		}
 
+		/* (non-Javadoc)
+		 * @see android.os.Parcelable#describeContents()
+		 */
 		@Override
 		public int describeContents() {
 			return 0;
 		}
 
+		/**
+		 * Instantiates a new reflected parcelable.
+		 *
+		 * @param in the in
+		 */
 		protected ReflectedParcelable(Parcel in) {
 			Field[] fields = null;
 			Class<?> c = this.getClass();
@@ -182,6 +252,9 @@ public class OrmmaController {
 
 		}
 
+		/* (non-Javadoc)
+		 * @see android.os.Parcelable#writeToParcel(android.os.Parcel, int)
+		 */
 		@Override
 		public void writeToParcel(Parcel out, int flags) {
 			Field[] fields = null;
@@ -211,5 +284,10 @@ public class OrmmaController {
 
 		}
 	}
+
+	/**
+	 * Stop all listeners.
+	 */
+	public abstract void stopAllListeners();
 
 }

@@ -12,6 +12,7 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <folder path="/ORMMA/js"/>
+        <folder path="/ORMMA/bitmaps"/>
         <javaElement handleIdentifier="=ORMMA/src"/>
     </selectedElements>
 </jardesc>
