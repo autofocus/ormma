@@ -1,0 +1,297 @@
+<!-- Define our styles -->
+<style>
+
+   #sms {
+      position:absolute;
+      left:25px;
+      top:20px;
+   }
+
+
+   #event {
+      position:absolute;
+      left:85px;
+      top:20px;
+   }
+
+   #mail {
+      position:absolute;
+      left:145px;
+      top:20px;
+   }
+
+   #call {
+      position:absolute;
+      left:205px;
+      top:20px;
+   }
+
+
+   #data {
+      position:absolute; 
+      left:20px; 
+      top:60px;
+      color:green;
+   }
+
+   img { 
+      border:none 
+   }
+   
+   #ad {
+		margin:0px;
+		position:absolute; 
+		left:0px; 
+		top:0px;
+		}
+</style>
+
+
+<!-- Setup our Javascript -->
+<script language="javascript">
+
+
+   /**
+    * Primary entry point, fires when Ormma is ready.
+    * 
+    * Sets up an error event handler and populates initial screen data
+    *
+    * @requires Ormma
+    */
+   function ORMMAReady(){
+		Ormma.addEventListener( 'error', handleErrorEvent );
+		updateData();
+  		
+   }
+
+
+   /**
+    * Handles ORMMA errors.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+   function handleErrorEvent( evt ) {
+      var err = eval('(' + evt.data + ')');
+      var msg = "ORMMA ERROR ";
+      
+        
+	  if ( err.action != null ) {
+	     // error caused by an action	
+	     msg += "caused by action '" + err.action + "', ";
+      }
+      msg += "Message: " + err.message;
+		alert(msg);
+   }
+
+
+
+   	/**
+    * Handles tilt(accelerometer) changes.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+   	function handleTiltChangeEvent( evt ) {
+      	var tiltData = eval('(' + evt.data + ')');
+      	var tilt = document.getElementById( 'tilt' );
+	    tilt.innerHTML = buildTiltText(tiltData);	      
+   	}
+
+   	/**
+    * Handles shake events.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+   	function handleShakeEvent( evt ) {
+		alert("shook!");
+   	}
+
+   	/**
+    * Handles orientaion changes.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+	function handleOrientationEvent( evt ) {
+		var orient = document.getElementById( 'orientation' );
+		orient.innerHTML = evt.data;	
+	}
+	
+   	/**
+    * Handles network state changes.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+	function handleNetworkEvent( evt ) {
+		var orient = document.getElementById( 'networkstate' );
+		orient.innerHTML = evt.data;	
+	}
+
+   	/**
+    * Handles heading changes.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+	function handleHeadingEvent( evt ) {
+		var orient = document.getElementById( 'heading' );
+		orient.innerHTML = evt.data;	
+	}
+
+   	/**
+    * Handles location changes.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+
+	function handleLocEvent( evt ) {
+		var loc = document.getElementById( 'loc' );
+		loc.innerHTML = buildLocText(Ormma.getLocation());	
+	}
+
+
+ 	/**
+    * Sends an SMS message
+    *
+    * @requires Ormma
+    */
+	function sendSMS() {
+		Ormma.sendSMS("4047885733","ORMMA");
+	}
+
+ 	/**
+    * creates a calendar event
+    *
+    * @requires Ormma
+    */
+   	function sendEvent() {
+		Ormma.createEvent(new Date(),"title","body");
+   	}
+
+	/**
+    * Makes a phone call
+    *
+    * @requires Ormma
+    */
+    function sendCall() {
+		Ormma.makeCall("4047885733");
+   	}
+
+	/**
+    * Sends an email message
+    *
+    * @requires Ormma
+    */
+    function sendMail() {
+		Ormma.sendMail("jon.sodos@gmail.com", "ormma", "test");
+   	}
+
+	/**
+    * Sets all the fields to initial values
+    *
+    * @requires Ormma
+    */
+	function updateData() {
+		var state = document.getElementById( 'networkstate' );
+		state.innerHTML = Ormma.getNetwork();	
+		var orient = document.getElementById( 'orientation' );
+		orient.innerHTML = Ormma.getOrientation();	
+		var tilt = document.getElementById( 'tilt' );
+		tilt.innerHTML = buildTiltText(Ormma.getTilt());	
+		var heading = document.getElementById( 'heading' );
+		heading.innerHTML = Ormma.getHeading();	
+		var loc = document.getElementById( 'loc' );
+		loc.innerHTML = buildLocText(Ormma.getLocation());	
+	}
+
+	/**
+    * Helper function to format x,y,z from tilt events
+    *
+    * @param {data} values from accelerometers
+    *
+    * @requires Ormma
+    */
+   function buildTiltText( data ) {
+      var text = "[ ";
+      text += data.x;
+      text += ", ";
+      text += data.y;
+      text += ", ";
+      text += data.z;
+      text += " ]";
+      return text;
+   	}
+	/**
+    * Helper function to format lat, long from location events
+    *
+    * @param {data} values from LBS
+    *
+    * @requires Ormma
+    */
+	function buildLocText( data ) {
+		var text = "[ ";
+		text += data.lat;
+		text += ", ";
+		text += data.long;
+		text += " ]";
+		return text;
+	}
+
+
+</script>
+
+<!-- The actual creative -->
+
+<div id='ad'>
+   <!-- The standard banner ad state (default state) -->
+ 	<img src="http://10.0.2.2/images/300x250-solid.png"/>
+   
+   	  <div id='call'>
+      	<img src="http://10.0.2.2/images/call.png"
+      		onclick="sendCall();" />
+      </div>
+      <div id='event'>
+         <img src="http://10.0.2.2/images/event.png"
+              onclick="sendEvent();" />
+      </div>
+      <div id='mail'>
+         <img src="http://10.0.2.2/images/mail.png"
+              onclick="sendMail();" />
+      </div>
+      <div id='sms'>
+         <img src="http://10.0.2.2/images/sms.png"
+              onclick="sendSms();" />
+      </div>
+      <div id='data'>
+        Network: <span id='networkstate'>STATE</span><br>
+        Orientation: <span id='orientation'>ORIENTATION</span><br>
+        Tilt: <span id='tilt'>TILT</span><br>
+        Heading: <span id='heading'>HEADING</span><br>
+        Loc: <span id='loc'>Loc</span><br>
+        <form name="controller">
+			<INPUT TYPE="button" NAME="startTilt" Value="StartTilt" onClick="Ormma.addEventListener( 'tiltChange', handleTiltChangeEvent )">
+			<INPUT TYPE="button" NAME="stopTilt" Value="StopTilt" onClick="Ormma.removeEventListener( 'tiltChange', handleTiltChangeEvent )">
+			<INPUT TYPE="button" NAME="startTilt" Value="StartShake" onClick="Ormma.addEventListener( 'shake', handleShakeEvent )">
+			<INPUT TYPE="button" NAME="stopTilt" Value="StopShake" onClick="Ormma.removeEventListener( 'shake', handleShakeEvent )">
+			<INPUT TYPE="button" NAME="startOrient" Value="StartOrient" onClick="Ormma.addEventListener( 'orientationChange', handleOrientationEvent )">
+			<INPUT TYPE="button" NAME="stopOrient" Value="StopOrient" onClick="Ormma.removeEventListener( 'orientationChange', handleOrientationEvent )">
+			<INPUT TYPE="button" NAME="startHeading" Value="StartHeading" onClick="Ormma.addEventListener( 'headingChange', handleHeadingEvent )">
+			<INPUT TYPE="button" NAME="stopHeading" Value="StopHeading" onClick="Ormma.removeEventListener( 'headingChange', handleHeadingEvent )">
+			<INPUT TYPE="button" NAME="startLoc" Value="StartLoc" onClick="Ormma.addEventListener( 'locationChange', handleLocEvent )">
+			<INPUT TYPE="button" NAME="stopLoc" Value="StopLoc" onClick="Ormma.removeEventListener( 'locationChange', handleLocEvent )">
+			<INPUT TYPE="button" NAME="startNet" Value="StartNet" onClick="Ormma.addEventListener( 'networkChange', handleNetworkEvent )">
+			<INPUT TYPE="button" NAME="stopNet" Value="StopNet" onClick="Ormma.removeEventListener( 'networkChange', handleNetworkEvent )">
+		</form> 
+      </div>
+</div>

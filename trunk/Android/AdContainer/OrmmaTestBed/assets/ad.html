@@ -1,6 +1,6 @@
 <html>
 <head>
-
+<script type="text/javascript" src="..\..\ORMMA\js\OrmmaAdController.js"></script>
 <script type="text/javascript">
 function gotAccel(x,y,z)
 {
@@ -13,30 +13,35 @@ function resize(form)
 
 
 //	var dimens = {"top": form.top.value,"left":form.left.value,"bottom":form.bottom.value,"right":form.right.value};
-	var dimens = {"top": 150,"left":150,"bottom":200,"right":200};
+//	var idimens = {"top": 50,"left":50,"bottom":100,"right":100};
+//	var fdimens = {"x": 150,"y":150,"width":300,"height":300};
 	
 	
-	var props = {"transition": "none",
+	
+	var props = {"transition": "dissolve",
 			"navigation":"none",
 			"use-background":false,
 			"background-color" : "#000000",
 			"background-opacity" : 1.0,
 			"is-modal" : true};
 
+	OrmmaAdController.resize(300,300);
+//	OrmmaAdController.set(fdimens,fdimens,"http://www.weather.com");
+//	OrmmaAdController.expand(fdimens,fdimens,"http://www.weather.com");
 	
 	//ORMMAControllerBridge.resize(JSON.stringify(dimens),JSON.stringify(props));
 
-	OrmmaAdController.addEventListener('assetReady', function(event,alias)  {
-        if (alias == 'xxx/newmap.jpg') {
-                var img = document.createElement('img');
-                img.src = alias;
-                document.body.appendChild(img);
-                OrmmaAdController.removeEventListener('assetReady', this);
-        }
-});
-	OrmmaAdController.addEventListener('locationChange', function(event,loc) { alert(loc.lat);});
+//	OrmmaAdController.addEventListener('assetReady', function(event,alias)  {
+//        if (alias == 'xxx/newmap.jpg') {
+//                var img = document.createElement('img');
+//                img.src = alias;
+//                document.body.appendChild(img);
+//                OrmmaAdController.removeEventListener('assetReady', this);
+//       }
+//});
+	
 
-	OrmmaAdController.addAsset("xxx/newmap.jpg","http://i.imwx.com/web/services/mobile/twci_logo.png");
+//	OrmmaAdController.addAsset("xxx/newmap.jpg","http://i.imwx.com/web/services/mobile/twci_logo.png");
 	//OrmmaAdController.addAsset("abc","http://i.imwx.com/web/services/mobile/twci_logo.png");
 //	OrmmaAdController.addAsset("../../abc","http://i.imwx.com/web/services/mobile/twci_logo.png");
 	
@@ -53,15 +58,23 @@ function resize(form)
 
 function closeAd(){
 //	OrmmaAdController.hide();
-	OrmmaAdController.removeAsset("/tmp/one.jpg");
+//	OrmmaAdController.removeAsset("/tmp/one.jpg");
+OrmmaAdController.close();
 }
 
 
 </script>
+<script type="text/javascript">
+function init()
+{
+OrmmaAdController.addEventListener('ready', function(event) { alert(event);});
+OrmmaAdController.addEventListener('error', function(event) { alert(event);});
+}
+</script>
 </head>
 
 
-<body>  
+<body onload="init()">  
 <a id="x">xxx</a>
 <form name="size">
 <INPUT TYPE="button" NAME="button" Value="Resize" onClick="resize(this.form)">
