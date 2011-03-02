@@ -3,7 +3,7 @@
       package="com.ormma.OrmmaTestBed"
       android:versionCode="1"
       android:versionName="1.0">
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true" >
         <activity android:name=".AdPrototype"
                   android:label="@string/app_name">
             <intent-filter>
@@ -11,6 +11,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity android:name="com.ormma.view.Browser" >
+        </activity>
+        
+        
 
     </application>
 
@@ -20,5 +25,9 @@
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+<uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
+<uses-permission android:name="android.permission.CALL_PHONE"></uses-permission>
+<uses-permission android:name="android.permission.WRITE_CALENDAR"></uses-permission>
+<uses-permission android:name="android.permission.READ_CALENDAR"></uses-permission>
 
 </manifest> 

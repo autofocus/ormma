@@ -1,0 +1,492 @@
+<!-- Define our styles -->
+<style>
+   #banner { 
+      position:absolute; 
+      left:0px; 
+      top:0px;
+      clip:rect( 0, 300, 50, 0 );       
+   }
+
+   #bannerdata {
+      position:absolute; 
+      left:75px; 
+      top:-2px;
+      color:green;
+   }
+
+
+   #browser {
+      position:absolute;
+      left:25px;
+      top:13px;
+   }
+
+
+   #larger {
+      position:absolute;
+      left:65px;
+      top:13px;
+   }
+
+   #expand {
+      position:absolute;
+      left:220px;
+      top:11px;
+   }
+
+   #hide {
+      position:absolute;
+      left:255px;
+      top:14px;
+   }
+
+   #resizedad { 
+      position:absolute; 
+      left:0px; 
+      top:0px;
+      right:300px;
+      bottom:250px;
+      clip:rect( 0, 300, 250, 0 ); 
+      display:none;
+   }
+
+   #resizedata {
+      position:absolute; 
+      left:15px; 
+      top:15px;
+      color:green;
+   }
+
+   #smaller {
+      position:absolute;
+      left:260px;
+      top:5px;
+   }
+
+   #expandedad { 
+      position:absolute; 
+      left:0px; 
+      top:0px;
+      right:300px;
+      bottom:250px;
+      clip:rect( 0, 300, 250, 0 ); 
+      display:none;
+   }
+
+   #expanddata {
+      position:absolute; 
+      left:15px; 
+      top:15px;
+      color:green;
+   }
+
+   #shrink {
+      position:absolute;
+      left:255px;
+      top:5px;
+   }
+
+   img { 
+      border:none 
+   }
+   
+   #ad {
+   		margin:0px
+   }
+</style>
+<!--script type="text/javascript" src="http://10.0.2.2/OrmmaAdController2.js"></script-->
+<!-- Setup our Javascript -->
+<script language="javascript">
+   // used to capture the value of resize events
+   var resizeText = "No Value";
+
+   function ORMMAReady(){
+	 Ormma.addEventListener( 'error', handleErrorEvent );
+	 Ormma.addEventListener( 'stateChange', handleStateChangeEvent );
+     Ormma.addEventListener( 'screenSizeChange', handleScreenSizeChangeEvent );
+     Ormma.addEventListener( 'keyboardChange', handleKeyboardChangeEvent );
+     updateToState(Ormma.getState());
+
+   }
+
+
+
+
+   /**
+    * Notifies the SDK that the creative wishes to be hidden.
+    *
+    * @requires Ormma
+    */
+
+   function hideAd() {
+	  if ( confirm( "You have selected the HIDE action. Once hidden, you will lose all interaction with the ad. Continue?" ) ) {
+		  Ormma.hide();
+	      // var evt = { data : 'hidden' };
+	      // handleStateChangeEvent( evt );
+      }
+   }
+
+
+   /**
+    * Notifies the SDK that the expanded ad wishes to return to the default state.
+    *
+    * @requires Ormma
+    */
+   function shrinkAd() {
+	  Ormma.close();
+      // var evt = { data : 'default' };
+      // handleStateChangeEvent( evt );
+   }
+
+
+   /**
+    * Notifies the SDK that the default ad wishes to move to the expanded state.
+    *
+    * @requires Ormma
+    */
+   function expandAd() {
+   	  Ormma.setExpandProperties({
+			"use-background":false,
+			"background-color" : "#FF0000",
+			"background-opacity" : .5,
+			"is-modal" : true});
+	  Ormma.expand( { height : 250 } );
+      // var evt = { data : 'expanded' };
+      // handleStateChangeEvent( evt );
+   }
+
+   /**
+    * Open www.weather.com in the browser.
+    *
+    * @requires Ormma
+    */
+   function openBrowser() {
+   	  Ormma.open("http://www.weather.com");
+   }
+
+   /**
+    * Notifies the SDK that the default ad wishes to be resized.
+    *
+    * @requires Ormma
+    */
+   function resizeLarger() {
+	  // add a special listener for size changes, to make sure it's firing
+      Ormma.addEventListener( 'sizeChange', handleSizeChangeEvent );
+
+	  Ormma.resize( 300, 250 );
+      // var evt = { data : 'resized' };
+      // handleStateChangeEvent( evt );
+   }
+
+
+   /**
+    * Notifies the SDK that the resized ad wishes to return to the default state.
+    *
+    * @requires Ormma
+    */
+   function resizeSmaller() {
+	  Ormma.close();
+      // var evt = { data : 'default' };
+      // handleStateChangeEvent( evt );
+   }
+
+
+   /**
+    * Handles ORMMA errors.
+    *
+    * @param {evt} Event, the error event
+    *
+    * @requires Ormma
+    */
+   function handleErrorEvent( evt ) {
+      var err = evt.data;
+      var msg = "ORMMA ERROR ";
+	  if ( err.action != null ) {
+	     // error caused by an action	
+	     msg += "caused by action '" + err.action + "', ";
+      }
+      msg += "Message: " + err.message;
+   }
+
+
+   /**
+    * Handles Screen Size Changed Events.
+    *
+    * @param {evt} Event, the screen size changed event
+    *
+    * @requires Ormma
+    */
+   function handleKeyboardChangeEvent( evt ) {
+	  var kbd = evt.data;
+      var msg = "Keyboard is now: ";
+      msg += ( kbd.open ) ? "OPEN" : "CLOSED";
+      alert( msg );
+   }
+
+
+
+
+
+   /**
+    * Handles Screen Size Changed Events.
+    *
+    * @param {evt} Event, the screen size changed event
+    *
+    * @requires Ormma
+    */
+   function handleScreenSizeChangeEvent( evt ) {
+      var msg = "Screen Size Changed to " + buildSizeText( evt.data );;
+      alert( msg );
+   }
+
+
+   /**
+    * Handles Size Changed Events.
+    *
+    * @param {evt} Event, the size changed event
+    *
+    * @requires Ormma
+    */
+   function handleSizeChangeEvent( evt ) {
+      var err = evt.data;
+      var msg = "ORMMA ERROR ";
+	  if ( err.action != null ) {
+	     // error caused by an action	
+	     msg += "caused by action '" + err.action + "', ";
+      }
+      msg += "Message: " + err.message;
+   }
+
+
+
+
+   /**
+    * Handles whenever the state changes.
+    *
+    * @requires Ormma
+    */
+   function handleStateChangeEvent( evt ) {
+		updateToState(evt.data);
+	}
+
+	function updateToState(newState) {
+      var banner = document.getElementById( 'banner' );
+      var resizedad = document.getElementById( 'resizedad' );
+      var expandedad = document.getElementById( 'expandedad' );
+	  if ( newState === 'default' ) {
+         // we're moving to the default state, ensure the standard
+         // ad is displayed	
+         banner.style.display = 'block';
+         resizedad.style.display = 'none';
+         expandedad.style.display = 'none';
+
+         // we only care about the size changed event if we're resizing
+         Ormma.removeEventListener( 'sizeChange', handleSizeChangeEvent );
+         resizeText = "No Value";
+
+         // now update the contents of the ad
+         updateDefaultAd();
+      }
+	  else if ( newState === 'expanded' ) {
+         // the ad has expanded, show the new content
+         banner.style.display = 'none';
+         resizedad.style.display = 'none';
+         expandedad.style.display = 'block';
+         updateExpandedAd();
+      }
+	  else if ( newState === 'resized' ) {
+         // the ad is hidden
+         banner.style.display = 'none';
+         resizedad.style.display = 'block';
+         expandedad.style.display = 'none';
+         updateResizedAd();
+      }
+	  else if ( newState === 'hidden' ) {
+         // the ad is hidden
+         banner.style.display = 'none';
+         resizedad.style.display = 'none';
+         expandedad.style.display = 'none';
+      }
+   }
+
+
+   /**
+    * Helper that updates the contents of the default state.
+    *
+    * @requires Ormma
+    */
+   function updateDefaultAd() {
+      var state = document.getElementById( 'bannerstate' );
+      var size = document.getElementById( 'bannersize' );
+
+      state.innerHTML = Ormma.getState();	
+      size.innerHTML = buildSizeText( Ormma.getSize() );	
+   }
+
+
+   /**
+    * Helper that updates the contents of the expanded state.
+    *
+    * @requires Ormma
+    */
+   function updateExpandedAd() {
+      var state = document.getElementById( 'expandstate' );
+      var screensize = document.getElementById( 'expandscreensize' );
+      var size = document.getElementById( 'expandsize' );
+      var transition = document.getElementById( 'expandtransition' );
+      var nav = document.getElementById( 'expandnav' );
+      var bg = document.getElementById( 'expandbg' );
+      var bgcolor = document.getElementById( 'expandbgcolor' );
+      var bgopacity = document.getElementById( 'expandbgopacity' );
+      var model = document.getElementById( 'expandmodal' );
+      var text = document.getElementById( 'expandtext' );
+
+      // we need the current resize properties
+      var properties = Ormma.getExpandProperties();
+
+      // update the ad contentx
+      state.innerHTML = Ormma.getState();	
+      screensize.innerHTML = buildSizeText( Ormma.getScreenSize() );	
+//      maxsize.innerHTML = buildSizeText( Ormma.getMaxSize() );	
+      size.innerHTML = buildSizeText( Ormma.getSize() );	
+      transition.innerHTML = properties.transition;
+      nav.innerHTML = properties.navigation;
+      bg.innerHTML = properties.useBackground;
+      bgcolor.innerHTML = properties.backgroundColor;
+      bgopacity.innerHTML = properties.backgroundOpacity;
+      model.innerHTML = properties.isModal;
+      text.innerHTML = resizeText;
+   }
+
+
+   /**
+    * Helper that updates the contents of the resized state.
+    *
+    * @requires Ormma
+    */
+   function updateResizedAd() {
+      var state = document.getElementById( 'resizestate' );
+      var screensize = document.getElementById( 'resizescreensize' );
+      var maxsize = document.getElementById( 'resizemaxsize' );
+      var size = document.getElementById( 'resizesize' );
+      var transition = document.getElementById( 'resizetransition' );
+      var text = document.getElementById( 'resizetext' );
+
+      // we need the current resize properties
+      var properties = Ormma.getResizeProperties();
+
+      // update the ad contentx
+      state.innerHTML = Ormma.getState();	
+      screensize.innerHTML = buildSizeText( Ormma.getScreenSize() );	
+      size.innerHTML = buildSizeText( Ormma.getSize() );
+      maxsize.innerHTML = buildSizeText( Ormma.getMaxSize() );
+      	
+      transition.innerHTML = properties.transition;
+      text.innerHTML = resizeText;
+   }
+
+
+   /**
+    * Helper Function to build a size text from the specified diminsions.
+    */
+   function buildSizeText( dimensions ) {
+      var text = "[ ";
+      text += dimensions.width;
+      text += ", ";
+      text += dimensions.height;
+      text += " ]";
+
+      return text;
+   }
+
+   /**
+    * Register event listeners to initialize the ad.
+    * We need to wait until the ad is fully loaded to ensure that the
+    * ORMMA code is available for us.
+    *
+    * @requires Ormma
+    */
+//   window.onload = function() {
+//      Ormma.addEventListener( 'error', handleErrorEvent );
+//      Ormma.addEventListener( 'ready', handleReadyEvent );
+      //var evt = { data : 'default' };
+      //handleStateChangeEvent( evt );
+//   }
+</script>
+
+<!-- The actual creative -->
+<div id='ad'>
+   <!-- The standard banner ad state (default state) -->
+   <div id='banner'>
+      <img src="http://10.0.2.2/images/300x50-solid.png"
+           alt="banner advertisement" />
+      <div id='browser'>
+         <img src="http://10.0.2.2/images/open.png"
+              alt="open Browser"
+              onclick="openBrowser();" />
+      </div>
+      <div id='larger'>
+         <img src="http://10.0.2.2/images/resize-larger.png"
+              alt="resize"
+              onclick="resizeLarger();" />
+      </div>
+      <div id='expand'>
+         <img src="http://10.0.2.2/images/expand.png"
+              alt="expand"
+              onclick="expandAd();" />
+      </div>
+      <div id='hide'>
+         <img src="http://10.0.2.2/images/hide.png"
+              alt="hide"
+              onclick="hideAd();" />
+      </div>
+      <div id='bannerdata'>
+	    State: <span id='bannerstate'>STATE</span><br><br>
+ 	    Size: <span id='bannersize'>[w x h]</span>
+      </div>
+   </div>
+
+
+   <!-- The resized ad (resized state) -->
+   <div id='resizedad'>
+      <img src="http://10.0.2.2/images/300x250-solid.png"
+           alt="expandedad" />
+      <div id='smaller'>
+         <img src="http://10.0.2.2/images/resize-smaller.png"
+              alt="close"
+              onclick="resizeSmaller();" />
+      </div>
+      <div id='resizedata'>
+        State: <span id='resizestate'>STATE</span><br>
+        Screen: <span id='resizescreensize'>[w x h]</span><br>
+        Max: <span id='resizemaxsize'>[w x h]</span>
+        Size: <span id='resizesize'>[w x h]</span><br>
+        Transition: <span id='resizetransition'>TRANSITION</span><br>
+        Resize Text: <span id='resizetext'>TEXT</span><br>
+      </div>
+   </div>
+
+   
+   <!-- The expanded ad (expanded state) -->
+   <div id='expandedad'>
+      <img src="http://10.0.2.2/images/300x250-solid.png"
+           alt="expandedad" />
+      <div id='shrink'>
+         <img src="http://10.0.2.2/images/shrink.png"
+              alt="close"
+              onclick="shrinkAd();" />
+      </div>
+      <div id='expanddata'>
+        State: <span id='expandstate'>STATE</span><br>
+        Screen: <span id='expandscreensize'>[w x h]</span><br>
+        Size: <span id='expandsize'>[w x h]</span><br>
+        Transition: <span id='expandtransition'>TRANSITION</span><br>
+        Navigation: <span id='expandnav'>NAV</span><br><br><br>
+        Background: <span id='expandbg'>BG</span><br> 
+        Background Color: <span id='expandbgcolor'>COLOR</span><br>
+        Background Opacity: <span id='expandbgopacity'>OPACITY</span><br>
+        Is Modal: <span id='expandmodal'>MODAL</span><br>
+        Resize Text: <span id='expandtext'>TEXT</span><br>
+      </div>
+   </div>
+</div>
