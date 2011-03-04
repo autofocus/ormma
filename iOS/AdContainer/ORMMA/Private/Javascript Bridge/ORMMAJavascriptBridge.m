@@ -551,9 +551,9 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	BOOL back = [self booleanFromDictionary:parameters
 									 forKey:@"back"];
 	BOOL forward = [self booleanFromDictionary:parameters
-										forKey:@"back"];
+										forKey:@"forward"];
 	BOOL refresh = [self booleanFromDictionary:parameters
-										forKey:@"back"];
+										forKey:@"refresh"];
 	[self.bridgeDelegate openBrowser:webView 
 					   withUrlString:url 
 						  enableBack:back 
