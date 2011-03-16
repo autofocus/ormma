@@ -17,6 +17,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.ormma.view.OrmmaView;
 
@@ -28,7 +29,6 @@ public class OrmmaUtilityController extends OrmmaController {
 	/**
 	 * The Constant TAG.
 	 */
-	@SuppressWarnings("unused")
 	private static final String TAG = "OrmmaUtilityController";
 	
 	//other controllers
@@ -334,4 +334,9 @@ public class OrmmaUtilityController extends OrmmaController {
 		}
 	}
 
+	
+	public void showAlert(final String message) {
+		Log.e(TAG,message);
+	}
+	
 }

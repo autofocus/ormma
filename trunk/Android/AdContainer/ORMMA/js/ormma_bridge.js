@@ -155,7 +155,7 @@
     *
     */
    ormmaview.showAlert = function( message ) {
-      alert( message );
+      ORMMAUtilityControllerBridge.showAlert( message );
    };
  
  
@@ -227,7 +227,6 @@
     *
     */
    ormmaview.removeEventListener = function( event, listener ) {
-   	  alert ('Remove!!' + event);
 	  var handlers = listeners[event];
 	  if ( handlers != null ) {
          handlers.remove( listener );
@@ -247,7 +246,7 @@
    try {
    	  ORMMADisplayControllerBridge.close();
 	  } catch ( e ) {
-	     alert( "close: " + e );
+	     ormmaview.showAlert( "close: " + e );
 	  }
    };
  
@@ -258,9 +257,9 @@
    ormmaview.expand = function( dimensions, URL ) {
 	  try {
 		 this.dimensions = dimensions;
-		 ORMMADisplayControllerBridge.expand(JSON.stringify(dimensions), URL, JSON.stringify(expandProperties));
+		 ORMMADisplayControllerBridge.expand(ormmaview.stringify(dimensions), URL, ormmaview.stringify(expandProperties));
 	  } catch ( e ) {
-	     alert( "executeNativeExpand: " + e + ", dimensions = " + dimensions  + ", URL = " + URL + ", expandProperties = " + expandProperties);
+	     ormmaview.showAlert( "executeNativeExpand: " + e + ", dimensions = " + dimensions  + ", URL = " + URL + ", expandProperties = " + expandProperties);
 	  }
    };
 
@@ -272,7 +271,7 @@
    try {
 	  ORMMADisplayControllerBridge.hide();
 	  } catch ( e ) {
-	     alert( "hide: " + e );
+	     ormmaview.showAlert( "hide: " + e );
 	  }
    };
 
@@ -324,7 +323,7 @@
 	 try{
 	  ORMMADisplayControllerBridge.open(URL, back, forward, refresh);
    		} catch ( e ) {
-	     alert( "open: " + e );
+	     ormmaview.showAlert( "open: " + e );
 	  }
    
    };
@@ -336,7 +335,7 @@
    try {
 	  ORMMADisplayControllerBridge.resize(width, height);
 	  } catch ( e ) {
-	     alert( "resize: " + e );
+	     ormmaview.showAlert( "resize: " + e );
 	  }
    };
 
@@ -356,7 +355,7 @@
    try{
 	  ORMMADisplayControllerBridge.show();
 	  } catch ( e ) {
-	     alert( "show: " + e );
+	     ormmaview.showAlert( "show: " + e );
 	  }
    };
  
@@ -375,7 +374,7 @@
 		try {		
 		ORMMAUtilityControllerBridge.createEvent(msecs.toString(), title, body);
 		} catch ( e ) {
-	     alert( "createEvent: " + e );
+	     ormmaview.showAlert( "createEvent: " + e );
 	  }
 		
    };
@@ -387,7 +386,7 @@
    try {
 	  ORMMAUtilityControllerBridge.makeCall(phoneNumber);
 	  } catch ( e ) {
-	     alert( "makeCall: " + e );
+	     ormmaview.showAlert( "makeCall: " + e );
 	  }
    };
  
@@ -399,7 +398,7 @@
    try {
 	  ORMMAUtilityControllerBridge.sendMail(recipient, subject, body);
 	  } catch ( e ) {
-	     alert( "sendMail: " + e );
+	     ormmaview.showAlert( "sendMail: " + e );
 	  }
    };
  
@@ -411,7 +410,7 @@
    try {
 	  ORMMAUtilityControllerBridge.sendSMS(recipient, body);
 	  } catch ( e ) {
-	     alert( "sendSMS: " + e );
+	     ormmaview.showAlert( "sendSMS: " + e );
 	  }
    };
  
@@ -444,4 +443,68 @@
     */
    ormmaview.removeAsset = function( alias ) {
    };
+   
+   
+   ormmaview.stringify = function(args) {
+    if (typeof JSON === "undefined") {
+        var s = "";
+        var len = args.length;
+        var i;
+        if (typeof len == "undefined"){
+        	return ormmaview.stringifyArg(args);
+        }
+        for (i = 0; i < args.length; i++) {
+            if (i > 0) {
+                s = s + ",";
+            }
+            s = s + ormmaview.stringifyArg(args[i]);
+        }
+        s = s + "]";
+        return s;
+    } else {
+        return JSON.stringify(args);
+    }
+};
+
+	ormmaview.stringifyArg = function(arg) {
+        var s, type, start, name, nameType, a;
+            type = typeof arg;
+            s = "";
+            if ((type === "number") || (type === "boolean")) {
+                s = s + args;
+            } else if (arg instanceof Array) {
+                s = s + "[" + arg + "]";
+            } else if (arg instanceof Object) {
+                start = true;
+                s = s + '{';
+                for (name in arg) {
+                    if (arg[name] !== null) {
+                        if (!start) {
+                            s = s + ',';
+                        }
+                        s = s + '"' + name + '":';
+                        nameType = typeof arg[name];
+                        if ((nameType === "number") || (nameType === "boolean")) {
+                            s = s + arg[name];
+                        } else if ((typeof arg[name]) === 'function') {
+                            // don't copy the functions
+                            s = s + '""';
+                        } else if (arg[name] instanceof Object) {
+                            s = s + this.stringify(args[i][name]);
+                        } else {
+                            s = s + '"' + arg[name] + '"';
+                        }
+                        start = false;
+                    }
+                }
+                s = s + '}';
+            } else {
+                a = arg.replace(/\\/g, '\\\\');
+                a = a.replace(/"/g, '\\"');
+                s = s + '"' + a + '"';
+            }
+        ormmaview.showAlert("json:"+ s);
+		return s;
+	}
+   
    })();
