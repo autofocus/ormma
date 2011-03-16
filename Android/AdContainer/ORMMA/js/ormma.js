@@ -690,4 +690,13 @@
             broadcastEvent(EVENTS.ASSETREMOVED, alias);
         }
     };
+    
+ 	ormma.showAlert = function( message ) {
+      ormmaview.showAlert( message );
+   };    
+   
+    ormma.logHTML = function(){
+ 		ormmaview.logHTML();
+ 	
+ 	};
 })();

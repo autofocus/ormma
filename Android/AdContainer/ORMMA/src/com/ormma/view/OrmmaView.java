@@ -54,6 +54,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.webkit.JsResult;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -331,7 +332,13 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				if (mProgress == progress) {
 					mCount++;
 					if (mCount == 3) {
-						stopLoading();
+						try{
+							stopLoading();
+						}
+						catch (Exception e){
+							Log.w(TAG, "error in stopLoading");
+							e.printStackTrace();
+						}
 						this.cancel();
 					}
 				}
@@ -778,7 +785,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	/**
 	 * Close an expanded view.
 	 */
-	protected void closeExpanded() {
+	protected synchronized void closeExpanded() {
 		FrameLayout contentView = (FrameLayout) getRootView().findViewById(R.id.content);
 
 		FrameLayout placeHolder = (FrameLayout) getRootView().findViewById(PLACEHOLDER_ID);
