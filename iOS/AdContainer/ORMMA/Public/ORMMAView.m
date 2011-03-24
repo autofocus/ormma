@@ -792,7 +792,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// step 8: create a new frame, based on the current frame but with
 	//         coordinates translated to the window space
 	// step 9: store this new frame for later use
-	m_translatedFrame = [self convertRect:m_defaultFrame
+	// convertRect should be called not by the ORMMAView but by the parent of the ORMMAView
+	m_translatedFrame = [self.superview convertRect:m_defaultFrame
 								   toView:keyWindow];
 	
 	// step 10: change our frame to the new one
@@ -1034,7 +1035,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 - (CGRect)getAdFrameInWindowCoordinates
 {
-	CGRect frame = [self convertRect:self.frame toView:self.window];
+	// convertRect should be called not by the ORMMAView but by the parent of the ORMMAView
+	CGRect frame = [self.superview convertRect:self.frame toView:self.window];
 	return frame;
 }
 
@@ -1447,7 +1449,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 	UIWindow *keyWindow = [app keyWindow];
 	
 	// setup the default position information (translated into window coordinates)
-	CGRect defaultPosition = [self convertRect:self.frame
+	// convertRect should be called not by the ORMMAView but by the parent of the ORMMAView
+	CGRect defaultPosition = [self.superview convertRect:self.frame
 										toView:keyWindow];	
 	
 	// determine our network connectivity
