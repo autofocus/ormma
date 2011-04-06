@@ -1236,6 +1236,13 @@ blockingOpacity:(CGFloat)blockingOpacity
 }
 
 
+- (NSString *)cachedHtmlForCreative
+{
+    ORMMALocalServer *cache = [ORMMALocalServer sharedInstance];
+    return [cache cachedHtmlForCreative:m_creativeId];
+}
+
+
 // get JS to inject
 - (NSString *)javascriptForInjection
 {

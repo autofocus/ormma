@@ -99,4 +99,7 @@
 + (void)removeAllCachedResources;
 
 
+- (NSString *)cachedHtmlForCreative:(long)creativeId;
+
+
 @end

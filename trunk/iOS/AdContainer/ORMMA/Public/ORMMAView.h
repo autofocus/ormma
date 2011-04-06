@@ -103,6 +103,9 @@ typedef enum ORMMAViewStateEnum
 - (void)doneWithBrowser;
 
 
+// Returns the html string for the current creative
+- (NSString *)cachedHtmlForCreative;
+
 @end
 
 
@@ -194,5 +197,6 @@ typedef enum ORMMAViewStateEnum
 			   sourceView:(UIView *)view;
 
 - (void)emailNotSetupForAd:(ORMMAView *)adView;
+
 
 @end
