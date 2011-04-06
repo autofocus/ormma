@@ -609,4 +609,13 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 }
 
 
+
+- (NSString *)cachedHtmlForCreative:(long)creativeId
+{
+    NSString *path = [self.cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu", creativeId]];
+	NSString *fqpn = [path stringByAppendingPathComponent:@"index.html"];
+    NSString *cachedHtml = [NSString stringWithContentsOfFile:fqpn encoding:NSUTF8StringEncoding error:nil];
+    return cachedHtml;
+}
+
 @end
