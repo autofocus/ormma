@@ -327,6 +327,132 @@
 	  }
    
    };
+   
+   /**
+   *
+   */
+  ormmaview.openMap = function( URL, fullscreen ) {
+      try{
+    	  ORMMADisplayControllerBridge.openMap(URL, fullscreen);
+      } catch ( e ) {
+	     ormmaview.showAlert( "openMap: " + e );
+	  }
+  };
+
+   
+  /**
+  *
+  */
+  ormmaview.playAudio = function( URL, properties ) {
+	
+	var autoPlay = false, controls = false, loop = false, inline = false, 
+	    startStyle = 'normal', stopStyle = 'normal';
+	 
+    if ( properties != null ) {
+        
+        if ( ( typeof properties.autoplay != "undefined" ) && ( properties.autoplay != null ) ) {
+            autoPlay = true;
+        }
+       
+        if ( ( typeof properties.controls != "undefined" ) && ( properties.controls != null ) ) {
+        	controls = true;
+        }
+        
+        if ( ( typeof properties.loop != "undefined" ) && ( properties.loop != null ) ) {
+        	loop = true;
+        }
+        
+        if ( ( typeof properties.inline != "undefined" ) && ( properties.inline != null ) ) {
+        	inline = true;
+        }
+        
+        //TODO check valid values...           
+        
+        if ( ( typeof properties.startStyle != "undefined" ) && ( properties.startStyle != null ) ) {
+             startStyle = properties.startStyle;
+        }
+        
+        if ( ( typeof properties.stopStyle != "undefined" ) && ( properties.stopStyle != null ) ) {
+            stopStyle = properties.stopStyle;
+        }  
+    }  
+    
+    try{
+  	  ORMMADisplayControllerBridge.playAudio(URL, autoPlay, controls, loop, inline, startStyle, stopStyle);
+    } 
+    catch ( e ) {
+	     ormmaview.showAlert( "playAudio: " + e );
+	}     
+ };
+ 
+ 
+  /**
+   *
+   */
+  ormmaview.playVideo = function( URL, properties ) {
+	 var autoPlay = false, controls = false, loop = false, inline = [-1, -1, -1, -1], 
+	    startStyle = 'normal', stopStyle = 'normal';
+     
+     if ( properties != null ) {
+         
+         if ( ( typeof properties.audio != "undefined" ) && ( properties.audio != null ) ) {
+             audioMuted = true;
+         }
+         
+         if ( ( typeof properties.autoplay != "undefined" ) && ( properties.autoplay != null ) ) {
+             autoPlay = true;
+         }
+        
+         if ( ( typeof properties.controls != "undefined" ) && ( properties.controls != null ) ) {
+         	controls = true;
+         }
+         
+         if ( ( typeof properties.loop != "undefined" ) && ( properties.loop != null ) ) {
+         	loop = true;
+         }
+         
+         if ( ( typeof properties.inline != "undefined" ) && ( properties.inline != null ) ) {
+        	 inline = new Array(4);
+        	 
+        	 inline[0] = properties.inline.top;
+        	 inline[1] = properties.inline.left;
+        	 
+             if ( ( typeof properties.width != "undefined" ) && ( properties.width != null ) ) {
+            	 inline[2] =  properties.width;
+             }
+             else{
+                 //TODO ERROR
+             }
+             
+             if ( ( typeof properties.height != "undefined" ) && ( properties.height != null ) ) {
+            	 inline[3] =  properties.height;
+             }
+             else{
+                 //TODO ERROR
+             }
+         }
+       
+         
+         if ( ( typeof properties.startStyle != "undefined" ) && ( properties.startStyle != null ) ) {
+             startStyle = properties.startStyle;
+         }
+        
+         if ( ( typeof properties.stopStyle != "undefined" ) && ( properties.stopStyle != null ) ) {
+            stopStyle = properties.stopStyle;
+         }  
+     }    
+     
+     try{
+     	  ORMMADisplayControllerBridge.playVideo(URL, autoPlay, controls, loop, inline, startStyle, stopStyle);
+       } 
+       catch ( e ) {
+   	     ormmaview.showAlert( "playVideo: " + e );
+   	}     
+
+  };
+
+   
+   
  
    /**
     *

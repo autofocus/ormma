@@ -931,6 +931,28 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		getContext().startActivity(i);
 
 	}
+	
+	
+	public void openMap(String url, boolean fulscreen) {
+
+		//TODO
+
+	}
+	
+	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean inline, String startStyle, String stopStyle) {
+
+		//TODO...
+
+	}
+	
+	
+	public void playVideo(String url, boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, int[] inline, String startStyle, String stopStyle) {
+
+		//TODO...is the int[] param valid?
+
+	}
+	
+	
 
 	/**
 	 * The Class NewLocationReciever.
