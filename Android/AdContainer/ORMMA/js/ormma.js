@@ -52,7 +52,10 @@
         PHONE       :'phone',
         EMAIL       :'email',
         CALENDAR    :'calendar',
-        CAMERA      :'camera'
+        CAMERA      :'camera',
+        AUDIO       :'audio',
+        VIDEO       :'video',
+        MAP         :'map'
     };
     
     var NETWORK = ormma.NETWORK = {
@@ -105,7 +108,10 @@
         'phone':true,
         'email':true,
         'calendar':true,
-        'camera':true
+        'camera':true,
+        'audio':true,
+        'video':true,
+        'map':true
     };
     
     var heading = -1;
@@ -460,6 +466,16 @@
         }
     };
     
+    ormma.openMap = function(POI, fullscreen) {
+        if (!POI) {
+            broadcastEvent(EVENTS.ERROR, 'POI is required.', 'openMap');
+        } else {
+            ormmaview.openMap(POI, fullscreen);
+        }
+    };
+
+    
+    
     ormma.removeEventListener = function(event, listener) {
         if (!event) {
             broadcastEvent(EVENTS.ERROR, 'Must specify an event.', 'removeEventListener');
@@ -504,6 +520,30 @@
             ormmaview.show();
         }
     };
+    
+    ormma.playAudio = function(URL, properties) {
+        if (!supports[FEATURES.AUDIO]) {
+            broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'playAudio');
+        } else if (!URL || typeof URL != 'string') {
+            broadcastEvent(EVENTS.ERROR, 'Request must specify a URL', 'playAudio');
+        } else {
+            ormmaview.playAudio(URL, properties);
+        }
+    };
+    
+    
+    ormma.playVideo = function(URL, properties) {
+        if (!supports[FEATURES.VIDEO]) {
+            broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'playVideo');
+        } else if (!URL || typeof URL != 'string') {
+            broadcastEvent(EVENTS.ERROR, 'Request must specify a URL', 'playVideo');
+        } else {
+            ormmaview.playVideo(URL, properties);
+        }
+    };
+
+    
+    
     
     // LEVEL 2 ////////////////////////////////////////////////////////////////////
     
