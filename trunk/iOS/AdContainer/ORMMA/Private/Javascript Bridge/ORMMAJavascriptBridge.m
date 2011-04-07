@@ -38,6 +38,12 @@
 				forWebView:(UIWebView *)webView;
 - (BOOL)processOpenCommand:(NSDictionary *)parameters
 				forWebView:(UIWebView *)webView;
+- (BOOL)processOpenMapCommand:(NSDictionary *)parameters
+				forWebView:(UIWebView *)webView;
+- (BOOL)processPlayAudioCommand:(NSDictionary *)parameters
+                   forWebView:(UIWebView *)webView;
+- (BOOL)processPlayVideoCommand:(NSDictionary *)parameters
+                     forWebView:(UIWebView *)webView;
 - (BOOL)processRequestCommand:(NSDictionary *)parameters
 				   forWebView:(UIWebView *)webView;
 - (BOOL)processCalendarCommand:(NSDictionary *)parameters
@@ -58,6 +64,8 @@
 						   forWebView:(UIWebView *)webView;
 
 - (CGFloat)floatFromDictionary:(NSDictionary *)dictionary
+						forKey:(NSString *)key;
+- (int)intFromDictionary:(NSDictionary *)dictionary
 						forKey:(NSString *)key;
 - (CGFloat)floatFromDictionary:(NSDictionary *)dictionary
 						forKey:(NSString *)key
@@ -101,6 +109,9 @@ NSString * const ORMMACommandPhone = @"phone";
 NSString * const ORMMACommandSMS = @"sms";
 
 NSString * const ORMMACommandOpen = @"open";
+NSString * const ORMMACommandOpenMap = @"openMap";
+NSString * const ORMMACommandPlayAudio = @"playAudio";
+NSString * const ORMMACommandPlayVideo = @"playVideo";
 NSString * const ORMMACommandRequest = @"request";
 
 NSString * const ORMMACommandService = @"service";
@@ -332,7 +343,25 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 		processed = [self processOpenCommand:parameters
 								  forWebView:webView];
 	}
-	else if ( [command isEqualToString:ORMMACommandRequest] )
+    else if ( [command isEqualToString:ORMMACommandOpenMap] )
+	{
+		// process show
+		processed = [self processOpenMapCommand:parameters
+								  forWebView:webView];
+	}	
+    else if ( [command isEqualToString:ORMMACommandPlayAudio] )
+	{
+		// process show
+		processed = [self processPlayAudioCommand:parameters
+                                     forWebView:webView];
+	}	
+    else if ( [command isEqualToString:ORMMACommandPlayVideo] )
+	{
+		// process show
+		processed = [self processPlayVideoCommand:parameters
+                                       forWebView:webView];
+	}    
+    else if ( [command isEqualToString:ORMMACommandRequest] )
 	{
 		// process show
 		processed = [self processRequestCommand:parameters
@@ -559,6 +588,116 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 						  enableBack:back 
 					   enableForward:forward 
 					   enableRefresh:refresh];
+	return YES;
+}
+
+- (BOOL)processOpenMapCommand:(NSDictionary *)parameters
+			        	forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing OPEN MAP Command..." );
+	NSString *url = [self requiredStringFromDictionary:parameters 
+												forKey:@"url"];
+	BOOL fullscreen = [self booleanFromDictionary:parameters
+									 forKey:@"fullscreen"];
+	
+	[self.bridgeDelegate openMap:webView 
+                         withUrlString:url 
+                         andFullScreen:fullscreen 
+                        ];
+	return YES;
+}
+
+
+- (BOOL)processPlayAudioCommand:(NSDictionary *)parameters
+                   forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing OPEN MAP Command..." );
+    
+	NSString *url = [self requiredStringFromDictionary:parameters 
+												forKey:@"url"];
+    
+	BOOL autoplay = [self booleanFromDictionary:parameters
+                                           forKey:@"autoplay"];
+    
+    BOOL controls = [self booleanFromDictionary:parameters
+                                         forKey:@"controls"];    
+    
+    BOOL loop = [self booleanFromDictionary:parameters
+                                         forKey:@"loop"]; 
+    
+    
+    BOOL Inline = [self booleanFromDictionary:parameters
+                                        forKey:@"inline"];   
+    
+    NSString* startStyle = [self requiredStringFromDictionary:parameters
+                                       forKey:@"startStyle"];
+    
+    NSString* stopStyle = [self requiredStringFromDictionary:parameters
+                                                       forKey:@"stopStyle"];    
+	
+	[self.bridgeDelegate playAudio:webView 
+                   withUrlString:url 
+                   autoPlay:autoplay
+                   controls: controls
+                   loop: loop
+                   Inline: Inline
+                   startStyle: startStyle
+                   stopStyle: stopStyle
+    ];
+    
+	return YES;
+}
+
+- (BOOL)processPlayVideoCommand:(NSDictionary *)parameters
+                     forWebView:(UIWebView *)webView
+{
+	NSLog( @"Processing OPEN MAP Command..." );
+    
+	NSString *url = [self requiredStringFromDictionary:parameters 
+												forKey:@"url"];
+    
+    BOOL mutedAudio = [self booleanFromDictionary:parameters
+                                         forKey:@"audioMuted"];    
+    
+	BOOL autoplay = [self booleanFromDictionary:parameters
+                                         forKey:@"autoplay"];
+    
+    BOOL controls = [self booleanFromDictionary:parameters
+                                         forKey:@"controls"];    
+    
+    BOOL loop = [self booleanFromDictionary:parameters
+                                     forKey:@"loop"]; 
+    
+    
+    int inline_top = [self intFromDictionary:parameters
+                                       forKey:@"inline_top"];  
+    
+    int inline_left = [self intFromDictionary:parameters
+                                      forKey:@"inline_left"];   
+    
+    int inline_width = [self intFromDictionary:parameters
+                                       forKey:@"inline_width"];
+    
+    int inline_height = [self intFromDictionary:parameters
+                                       forKey:@"inline_height"];     
+    
+    NSString* startStyle = [self requiredStringFromDictionary:parameters
+                                                       forKey:@"startStyle"];
+    
+    NSString* stopStyle = [self requiredStringFromDictionary:parameters
+                                                      forKey:@"stopStyle"];    
+	
+	[self.bridgeDelegate playVideo:webView 
+                     withUrlString:url 
+                        audioMuted: mutedAudio
+                          autoPlay:autoplay
+                          controls: controls
+                              loop: loop
+                        inline_pos: (int[4]) {inline_top, inline_left, inline_width, inline_height}
+                        startStyle: startStyle
+                         stopStyle: stopStyle
+     ];
+    
 	return YES;
 }
 
@@ -1056,6 +1195,19 @@ monitoringDidFailForRegion:(CLRegion *)region
 	return [self floatFromDictionary:dictionary
 							  forKey:key
 						 withDefault:0.0];
+}
+
+
+- (int)intFromDictionary:(NSDictionary *)dictionary
+						forKey:(NSString *)key
+{
+	NSString *stringValue = [dictionary valueForKey:key];
+	if ( stringValue == nil )
+	{
+		return -1;
+	}
+	int value = [stringValue intValue];
+	return value;
 }
 
 

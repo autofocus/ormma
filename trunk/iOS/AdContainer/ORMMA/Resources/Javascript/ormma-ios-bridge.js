@@ -342,6 +342,8 @@
    ormmaview.hide = function() {
 	  this.executeNativeCall( "hide" );
    };
+ 
+ 
 
  
    /**
@@ -395,6 +397,18 @@
 							  "forward", ( forward ? "Y" : "N" ),
 							  "refresh", ( refresh ? "Y" : "N" ) );
    };
+    
+    
+    /**
+     *
+     */
+    ormmaview.openMap = function( URL, fullscreen ) {
+        
+        this.executeNativeCall( "openMap", 
+                                "url", URL,
+                                "fullscreen", fullscreen
+                              );
+    };
  
    /**
     *
@@ -420,6 +434,150 @@
    ormmaview.show = function() {
 	  this.executeNativeCall( "show" );
    };
+    
+    
+   /**
+     *
+     */
+   ormmaview.playAudio = function( URL, properties ) {
+       
+       var cmd = "this.executeNativeCall( 'playAudio'";
+       
+       cmd += ", 'url', '" + URL + "'";
+    
+       if ( properties != null ) {
+           
+           if ( ( typeof properties.autoplay != "undefined" ) && ( properties.autoplay != null ) ) {
+               cmd += ", 'autoplay', 'Y'";
+           }
+           else{
+               cmd += ", 'autoplay', 'N'";
+           }
+       
+           if ( ( typeof properties.controls != "undefined" ) && ( properties.controls != null ) ) {
+               cmd += ", 'controls', 'Y'";
+           }
+           else{
+               cmd += ", 'controls', 'N'";
+           }
+           
+           if ( ( typeof properties.loop != "undefined" ) && ( properties.loop != null ) ) {
+               cmd += ", 'loop', 'Y'";
+           }
+           else{
+               cmd += ", 'loop', 'N'";
+           }
+           
+           if ( ( typeof properties.inline != "undefined" ) && ( properties.inline != null ) ) {
+               cmd += ", 'inline', 'Y'";
+           }
+           else{
+               cmd += ", 'inline', 'N'";
+           }
+           
+           //TODO check valid values...           
+           
+           if ( ( typeof properties.startStyle != "undefined" ) && ( properties.startStyle != null ) ) {
+                cmd += ", 'startStyle', '" + properties.startStyle + "'";
+           }
+           else{
+               cmd += ", 'startStyle', 'normal'";
+           }
+           
+           if ( ( typeof properties.stopStyle != "undefined" ) && ( properties.stopStyle != null ) ) {
+               cmd += ", 'stopStyle', '" + properties.stopStyle + "'";
+           }
+           else{
+               cmd += ", 'stopStyle', 'normal'";
+           }
+                    
+       }    
+           
+       cmd += " );";
+       
+       eval( cmd );
+   };
+    
+    
+    /**
+     *
+     */
+    ormmaview.playVideo = function( URL, properties ) {
+        var cmd = "this.executeNativeCall( 'playVideo'";
+        
+        cmd += ", 'url', '" + URL + "'";
+        
+        if ( properties != null ) {
+            
+            if ( ( typeof properties.audio != "undefined" ) && ( properties.audio != null ) ) {
+                cmd += ", 'audioMuted', 'Y'";
+            }
+            else{
+                cmd += ", 'audioMuted', 'N'";
+            }
+            
+            if ( ( typeof properties.autoplay != "undefined" ) && ( properties.autoplay != null ) ) {
+                cmd += ", 'autoplay', 'Y'";
+            }
+            else{
+                cmd += ", 'autoplay', 'N'";
+            }
+            
+            if ( ( typeof properties.controls != "undefined" ) && ( properties.controls != null ) ) {
+                cmd += ", 'controls', 'Y'";
+            }
+            else{
+                cmd += ", 'controls', 'N'";
+            }
+            
+            if ( ( typeof properties.loop != "undefined" ) && ( properties.loop != null ) ) {
+                cmd += ", 'loop', 'Y'";
+            }
+            else{
+                cmd += ", 'loop', 'N'";
+            }
+            
+            if ( ( typeof properties.inline != "undefined" ) && ( properties.inline != null ) ) {
+                cmd += ", 'inline_top', '" + properties.inline.top + "'";
+                cmd += ", 'inline_left', '" + properties.inline.left + "'";
+                
+                if ( ( typeof properties.width != "undefined" ) && ( properties.width != null ) ) {
+                    cmd += ", 'inline_width', '" + properties.width + "'";
+                }
+                else{
+                    //TODO ERROR
+                }
+                
+                if ( ( typeof properties.height != "undefined" ) && ( properties.height != null ) ) {
+                    cmd += ", 'inline_height', '" + properties.height + "'";
+                }
+                else{
+                    //TODO ERROR
+                }
+            }
+          
+            
+            if ( ( typeof properties.startStyle != "undefined" ) && ( properties.startStyle != null ) ) {
+                cmd += ", 'startStyle', '" + properties.startStyle + "'";
+            }
+            else{
+                cmd += ", 'startStyle', 'normal'";
+            }
+            
+            if ( ( typeof properties.stopStyle != "undefined" ) && ( properties.stopStyle != null ) ) {
+                cmd += ", 'stopStyle', '" + properties.stopStyle + "'";
+            }
+            else{
+                cmd += ", 'stopStyle', 'normal'";
+            }
+            
+        }    
+        
+        cmd += " );";
+        
+        eval( cmd );
+
+    };
  
  
  
