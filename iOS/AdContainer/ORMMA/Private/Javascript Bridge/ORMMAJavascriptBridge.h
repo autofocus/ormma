@@ -79,6 +79,29 @@
 	  enableForward:(BOOL)forward
 	  enableRefresh:(BOOL)refresh;
 
+- (void)openMap:(UIWebView *)webView
+	  withUrlString:(NSString *)urlString
+		 andFullScreen:(BOOL)fullscreen;
+
+- (void)playAudio:(UIWebView *)webView
+    withUrlString:(NSString *)urlString
+         autoPlay:(BOOL)autoplay
+         controls: (BOOL)controls
+             loop: (BOOL)loop
+           Inline: (BOOL)Inline
+       startStyle:(NSString *)startStyle
+        stopStyle:(NSString *) stopStyle;
+
+- (void)playVideo:(UIWebView *)webView
+    withUrlString:(NSString *)urlString
+       audioMuted: (BOOL)mutedAudio
+         autoPlay:(BOOL)autoplay
+         controls: (BOOL)controls
+             loop: (BOOL)loop
+       inline_pos:(int[4]) pos
+       startStyle:(NSString *)startStyle
+        stopStyle:(NSString *) stopStyle;
+
 - (void)resizeToWidth:(CGFloat)width
 			   height:(CGFloat)height
 	   inWebView:(UIWebView *)webView;
