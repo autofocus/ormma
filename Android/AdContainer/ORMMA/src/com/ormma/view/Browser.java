@@ -1,5 +1,9 @@
-/*
- * 
+/*  Copyright (c) 2011 The ORMMA.org project authors. All Rights Reserved.
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree. All contributing project authors may
+ *  be found in the AUTHORS file in the root of the source tree.
  */
 package com.ormma.view;
 
@@ -40,7 +44,6 @@ import com.ormma.controller.OrmmaAssetController;
  * SHOW_REFRESH_EXTRA boolean (default false) : show the prefresh button
  * 
  * layout is constructed programatically
- *  @author jsodos
  */
 public class Browser extends Activity {
 

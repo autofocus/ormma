@@ -1,6 +1,3 @@
-/**
- * @author jsodos
- */
 package com.ormma.controller.listeners;
 
 /* License (MIT)

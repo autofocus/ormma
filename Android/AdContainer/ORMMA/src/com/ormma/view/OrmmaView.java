@@ -1,3 +1,12 @@
+/*  Copyright (c) 2011 The ORMMA.org project authors. All Rights Reserved.
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree. All contributing project authors may
+ *  be found in the AUTHORS file in the root of the source tree.
+ */
+
+
 /**
  * 
  * This is the view to place into a layout to implement ormma functionality.
@@ -11,7 +20,6 @@
  * of subwindows (such as alert calls from javascript)
  * 
  * 
- * @author jsodos
  */
 package com.ormma.view;
 
@@ -933,7 +941,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	}
 	
 	
-	public void openMap(String url, boolean fulscreen) {
+	public void openMap(String url, boolean fullscreen) {
 
 		//TODO
 
