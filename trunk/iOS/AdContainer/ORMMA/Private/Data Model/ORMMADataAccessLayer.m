@@ -191,7 +191,7 @@
 #pragma mark -
 #pragma mark Cache Management
 
-- (void)cacheCreative:(long)creativeId
+- (void)cacheCreative:(NSString *)creativeId
 			   forURL:(NSURL *)url
 {
 	@synchronized( self )
@@ -199,9 +199,9 @@
 		NSAssert( ( m_database != nil ), @"Database not open!" );
 		
 		// first see if the creative already exists
-		NSLog( @"Caching Creative: %lu from %@", creativeId, url );
+		NSLog( @"Caching Creative: %@ from %@", creativeId, url );
 		BOOL exists = NO;
-		FMResultSet *rs = [m_database executeQuery:@"SELECT * FROM creatives WHERE hash = ?", [NSNumber numberWithLong:creativeId]];
+		FMResultSet *rs = [m_database executeQuery:@"SELECT * FROM creatives WHERE hash = ?", creativeId];
 		if ( [rs next] )
 		{
 			// already exists
@@ -219,7 +219,7 @@
 		else
 		{
 			NSLog( @"Making new cache entry" );
-			[m_database executeUpdate:@"INSERT INTO creatives( hash ) VALUES( ? )", [NSNumber numberWithLong:creativeId]];
+			[m_database executeUpdate:@"INSERT INTO creatives( hash ) VALUES( ? )", creativeId];
 		}
 		[m_database commit];
 		
@@ -228,7 +228,7 @@
 }
 
 
-- (void)creativeAccessed:(long)creativeId
+- (void)creativeAccessed:(NSString *)creativeId
 {
 	@synchronized( self )
 	{
@@ -241,7 +241,7 @@
 }
 
 
-- (void)removeCreative:(long)creativeId
+- (void)removeCreative:(NSString *)creativeId
 {
 	@synchronized( self )
 	{
@@ -254,7 +254,7 @@
 }
 
 
-- (void)incrementCacheUsageForCreative:(long)creativeId
+- (void)incrementCacheUsageForCreative:(NSString *)creativeId
 									by:(unsigned long long)bytes;
 {
 	@synchronized( self )
@@ -268,7 +268,7 @@
 }
 
 
-- (void)decrementCacheUsageForCreative:(long)creativeId
+- (void)decrementCacheUsageForCreative:(NSString *)creativeId
 									by:(unsigned long long)bytes;
 {
 	@synchronized( self )
@@ -282,7 +282,7 @@
 }
 
 
-- (void)truncateCacheUsageForCreative:(long)creativeId
+- (void)truncateCacheUsageForCreative:(NSString *)creativeId
 {
 	@synchronized( self )
 	{

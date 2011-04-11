@@ -7,12 +7,12 @@
  */
 
 #import "ORMMALocalServer.h"
-
+#import "DDData.h"
 
 
 @interface ORMMALocalServer ()
 
-- (NSString *)resourcePathForCreative:(NSUInteger)creativeId
+- (NSString *)resourcePathForCreative:(NSString *)creativeId
 							   forURL:(NSURL *)url;
 + (unsigned long long)removeObjectsInDirectory:(NSString *)directory
 								  includeFiles:(BOOL)files;
@@ -309,8 +309,8 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	}
 
 	// determine the hash for this creative
-	NSUInteger creativeId = [html hash];
-	NSString *path = [self.cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu", creativeId]];
+	NSString *creativeId = [[[html dataUsingEncoding:NSUTF8StringEncoding] md5Digest] hexStringValue];
+	NSString *path = [self.cacheRoot stringByAppendingPathComponent:creativeId];
 	NSString *fqpn = [path stringByAppendingPathComponent:@"index.html"];
 	
 	// see if we already have this creative cached
@@ -337,7 +337,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	
 	// Now, notify the delegate that we've saved the resource
 	NSLog( @"Notify delegate that object was cached" );
-	NSString *urlString = [NSString stringWithFormat:@"http://localhost:%i/%lu/index.html", [m_server port], 
+	NSString *urlString = [NSString stringWithFormat:@"http://localhost:%i/%@/index.html", [m_server port], 
 																						   creativeId];
 	NSURL *url = [NSURL URLWithString:urlString];
 	[delegate cachedCreative:baseURL
@@ -351,7 +351,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 #pragma mark -
 #pragma mark Caching Resources for a Creative
 
-- (void)cacheResourceForCreative:(NSUInteger)creativeId
+- (void)cacheResourceForCreative:(NSString *)creativeId
 						   named:(NSString *)urlString
 					withDelegate:(id<ORMMALocalServerDelegate>)delegate
 {
@@ -364,7 +364,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:delegate, kORMMALocalServerDelegateKey,
 																		kORMMALocalServerTypeKey, kORMMALocalServerCreativeType,
 																		kORMMALocalServerPathKey, resourcePath,
-																		kORMMALocalServerCreativeIdKey, [NSNumber numberWithLong:creativeId],
+																		kORMMALocalServerCreativeIdKey, creativeId,
 																		nil];
 	
 	// this should retrieve the data from the specified URL
@@ -375,7 +375,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 }
 
 
-- (void)removeCachedResourceForCreative:(NSUInteger)creativeId
+- (void)removeCachedResourceForCreative:(NSString *)creativeId
 								  named:(NSString *)url
 						   withDelegate:(id<ORMMALocalServerDelegate>)delegate
 {
@@ -393,11 +393,11 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 }
 
 
-- (void)removeAllCachedResourcesForCreative:(NSUInteger)creativeId
+- (void)removeAllCachedResourcesForCreative:(NSString *)creativeId
 							   withDelegate:(id<ORMMALocalServerDelegate>)delegate
 {
 	// build the path to the creatives directory
-	NSString *path = [self.cacheRoot stringByAppendingFormat:@"/%lu", creativeId];
+	NSString *path = [self.cacheRoot stringByAppendingFormat:@"/%@", creativeId];
 	[ORMMALocalServer removeObjectsInDirectory:path
 								  includeFiles:NO];
 	
@@ -446,8 +446,8 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 		if ( [data writeToFile:path
 					atomically:YES] )
 		{
-			NSNumber *n = (NSNumber *)[request.userInfo objectForKey:kORMMALocalServerCreativeIdKey];
-			long creativeId = [n longValue];
+			NSString *n = [request.userInfo objectForKey:kORMMALocalServerCreativeIdKey];
+			NSString *creativeId = n;
 			
 			// update our cache
 			[m_dal incrementCacheUsageForCreative:creativeId
@@ -581,12 +581,12 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 #pragma mark Utility
 
 // our resource path is: host + path1 + ... + pathN + resource
-- (NSString *)resourcePathForCreative:(NSUInteger)creativeId
+- (NSString *)resourcePathForCreative:(NSString *)creativeId
 							   forURL:(NSURL *)url
 {
 	// start with the host
 	NSMutableString *path = [NSMutableString stringWithCapacity:500];
-	[path appendFormat:@"%@/%lu/%@", self.cacheRoot, creativeId, [url host]];
+	[path appendFormat:@"%@/%@/%@", self.cacheRoot, creativeId, [url host]];
 	
 	// add all but the actual resource
 	NSArray *pathComponents = [url pathComponents];
@@ -610,9 +610,9 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 
 
 
-- (NSString *)cachedHtmlForCreative:(long)creativeId
+- (NSString *)cachedHtmlForCreative:(NSString *)creativeId
 {
-    NSString *path = [self.cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu", creativeId]];
+    NSString *path = [self.cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", creativeId]];
 	NSString *fqpn = [path stringByAppendingPathComponent:@"index.html"];
     NSString *cachedHtml = [NSString stringWithContentsOfFile:fqpn encoding:NSUTF8StringEncoding error:nil];
     return cachedHtml;
