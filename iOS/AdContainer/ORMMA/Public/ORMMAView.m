@@ -246,6 +246,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	[m_webBrowser release], m_webBrowser = nil;
 	[m_launchURL release], m_launchURL = nil;
 	[m_externalProtocols removeAllObjects], [m_externalProtocols release], m_externalProtocols = nil;
+    [m_creativeId release];
     [super dealloc];
 }
 
@@ -1233,12 +1234,16 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 - (void)cachedCreative:(NSURL *)creativeURL
 				 onURL:(NSURL *)url
-				withId:(long)creativeId
+				withId:(NSString *)creativeId
 {
 	if ( [self.creativeURL isEqual:creativeURL] )
 	{
 		// now show the cached file
-		m_creativeId = creativeId;
+        if(m_creativeId != creativeId)
+        {
+            [m_creativeId release];
+            m_creativeId = [creativeId retain];
+        }
 		NSURLRequest *request = [NSURLRequest requestWithURL:url];
 		m_loadingAd = YES;
 		[m_webView loadRequest:request];
@@ -1248,9 +1253,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 
 - (void)cachedResource:(NSURL *)url
-		   forCreative:(long)creativeId
+		   forCreative:(NSString *)creativeId
 {
-	if ( creativeId == m_creativeId )
+	if ( [creativeId isEqualToString:m_creativeId] )
 	{
 		// TODO
 	}
@@ -1258,14 +1263,14 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 
 - (void)cachedResourceRetired:(NSURL *)url
-				  forCreative:(long)creativeId
+				  forCreative:(NSString *)creativeId
 {
 	// TODO
 }
 
 
 - (void)cachedResourceRemoved:(NSURL *)url
-				  forCreative:(long)creativeId
+				  forCreative:(NSString *)creativeId
 {
 	// TODO
 }
@@ -1277,6 +1282,12 @@ blockingOpacity:(CGFloat)blockingOpacity
     return [cache cachedHtmlForCreative:m_creativeId];
 }
 
+
+// Returns the computed creative id
+- (NSString *)creativeId;
+{
+    return m_creativeId;
+}
 
 // get JS to inject
 - (NSString *)javascriptForInjection

@@ -24,15 +24,15 @@
 
 // for managing the cache
 - (void)removeAllCreatives;
-- (void)cacheCreative:(long)creativeId
+- (void)cacheCreative:(NSString *)creativeId
 			   forURL:(NSURL *)url;
-- (void)creativeAccessed:(long)creativeId;
-- (void)removeCreative:(long)creativeId;
-- (void)incrementCacheUsageForCreative:(long)creativeId
+- (void)creativeAccessed:(NSString *)creativeId;
+- (void)removeCreative:(NSString *)creativeId;
+- (void)incrementCacheUsageForCreative:(NSString *)creativeId
 									by:(unsigned long long)bytes;
-- (void)decrementCacheUsageForCreative:(long)creativeId
+- (void)decrementCacheUsageForCreative:(NSString *)creativeId
 									by:(unsigned long long)bytes;
-- (void)truncateCacheUsageForCreative:(long)creativeId;
+- (void)truncateCacheUsageForCreative:(NSString *)creativeId;
 
 
 // for store and forward requests

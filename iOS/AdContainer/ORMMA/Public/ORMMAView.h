@@ -58,7 +58,7 @@ typedef enum ORMMAViewStateEnum
 	ORMMAWebBrowserViewController *m_webBrowser;
 	
 	NSURL *m_creativeURL;
-	long m_creativeId;
+	NSString *m_creativeId;
 	
 	BOOL m_applicationReady;
 	
@@ -105,6 +105,10 @@ typedef enum ORMMAViewStateEnum
 
 // Returns the html string for the current creative
 - (NSString *)cachedHtmlForCreative;
+
+
+// Returns the computed creative id
+- (NSString *)creativeId;
 
 @end
 

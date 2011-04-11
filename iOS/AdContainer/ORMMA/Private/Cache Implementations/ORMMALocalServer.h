@@ -24,19 +24,19 @@
 // called when a creative has been cached
 - (void)cachedCreative:(NSURL *)baseURL
 				 onURL:(NSURL *)url
-				withId:(long)creativeId;
+				withId:(NSString *)creativeId;
 
 // called when a resource has been cached
 - (void)cachedResource:(NSURL *)url
-		   forCreative:(long)creativeId;
+		   forCreative:(NSString *)creativeId;
 
 // called when a resource has been cached
 - (void)cachedResourceRetired:(NSURL *)url
-				  forCreative:(long)creativeId;
+				  forCreative:(NSString *)creativeId;
 
 // called when a resource has been cached
 - (void)cachedResourceRemoved:(NSURL *)url
-				  forCreative:(long)creativeId;
+				  forCreative:(NSString *)creativeId;
 
 // called to get injectable javascript
 - (NSString *)javascriptForInjection;
@@ -79,17 +79,17 @@
 
 
 // adds a new resource to the cache for the specified creative
-- (void)cacheResourceForCreative:(NSUInteger)creativeId
+- (void)cacheResourceForCreative:(NSString *)creativeId
 						   named:(NSString *)url
 					withDelegate:(id<ORMMALocalServerDelegate>)delegate;
 
 // removes a specific resource from the cache for the specified creative
-- (void)removeCachedResourceForCreative:(NSUInteger)creativeId
+- (void)removeCachedResourceForCreative:(NSString *)creativeId
 								  named:(NSString *)url
 						   withDelegate:(id<ORMMALocalServerDelegate>)delegate;
 
 // removes all cached resources for the specified creative
-- (void)removeAllCachedResourcesForCreative:(NSUInteger)creativeId
+- (void)removeAllCachedResourcesForCreative:(NSString *)creativeId
 							   withDelegate:(id<ORMMALocalServerDelegate>)delegate;
 
 
@@ -99,7 +99,7 @@
 + (void)removeAllCachedResources;
 
 
-- (NSString *)cachedHtmlForCreative:(long)creativeId;
+- (NSString *)cachedHtmlForCreative:(NSString *)creativeId;
 
 
 @end
