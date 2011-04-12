@@ -354,18 +354,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		[app openURL:url];
 		return NO;
 	}
-	else if ( [@"http" isEqualToString:scheme] )
-	{
-		// handle special cased URLs
-		if ( [@"maps.google.com" isEqualToString:url.host] )
-		{
-			// handle google maps
-			[self verifyExternalLaunchWithTitle:@"Launch Maps"
-											URL:request.URL];
-			return NO;
-		}
-	}
-	
+		
 	// not handled by ORMMA, see if the delegate wants it
 	if ( m_externalProtocols.count > 0 )
 	{
@@ -1089,7 +1078,7 @@ blockingOpacity:(CGFloat)blockingOpacity
   withUrlString:(NSString *)urlString
   andFullScreen:(BOOL)fullscreen
 {
-    
+
 }
 
 - (void)playAudio:(UIWebView *)webView
