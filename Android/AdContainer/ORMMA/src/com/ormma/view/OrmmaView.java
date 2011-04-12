@@ -114,7 +114,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	private static final int MESSAGE_OPEN = 1006;
 
 	// Extra constants
-	private static final String EXPAND_DIMENSIONS = "exand_initial_dimensions";
+	private static final String EXPAND_DIMENSIONS = "expand_initial_dimensions";
 	private static final String EXPAND_URL = "expand_url";
 	private static final String EXPAND_PROPERTIES = "expand_properties";
 	private static final String RESIZE_WIDTH = "resize_width";
@@ -671,29 +671,19 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 					return true;
 				}
 
-				if (url.startsWith("mailto:") || url.startsWith("market:")) {
+				if (url.startsWith("mailto:")) {
 					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					getContext().startActivity(intent);
 					return true;
 				}
 
-				HttpClient httpClient = new DefaultHttpClient();
-				HttpHead head = new HttpHead(url);
-				HttpResponse response;
-				response = httpClient.execute(head);
-				Header h = response.getFirstHeader("content-type");
-				if (h != null) {
-					String val = h.getValue();
-					if (val.startsWith("video"))
-						type = val;
-				}
+				//TODO check registered protocols
+				
+				
 				Intent intent = new Intent();
 				intent.setAction(android.content.Intent.ACTION_VIEW);
-				if (type != null)
-					intent.setDataAndType(uri, type);
-				else
-					intent.setData(uri);
+				intent.setData(uri);
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				getContext().startActivity(intent);
 				return true;
@@ -949,14 +939,15 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	
 	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean inline, String startStyle, String stopStyle) {
 
-		//TODO...
+		//TODO...needs to be sent into the handler?
 
 	}
 	
 	
 	public void playVideo(String url, boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, int[] inline, String startStyle, String stopStyle) {
 
-		//TODO...is the int[] param valid?
+		//TODO...is the int[] param valid? 
+		//TODO  needs to be sent into the handler?
 
 	}
 	
