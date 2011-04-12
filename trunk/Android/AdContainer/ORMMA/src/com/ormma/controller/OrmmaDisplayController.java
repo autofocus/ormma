@@ -33,7 +33,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	private int mMaxWidth = -1;
 	private int mMaxHeight = -1;
 	private OrmmaConfigurationBroadcastReceiver mBroadCastReceiver;
-	private float mDensity;
+
 
 	/**
 	 * Instantiates a new ormma display controller.
@@ -75,6 +75,20 @@ public class OrmmaDisplayController extends OrmmaController {
 	public void open(String url, boolean back, boolean forward, boolean refresh) {
 		mOrmmaView.open(url, back, forward, refresh);
 
+	}
+	
+	
+	public void openMap(String url, boolean fullscreen) {
+		mOrmmaView.openMap(url, fullscreen);
+	}
+	
+	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean inline, String startStyle, String stopStyle) {
+		mOrmmaView.playAudio(url, autoPlay, controls, loop, inline, startStyle, stopStyle);
+	}
+	
+	
+	public void playVideo(String url, boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, int[] inline, String startStyle, String stopStyle) {
+		mOrmmaView.playVideo(url, audioMuted, autoPlay, controls, loop, inline, startStyle, stopStyle);
 	}
 
 	/**
