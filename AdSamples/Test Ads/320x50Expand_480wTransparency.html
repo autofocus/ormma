@@ -104,7 +104,7 @@ img {
 	  ormma.expand( { x: pos.x, 
 	                  y: pos.y, 
 					  width: size.width, 
-					  height : 480 } );
+					  height : ormma.getScreenSize()['height'] - pos.y  } );
    }
 
 
