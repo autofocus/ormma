@@ -33,6 +33,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	private int mMaxWidth = -1;
 	private int mMaxHeight = -1;
 	private OrmmaConfigurationBroadcastReceiver mBroadCastReceiver;
+	private float mDensity;
 
 
 	/**
