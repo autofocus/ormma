@@ -488,14 +488,17 @@
     ormma.removeEventListener = function(event, listener) {
         if (!event) {
             broadcastEvent(EVENTS.ERROR, 'Must specify an event.', 'removeEventListener');
-        } else {
-            if (listener && !listeners[event].remove(listener)) {
+        } 
+        else {
+            if (listener && (!listeners[event] || !listeners[event].remove(listener))) {
                 broadcastEvent(EVENTS.ERROR, 'Listener not currently registered for event', 'removeEventListener');
-                return;
-            } else {
+                return;  
+            } 
+            else if (listeners[event]){
                 listeners[event].removeAll();
             }
-            if (listeners[event].count == 0) {
+            
+            if (listeners[event] && listeners[event].count == 0) {
                 listeners[event] = null;
                 delete listeners[event];
             }
