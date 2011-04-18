@@ -118,7 +118,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	 */
 	public void ready() {
 		mOrmmaView.injectJavaScript("Ormma.setState(\"" + mOrmmaView.getState() + "\");");
-		mOrmmaView.injectJavaScript("ORMMAReady()");
+		mOrmmaView.injectJavaScript("ORMMAReady();");
 	}
 
 	/**
