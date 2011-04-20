@@ -728,7 +728,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 		 ( title != nil ) && 
 		 ( body != nil ) )
 	{
-		[self.bridgeDelegate addEventToCalanderForDate:date
+		[self.bridgeDelegate addEventToCalenderForDate:date
 											 withTitle:title
 											  withBody:body];
 	}

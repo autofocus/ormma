@@ -119,7 +119,7 @@
 - (void)sendSMSTo:(NSString *)to
 		 withBody:(NSString *)body;
 - (void)placeCallTo:(NSString *)phoneNumber;
-- (void)addEventToCalanderForDate:(NSDate *)date
+- (void)addEventToCalenderForDate:(NSDate *)date
 						withTitle:(NSString *)title
 						 withBody:(NSString *)body;
 
