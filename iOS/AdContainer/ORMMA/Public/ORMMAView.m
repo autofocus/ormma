@@ -195,7 +195,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	CGRect webViewFrame = CGRectMake( 0, 
 									  0, 
 									  self.frame.size.width, 
-									  self.frame.size.height );
+									  self.frame.size.height);
 	m_webView = [[UIWebView alloc] initWithFrame:webViewFrame];
 	[m_webView disableBouncesAndScrolling];
 	
@@ -328,7 +328,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		return NO;
 	}
 	
-	// handle maps and mailto
+	// handle mailto and tel
 	NSString *scheme = url.scheme;
 	if ( [@"mailto" isEqualToString:scheme] )
 	{
@@ -603,7 +603,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		// default ad, nothing to do
 		return;
 	}
-	if ( self.currentState == ORMMAViewStateHidden )
+	else if ( self.currentState == ORMMAViewStateHidden )
 	{
 		// hidden ad, nothing to do
 		return;
@@ -750,11 +750,11 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// step 4: create a blocking view that fills the current window
 	// if the status bar is visible, we need to account for it
 	CGRect f = keyWindow.frame;
-	UIApplication *a = [UIApplication sharedApplication];
-	if ( !a.statusBarHidden )
+    
+	if ( !app.statusBarHidden )
 	{
 	   // status bar is visible
-	   endingFrame.origin.y -= 20;
+	   endingFrame.origin.y -= app.statusBarFrame.size.height;
 	}
 	if ( m_blockingView != nil )
 	{
@@ -990,7 +990,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 }
 
 
-- (void)addEventToCalanderForDate:(NSDate *)date
+- (void)addEventToCalenderForDate:(NSDate *)date
 						withTitle:(NSString *)title
 						 withBody:(NSString *)body
 {
@@ -1412,7 +1412,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	
 	// setup the default state
 	self.currentState = ORMMAViewStateDefault;
-	[self fireAdWillShow];
+//	[self fireAdWillShow];
 	
 	// add the various features the device supports
 	NSMutableString *features = [NSMutableString stringWithCapacity:100];
@@ -1511,7 +1511,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	 executeJavascript:@"window.ormmaview.fireChangeEvent( %@ );", properties];
 
 	// make sure things are visible
-	[self fireAdDidShow];
+//	[self fireAdDidShow];
 }
 
 
