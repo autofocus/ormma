@@ -51,14 +51,13 @@ public abstract class OrmmaController {
 	 *
 	 */
 	public static class PlayerProperties extends ReflectedParcelable {
-		private boolean autoPlay, showControl, doLoop, audioMuted;
-		private String stopStyle, startStyle;			
-
+			
 		
 		public PlayerProperties() {
 			autoPlay = showControl = true;
 			doLoop = audioMuted = false;
 			startStyle = stopStyle = STYLE_NORMAL;
+			inline = false;
 		}
 		
 		/**
@@ -92,13 +91,15 @@ public abstract class OrmmaController {
 		 * @param controls - true if player should show controls
 		 * @param loop - true if player should start again after finishing
 		 */
-		public void setProperties(boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, String startStyle, String stopStyle){
+		public void setProperties(boolean audioMuted, boolean autoPlay, boolean controls, boolean inline,boolean loop, String startStyle, String stopStyle){
 			this.autoPlay = autoPlay;
-			showControl = controls;
-			doLoop = loop;
+			this.showControl = controls;
+			this.doLoop = loop;
 			this.audioMuted = audioMuted;
 			this.startStyle = startStyle;
 			this.stopStyle = stopStyle;
+			this.inline = inline;			
+
 		}
 		
 		/**
@@ -113,7 +114,7 @@ public abstract class OrmmaController {
 		 * 
 		 */
 		public boolean isAutoPlay(){
-			return autoPlay;
+			return (autoPlay == true);
 		}
 		
 		/**
@@ -154,7 +155,8 @@ public abstract class OrmmaController {
 			return startStyle.equalsIgnoreCase(FULL_SCREEN);
 		}		
 		
-		
+		public boolean autoPlay, showControl, doLoop, audioMuted,inline;
+		public String stopStyle, startStyle;
 	}
 	
 	/**
@@ -345,10 +347,12 @@ public abstract class OrmmaController {
 			Class<?> c = this.getClass();
 			fields = c.getFields();
 			try {
-				Object obj = c.newInstance();
+				//Object obj = c.newInstance();
+				Object obj = this;
 				for (int i = 0; i < fields.length; i++) {
 					Field f = fields[i];
 					Class<?> type = f.getType();
+					
 					if (type.isEnum()) {
 						String typeStr = type.toString();
 						if (typeStr.equals(NAVIGATION_TYPE)) {
@@ -356,19 +360,25 @@ public abstract class OrmmaController {
 						} else if (typeStr.equals(TRANSITION_TYPE)) {
 							f.set(obj, TransitionStringEnum.fromString(in.readString()));
 						}
-					} else
-						f.set(obj, in.readValue(null));
+					} else {
+						Object dt = f.get(this);
+						if( !(dt instanceof Parcelable.Creator<?>)) {
+							f.set(obj, in.readValue(null));							
+						}
+					}
 				}
+				
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			} 
+//			catch (InstantiationException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
 		}
 
@@ -384,6 +394,7 @@ public abstract class OrmmaController {
 				for (int i = 0; i < fields.length; i++) {
 					Field f = fields[i];
 					Class<?> type = f.getType();
+										
 					if (type.isEnum()) {
 						String typeStr = type.toString();
 						if (typeStr.equals(NAVIGATION_TYPE)) {
@@ -391,8 +402,12 @@ public abstract class OrmmaController {
 						} else if (typeStr.equals(TRANSITION_TYPE)) {
 							out.writeString(((TransitionStringEnum) f.get(this)).getText());
 						}
-					} else
-						out.writeValue(f.get(this));
+					} else {
+						Object dt = f.get(this);
+						if( !(dt instanceof Parcelable.Creator<?>)) 
+								out.writeValue(dt);				
+						
+					}
 				}
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
