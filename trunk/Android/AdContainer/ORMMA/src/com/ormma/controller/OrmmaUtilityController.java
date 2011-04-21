@@ -87,7 +87,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	}
 
 	/**
-	 * Gets the supports object.  Examines aplication permissions
+	 * Gets the supports object.  Examines application permissions
 	 *
 	 * @return the supports
 	 */
