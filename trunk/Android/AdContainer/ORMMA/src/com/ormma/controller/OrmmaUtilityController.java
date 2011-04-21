@@ -108,6 +108,13 @@ public class OrmmaUtilityController extends OrmmaController {
 				.checkCallingOrSelfPermission(android.Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED));
 		if (p)
 			supports += ", 'calendar'";
+		
+		supports += ", 'video'";
+		
+		supports += ", 'audio'";
+
+		supports += ", 'map'";
+		
 		supports += ", 'email' ]";
 		return supports;
 
