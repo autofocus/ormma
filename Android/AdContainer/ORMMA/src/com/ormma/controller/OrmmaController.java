@@ -39,8 +39,124 @@ public abstract class OrmmaController {
 	private static final String FLOAT_TYPE = "float";
 	private static final String NAVIGATION_TYPE = "class com.ormma.NavigationStringEnum";
 	private static final String TRANSITION_TYPE = "class com.ormma.TransitionStringEnum";
+	
+	public static final String FULL_SCREEN = "fullscreen";
+	public static final String EXIT = "exit";
+	public static final String STYLE_NORMAL = "normal";
 
 
+	/**
+	 * 
+	 * Contains audio and video properties
+	 *
+	 */
+	public static class PlayerProperties extends ReflectedParcelable {
+		private boolean autoPlay, showControl, doLoop, audioMuted;
+		private String stopStyle, startStyle;			
+
+		
+		public PlayerProperties() {
+			autoPlay = showControl = true;
+			doLoop = audioMuted = false;
+			startStyle = stopStyle = STYLE_NORMAL;
+		}
+		
+		/**
+		 * The Constant CREATOR.
+		 */
+		public static final Parcelable.Creator<PlayerProperties> CREATOR = new Parcelable.Creator<PlayerProperties>() {
+			public PlayerProperties createFromParcel(Parcel in) {
+				return new PlayerProperties(in);
+			}
+
+			public PlayerProperties[] newArray(int size) {
+				return new PlayerProperties[size];
+			}
+		};		
+		
+		public PlayerProperties(Parcel in) {
+			super(in);
+		}
+
+		/**
+		 * Set stop style
+		 * @param style - stop style (normal/full screen)
+		 */
+		public void setStopStyle(String style){
+			stopStyle = style;
+		}
+		
+		/**
+		 * Set Player properties
+		 * @param autoPlay - true if player should start immediately
+		 * @param controls - true if player should show controls
+		 * @param loop - true if player should start again after finishing
+		 */
+		public void setProperties(boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, String startStyle, String stopStyle){
+			this.autoPlay = autoPlay;
+			showControl = controls;
+			doLoop = loop;
+			this.audioMuted = audioMuted;
+			this.startStyle = startStyle;
+			this.stopStyle = stopStyle;
+		}
+		
+		/**
+		 * Mute Audio
+		 */
+		public void muteAudio(){
+			audioMuted = true;
+		}
+		
+		/**
+		 * Get autoPlay
+		 * 
+		 */
+		public boolean isAutoPlay(){
+			return autoPlay;
+		}
+		
+		/**
+		 * Get show control
+		 */
+		public boolean showControl(){
+			return showControl;
+		}
+		
+		/**
+		 * 
+		 * Get looping option
+		 */
+		public boolean doLoop(){
+			return doLoop;
+		}
+		
+		/**
+		 * Get mute status
+		 */
+		public boolean doMute(){
+			return audioMuted;
+		}
+		
+		/**
+		 * 
+		 * Get stop style
+		 */
+		public boolean exitOnComplete(){
+			return stopStyle.equalsIgnoreCase(EXIT);
+		}
+		
+		/**
+		 * 
+		 * Get start style
+		 */
+		public boolean isFullScreen(){
+			return startStyle.equalsIgnoreCase(FULL_SCREEN);
+		}		
+		
+		
+	}
+	
 	/**
 	 * The Class Dimensions.  Holds dimensions coming from javascript
 	 */

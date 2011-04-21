@@ -35,7 +35,6 @@ public class OrmmaDisplayController extends OrmmaController {
 	private OrmmaConfigurationBroadcastReceiver mBroadCastReceiver;
 	private float mDensity;
 
-
 	/**
 	 * Instantiates a new ormma display controller.
 	 *
@@ -78,20 +77,80 @@ public class OrmmaDisplayController extends OrmmaController {
 
 	}
 	
-	
+	/**Open map
+	 * @param url - map url
+	 * @param fullscreen - boolean indicating whether map to be launched in full screen
+	 */
 	public void openMap(String url, boolean fullscreen) {
 		mOrmmaView.openMap(url, fullscreen);
 	}
 	
+
+	/**
+	 * Play audio
+	 * @param url - audio url to be played
+	 * @param autoPlay - if audio should play immediately
+	 * @param controls - should native player controls be visible
+	 * @param loop - should video start over again after finishing
+	 * @param inline - should audio be included with ad content
+	 * @param startStyle - normal/fullscreen (if audio should play in native full screen mode)
+	 * @param stopStyle - normal/exit (exit if player should exit after audio stops)
+	 */
 	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean inline, String startStyle, String stopStyle) {
-		mOrmmaView.playAudio(url, autoPlay, controls, loop, inline, startStyle, stopStyle);
+		Dimensions d = inline ? new Dimensions() : null;
+		mOrmmaView.playAudio(url, autoPlay, controls, loop, d, startStyle, stopStyle);
 	}
 	
 	
+	/**
+	 * Play video
+	 * @param url - video url to be played
+	 * @param audioMuted - should audio be muted
+	 * @param autoPlay - should video play immediately
+	 * @param controls  - should native player controls be visible
+	 * @param loop - should video start over again after finishing
+	 * @param inline - top and left coordinates of video in pixels if video should play inline
+	 * @param startStyle - normal/fullscreen (if video should play in native full screen mode)
+	 * @param stopStyle - normal/exit (exit if player should exit after video stops)
+	 */
 	public void playVideo(String url, boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, int[] inline, String startStyle, String stopStyle) {
-		mOrmmaView.playVideo(url, audioMuted, autoPlay, controls, loop, inline, startStyle, stopStyle);
+		Dimensions d = null;
+		if(inline[0] != -1) {
+			d = new Dimensions();
+			d.x = inline[0];
+			d.y = inline[1];
+			d.width = inline[2];
+			d.height = inline[3];
+			d = getDeviceDimensions(d);
+		}		
+		mOrmmaView.playVideo(url, audioMuted, autoPlay, controls, loop, d, startStyle, stopStyle);
 	}
 
+	/**
+	 * Get Device dimensions
+	 * @param d - dimensions received from java script
+	 * @return
+	 */
+	private Dimensions getDeviceDimensions(Dimensions d){
+		d.width *= mDensity;
+		d.height *= mDensity;
+		d.x *= mDensity;
+		d.y *= mDensity;
+		if (d.height < 0)
+			d.height = mOrmmaView.getHeight();
+		if (d.width < 0)
+			d.width = mOrmmaView.getWidth();
+		int loc[] = new int[2];
+		mOrmmaView.getLocationInWindow(loc);
+		if (d.x < 0)
+			d.x = loc[0];
+		if (d.y < 0) {
+			int topStuff = 0;// ((Activity)mContext).findViewById(Window.ID_ANDROID_CONTENT).getTop();
+			d.y = loc[1] - topStuff;
+		}
+		return d;
+	}
+	
 	/**
 	 * Expand the view
 	 *
@@ -103,24 +162,7 @@ public class OrmmaDisplayController extends OrmmaController {
 
 		try {
 			Dimensions d = (Dimensions) getFromJSON(new JSONObject(dimensions), Dimensions.class);
-			d.width *= mDensity;
-			d.height *= mDensity;
-			d.x *= mDensity;
-			d.y *= mDensity;
-			if (d.height < 0)
-				d.height = mOrmmaView.getHeight();
-			if (d.width < 0)
-				d.width = mOrmmaView.getWidth();
-			int loc[] = new int[2];
-			mOrmmaView.getLocationInWindow(loc);
-			if (d.x < 0)
-				d.x = loc[0];
-			if (d.y < 0) {
-				int topStuff = 0;// ((Activity)mContext).findViewById(Window.ID_ANDROID_CONTENT).getTop();
-				d.y = loc[1] - topStuff;
-			}
-
-			mOrmmaView.expand(d, URL, (Properties) getFromJSON(new JSONObject(properties), Properties.class));
+			mOrmmaView.expand(getDeviceDimensions(d), URL, (Properties) getFromJSON(new JSONObject(properties), Properties.class));
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
