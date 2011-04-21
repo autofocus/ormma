@@ -44,6 +44,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -65,6 +66,8 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebSettings.LayoutAlgorithm;
+import android.webkit.WebSettings.RenderPriority;
 import android.widget.FrameLayout;
 
 import com.ormma.controller.OrmmaController.Dimensions;
@@ -132,10 +135,10 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
 	// private constants
 	private TimeOut mTimeOut; // timeout for loading a url
-	private static String mScriptPath = null; // holds the path for the ormma.js
-	private static String mBridgeScriptPath = null; // holds the path for the
+	private static String mScriptPath /*= null*/; // holds the path for the ormma.js
+	private static String mBridgeScriptPath /*= null*/; // holds the path for the
 													// ormma_bridge.js
-	private boolean bPageFinished = false; // boolean flag holding the loading
+	private boolean bPageFinished /*= false*/; // boolean flag holding the loading
 											// state of a page
 	private OrmmaUtilityController mUtilityController; // primary javascript
 														// bridge
@@ -151,7 +154,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 												// unwanted gestures
 	private ViewState mViewState = ViewState.DEFAULT;  //holds current view state
 	private OrmmaViewListener mListener;  //listener for communicated events (back to the parent)
-	public String mDataToInject = null;  //javascript to inject into the view
+	public String mDataToInject/* = null*/;  //javascript to inject into the view
 	private String mLocalFilePath;  //local path the the ad html
 
 
@@ -656,6 +659,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
 			mUtilityController.init(mDensity);
 
+			bPageFinished = true;
 		}
 
 		@Override
@@ -738,7 +742,22 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
 		bPageFinished = false;
 
-		getSettings().setJavaScriptEnabled(true);
+		WebSettings settings = getSettings();
+    	
+	    settings.setJavaScriptEnabled(true);
+	    	
+	    //settings.setLayoutAlgorithm(LayoutAlgorithm.NORMAL); //default
+	    settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
+	    settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+	    settings.setLightTouchEnabled(true);
+	    settings.setLoadsImagesAutomatically(true);
+	    settings.setRenderPriority(RenderPriority.HIGH);
+  
+	    //vital 
+	    setInitialScale(100); 
+	   
+	    setEnabled(true);
+		
 
 		mUtilityController = new OrmmaUtilityController(this, this.getContext());
 
@@ -971,13 +990,18 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 * Reset layout.
 	 */
 	private void resetLayout() {
-		ViewGroup.LayoutParams lp = getLayoutParams();
-		lp.height = mInitLayoutHeight;
-		lp.width = mInitLayoutWidth;
+		if(bGotLayoutParams) {	
+			ViewGroup.LayoutParams lp = getLayoutParams();
+			
+			lp.height = mInitLayoutHeight;
+			lp.width = mInitLayoutWidth;
+		}
 		setVisibility(VISIBLE);
 		requestLayout();
 	}
-
+	
+	
+	
 	/**
 	 * Checks if is page finished.
 	 * 
