@@ -354,7 +354,7 @@
   */
   ormmaview.playAudio = function( URL, properties ) {
 	
-	var autoPlay = true, controls = true, loop = false, inline = false, 
+	var autoPlay = false, controls = false, loop = false, inline = false, 
 	    startStyle = 'normal', stopStyle = 'normal';
 	 
     if ( properties != null ) {
@@ -399,7 +399,7 @@
    *
    */
   ormmaview.playVideo = function( URL, properties ) {
-	 var audioMuted = false, autoPlay = true, controls = true, loop = false, inline = [-1, -1, -1, -1], 
+	 var audioMuted = false, autoPlay = false, controls = false, loop = false, inline = [-1, -1, -1, -1], 
 	    startStyle = 'normal', stopStyle = 'normal';
      if ( properties != null ) {
          
