@@ -340,9 +340,9 @@
    /**
    *
    */
-  ormmaview.openMap = function( URL, fullscreen ) {
+  ormmaview.openMap = function( POI, fullscreen ) {
       try{
-    	  ORMMADisplayControllerBridge.openMap(URL, fullscreen);
+    	  ORMMADisplayControllerBridge.openMap(POI, fullscreen);
       } catch ( e ) {
 	     ormmaview.showAlert( "openMap: " + e );
 	  }
@@ -399,9 +399,8 @@
    *
    */
   ormmaview.playVideo = function( URL, properties ) {
-	 var autoPlay = false, controls = false, loop = false, inline = [-1, -1, -1, -1], 
+	 var audioMuted = false, autoPlay = true, controls = false, loop = false, inline = [-1, -1, -1, -1], 
 	    startStyle = 'normal', stopStyle = 'normal';
-     
      if ( properties != null ) {
          
          if ( ( typeof properties.audio != "undefined" ) && ( properties.audio != null ) ) {
@@ -426,22 +425,22 @@
         	 inline[0] = properties.inline.top;
         	 inline[1] = properties.inline.left;
         	 
-             if ( ( typeof properties.width != "undefined" ) && ( properties.width != null ) ) {
-            	 inline[2] =  properties.width;
+             if ( ( typeof properties.inline.width != "undefined" ) && ( properties.inline.width != null ) ) {
+            	 inline[2] =  properties.inline.width;
              }
              else{
                  //TODO ERROR
              }
              
-             if ( ( typeof properties.height != "undefined" ) && ( properties.height != null ) ) {
-            	 inline[3] =  properties.height;
+             if ( ( typeof properties.inline.height != "undefined" ) && ( properties.inline.height != null ) ) {
+            	 inline[3] =  properties.inline.height;
              }
              else{
                  //TODO ERROR
              }
          }
        
-         
+
          if ( ( typeof properties.startStyle != "undefined" ) && ( properties.startStyle != null ) ) {
              startStyle = properties.startStyle;
          }
@@ -452,7 +451,7 @@
      }    
      
      try{
-     	  ORMMADisplayControllerBridge.playVideo(URL, autoPlay, controls, loop, inline, startStyle, stopStyle);
+     	  ORMMADisplayControllerBridge.playVideo(URL, audioMuted, autoPlay, controls, loop, inline, startStyle, stopStyle);
        } 
        catch ( e ) {
    	     ormmaview.showAlert( "playVideo: " + e );
