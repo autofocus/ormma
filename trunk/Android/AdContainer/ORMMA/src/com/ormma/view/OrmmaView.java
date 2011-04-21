@@ -6,7 +6,6 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-
 /**
  * 
  * This is the view to place into a layout to implement ormma functionality.
@@ -49,12 +48,12 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.webkit.JsResult;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebChromeClient;
@@ -62,10 +61,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
+import com.ormma.controller.OrmmaUtilityController;
 import com.ormma.controller.OrmmaController.Dimensions;
 import com.ormma.controller.OrmmaController.PlayerProperties;
 import com.ormma.controller.OrmmaController.Properties;
-import com.ormma.controller.OrmmaUtilityController;
 import com.ormma.controller.util.OrmmaPlayer;
 import com.ormma.controller.util.OrmmaPlayerListener;
 import com.ormma.controller.util.OrmmaUtils;
@@ -87,21 +86,16 @@ import com.ormma.controller.util.OrmmaUtils;
  */
 public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
-	
 	/**
 	 * enum representing possible view states
 	 */
 	public enum ViewState {
-		DEFAULT,
-		RESIZED,
-		EXPANDED,
-		HIDDEN,
-		LEFT_BEHIND,
-		OPENED;
+		DEFAULT, RESIZED, EXPANDED, HIDDEN, LEFT_BEHIND, OPENED;
 	}
-	//static for accessing xml attributes
+
+	// static for accessing xml attributes
 	private static int[] attrs = { R.attr.maxWidth, R.attr.maxHeight };
-	
+
 	// Messaging constants
 	private static final int MESSAGE_RESIZE = 1000;
 	private static final int MESSAGE_CLOSE = 1001;
@@ -115,14 +109,14 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
 	// Extra constants
 	private static final String EXPAND_DIMENSIONS = "expand_initial_dimensions";
-	private static final String PLAYER_PROPERTIES = "expand_player_properties";
-	private static final String EXPAND_URL = "expand_url";
+	public static final String PLAYER_PROPERTIES = "expand_player_properties";
+	public static final String EXPAND_URL = "expand_url";
+	public static final String ACTION_KEY = "action";
 	private static final String EXPAND_PROPERTIES = "expand_properties";
 	private static final String RESIZE_WIDTH = "resize_width";
 	private static final String RESIZE_HEIGHT = "resize_height";
 	private static final String CURRENT_FILE = "_ormma_current";
 	private static final String AD_PATH = "AD_PATH";
-		
 
 	// Debug message constant
 	private static final String TAG = "OrmmaView";
@@ -134,13 +128,13 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
 	// private constants
 	private TimeOut mTimeOut; // timeout for loading a url
-	private static String mScriptPath /*= null*/; // holds the path for the ormma.js
-	private static String mBridgeScriptPath /*= null*/; // holds the path for the
-													// ormma_bridge.js
-	private boolean bPageFinished/* = false*/; // boolean flag holding the loading
-											// state of a page
+	private static String mScriptPath = null; // holds the path for the ormma.js
+	private static String mBridgeScriptPath = null; // holds the path for the
+	// ormma_bridge.js
+	private boolean bPageFinished = false; // boolean flag holding the loading
+	// state of a page
 	private OrmmaUtilityController mUtilityController; // primary javascript
-														// bridge
+	// bridge
 	private float mDensity; // screen pixel density
 	private int mContentViewHeight; // height of the content
 	private boolean bKeyboardOut; // state of the keyboard
@@ -150,19 +144,26 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	private int mInitLayoutWidth; // initial height of the view
 	private int mIndex; // index of the view within its viewgroup
 	private GestureDetector mGestureDetector; // gesture detector for capturing
-												// unwanted gestures
-	private ViewState mViewState = ViewState.DEFAULT;  //holds current view state
-	private OrmmaViewListener mListener;  //listener for communicated events (back to the parent)
-	public String mDataToInject /*= null*/;  //javascript to inject into the view
-	private String mLocalFilePath;  //local path the the ad html
-	
-	//URL Protocols registered by the client.
-	//if such a protocol is encountered then 
-	//shouldOverrideUrlLoading will forward the url to the listener
-	//by calling handleRequest	
-	//Should this be a static variable?	
+	// unwanted gestures
+	private ViewState mViewState = ViewState.DEFAULT; // holds current view
+														// state
+	// state
+	private OrmmaViewListener mListener; // listener for communicated events
+	private static OrmmaPlayer player;
+	// (back to the parent)
+	public String mDataToInject = null; // javascript to inject into the view
+	private String mLocalFilePath; // local path the the ad html
+
+	// URL Protocols registered by the client.
+	// if such a protocol is encountered then
+	// shouldOverrideUrlLoading will forward the url to the listener
+	// by calling handleRequest
+	// Should this be a static variable?
 	private final HashSet<String> registeredProtocols = new HashSet<String>();
 
+	public enum ACTION {
+		PLAY_AUDIO, PLAY_VIDEO
+	}
 
 	/**
 	 * Instantiates a new ormma view.
@@ -225,43 +226,47 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	public void setMaxSize(int w, int h) {
 		mUtilityController.setMaxSize(w, h);
 	}
-	
+
 	/**
-	 * Register a protocol 
+	 * Register a protocol
+	 * 
 	 * @param protocol
-	 * 			the protocol to be registered
+	 *            the protocol to be registered
 	 */
-	
+
 	public void registerProtocol(String protocol) {
-		if(protocol != null)
+		if (protocol != null)
 			registeredProtocols.add(protocol.toLowerCase());
 	}
-	
+
 	/**
-	 * Deregister a protocol 
+	 * Deregister a protocol
+	 * 
 	 * @param protocol
-	 * 			the protocol to be de registered
+	 *            the protocol to be de registered
 	 */
-	
+
 	public void deregisterProtocol(String protocol) {
-		if(protocol != null)
+		if (protocol != null)
 			registeredProtocols.remove(protocol.toLowerCase());
 	}
-	
+
 	/**
 	 * Is Protocol Registered
+	 * 
 	 * @param uri
-	 * 		The uri
-	 * @return true , if the url's protocol is registered by the user, 
-	 *  	   else false if scheme is null or not registered
+	 *            The uri
+	 * @return true , if the url's protocol is registered by the user, else
+	 *         false if scheme is null or not registered
 	 */
 	private boolean isRegisteredProtocol(Uri uri) {
-		
+
 		String scheme = uri.getScheme();
-		if(scheme == null) return false;
-		
-		for(String protocol : registeredProtocols) {
-			if(protocol.equalsIgnoreCase(scheme))
+		if (scheme == null)
+			return false;
+
+		for (String protocol : registeredProtocols) {
+			if (protocol.equalsIgnoreCase(scheme))
 				return true;
 		}
 		return false;
@@ -320,15 +325,15 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		 * @return true, if successful
 		 */
 		abstract boolean onEventFired();
-		
-		/**		 
+
+		/**
 		 * On Handling Requests
 		 * 
 		 * @param url
-		 * 		The url whose protocol has been registered.	
+		 *            The url whose protocol has been registered.
 		 */
-		
-		abstract void handleRequest(String url); 
+
+		abstract void handleRequest(String url);
 	}
 
 	/**
@@ -341,8 +346,6 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		if (str != null)
 			super.loadUrl("javascript:" + str);
 	}
-
-
 
 	/**
 	 * Load a url into the view
@@ -375,15 +378,16 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	public void loadFile(File f, String dataToInject) {
 		try {
 			mDataToInject = dataToInject;
-			loadInputStream(new FileInputStream(f),  dataToInject);
+			loadInputStream(new FileInputStream(f), dataToInject);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * The Class TimeOut.  A timertask for terminating the load if it takes too long
-	 * If it fires three times without making progress, it will cancel the load
+	 * The Class TimeOut. A timertask for terminating the load if it takes too
+	 * long If it fires three times without making progress, it will cancel the
+	 * load
 	 */
 	class TimeOut extends TimerTask {
 
@@ -399,10 +403,9 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				if (mProgress == progress) {
 					mCount++;
 					if (mCount == 3) {
-						try{
+						try {
 							stopLoading();
-						}
-						catch (Exception e){
+						} catch (Exception e) {
 							Log.w(TAG, "error in stopLoading");
 							e.printStackTrace();
 						}
@@ -426,7 +429,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	}
 
 	/**
-	 * Reset the view. 
+	 * Reset the view.
 	 */
 	private void reset() {
 		if (mViewState == ViewState.EXPANDED) {
@@ -441,7 +444,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	}
 
 	/**
-	 * Loads the view from an input stream.  Does the real loading work
+	 * Loads the view from an input stream. Does the real loading work
 	 * 
 	 * @param is
 	 *            the input stream
@@ -457,9 +460,11 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		mTimeOut = new TimeOut();
 
 		try {
-			mLocalFilePath = mUtilityController.writeToDiskWrap(is, CURRENT_FILE, true, mDataToInject,
-					mBridgeScriptPath, mScriptPath);
-			url = "file://" + mLocalFilePath + java.io.File.separator + CURRENT_FILE;
+			mLocalFilePath = mUtilityController.writeToDiskWrap(is,
+					CURRENT_FILE, true, mDataToInject, mBridgeScriptPath,
+					mScriptPath);
+			url = "file://" + mLocalFilePath + java.io.File.separator
+					+ CURRENT_FILE;
 			Timer timer = new Timer();
 			timer.schedule(mTimeOut, 2000, 2000);
 			if (mDataToInject != null) {
@@ -492,14 +497,18 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 			try {
 				URL u = new URL(url);
 				String name = u.getFile();
-				//if it is in the asset directory use the assetmanager
-				
+				// if it is in the asset directory use the assetmanager
+
 				if (url.startsWith("file:///android_asset/")) {
-//					int lastSep = url.lastIndexOf(java.io.File.separatorChar);
-//
-//					if (lastSep >= 0) {
-//						name = url.substring(url.lastIndexOf(java.io.File.separatorChar) + 1);
-//					}
+					// int lastSep =
+					// url.lastIndexOf(java.io.File.separatorChar);
+					//
+					// if (lastSep >= 0) {
+					// name =
+					// url.substring(url.lastIndexOf(java.io.File.separatorChar)
+					// + 1);
+					// .lastIndexOf(java.io.File.separatorChar) + 1);
+					// }
 					name = url.replace("file:///android_asset/", "");
 					AssetManager am = getContext().getAssets();
 					is = am.open(name);
@@ -563,12 +572,13 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	}
 
 	/**
-	 * The message handler.  To keep things in the ui thread.
+	 * The message handler. To keep things in the ui thread.
 	 */
 	private Handler mHandler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
+
 			Bundle data = msg.getData();
 			switch (msg.what) {
 			case MESSAGE_SEND_EXPAND_CLOSE:
@@ -581,8 +591,12 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				ViewGroup.LayoutParams lp = getLayoutParams();
 				lp.height = data.getInt(RESIZE_HEIGHT, lp.height);
 				lp.width = data.getInt(RESIZE_WIDTH, lp.width);
-				String injection = "window.ormmaview.fireChangeEvent({ state: \'resized\'," + " size: { width: "
-						+ lp.width + ", " + "height: " + lp.height + "}});";
+				String injection = "window.ormmaview.fireChangeEvent({ state: \'resized\',"
+						+ " size: { width: "
+						+ lp.width
+						+ ", "
+						+ "height: "
+						+ lp.height + "}});";
 				injectJavaScript(injection);
 				requestLayout();
 				if (mListener != null)
@@ -622,7 +636,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				mViewState = ViewState.LEFT_BEHIND;
 				break;
 			}
-			
+
 			case MESSAGE_PLAY_AUDIO: {
 				playAudioImpl(data);
 				break;
@@ -637,21 +651,26 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 			super.handleMessage(msg);
 		}
 
-	};	
+	};
 
 	/**
 	 * Change ad display to new dimensions
-	 * @param d - display dimensions
+	 * 
+	 * @param d
+	 *            - display dimensions
 	 * 
 	 */
-	private FrameLayout changeContentArea(Dimensions d){
-		
-		FrameLayout contentView = (FrameLayout) getRootView().findViewById(R.id.content);
-		
+	private FrameLayout changeContentArea(Dimensions d) {
+
+		FrameLayout contentView = (FrameLayout) getRootView().findViewById(
+				R.id.content);
+
 		ViewGroup parent = (ViewGroup) getParent();
-		FrameLayout.LayoutParams fl = new FrameLayout.LayoutParams((int) (d.width), (int) (d.height));
+		FrameLayout.LayoutParams fl = new FrameLayout.LayoutParams(
+				(int) (d.width), (int) (d.height));
 		fl.topMargin = (int) (d.x);
 		fl.leftMargin = (int) (d.y);
+
 		int index = 0;
 		int count = parent.getChildCount();
 		for (index = 0; index < count; index++) {
@@ -661,33 +680,37 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		mIndex = index;
 		FrameLayout placeHolder = new FrameLayout(getContext());
 		placeHolder.setId(PLACEHOLDER_ID);
-		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(getWidth(), getHeight());
+		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(getWidth(),
+				getHeight());
 		parent.addView(placeHolder, index, lp);
 		parent.removeView(OrmmaView.this);
 
-		FrameLayout backGround = new FrameLayout(getContext());			
-		
+		FrameLayout backGround = new FrameLayout(getContext());
+
 		backGround.setOnTouchListener(new OnTouchListener() {
 
 			@Override
 			public boolean onTouch(View arg0, MotionEvent arg1) {
+				Log.i("ORMMA", "background touch called");
 				return true;
 			}
 		});
-		FrameLayout.LayoutParams bgfl = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT,
+		FrameLayout.LayoutParams bgfl = new FrameLayout.LayoutParams(
+				FrameLayout.LayoutParams.FILL_PARENT,
 				FrameLayout.LayoutParams.FILL_PARENT);
 		backGround.setId(BACKGROUND_ID);
 		backGround.setPadding((int) (d.x), (int) (d.y), 0, 0);
 		backGround.addView(OrmmaView.this, fl);
-		contentView.addView(backGround, bgfl);	
-		
+		contentView.addView(backGround, bgfl);
+
 		return backGround;
 	}
+
 	/**
 	 * Do the real work of an expand
 	 */
-	private void doExpand(Bundle data){
-		
+	private void doExpand(Bundle data) {
+
 		mViewState = ViewState.EXPANDED;
 		Dimensions d = (Dimensions) data.getParcelable(EXPAND_DIMENSIONS);
 		String url = data.getString(EXPAND_URL);
@@ -696,27 +719,38 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 			loadUrl(url);
 
 		FrameLayout backGround = changeContentArea(d);
-		
+
 		if (p.useBackground) {
-			int color = p.backgroundColor | ((int) (p.backgroundOpacity * 0xFF) * 0x10000000);
+			int color = p.backgroundColor
+					| ((int) (p.backgroundOpacity * 0xFF) * 0x10000000);
 			backGround.setBackgroundColor(color);
 		}
 
-		String injection = "window.ormmaview.fireChangeEvent({ state: \'expanded\'," + " size: " + "{ width: "
-				+ (int) (d.width / mDensity) + ", " + "height: " + (int) (d.height / mDensity) + "}" + " });";
+		String injection = "window.ormmaview.fireChangeEvent({ state: \'expanded\',"
+				+ " size: "
+				+ "{ width: "
+				+ (int) (d.width / mDensity)
+				+ ", "
+				+ "height: " + (int) (d.height / mDensity) + "}" + " });";
 
 		injectJavaScript(injection);
 		if (mListener != null)
 			mListener.onExpand();
 	}
+
 	/**
 	 * Close resized.
 	 */
 	private void closeResized() {
 		if (mListener != null)
 			mListener.onResizeClose();
-		String injection = "window.ormmaview.fireChangeEvent({ state: \'default\'," + " size: " + "{ width: "
-				+ mDefaultWidth + ", " + "height: " + mDefaultHeight + "}" + "});";
+		String injection = "window.ormmaview.fireChangeEvent({ state: \'default\',"
+				+ " size: "
+				+ "{ width: "
+				+ mDefaultWidth
+				+ ", "
+				+ "height: "
+				+ mDefaultHeight + "}" + "});";
 		injectJavaScript(injection);
 		resetLayout();
 	}
@@ -726,7 +760,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	WebViewClient mWebViewClient = new WebViewClient() {
 		@Override
-		public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+		public void onReceivedError(WebView view, int errorCode,
+				String description, String failingUrl) {
 			Log.d("OrmmaView", "error:" + description);
 			super.onReceivedError(view, errorCode, description, failingUrl);
 		}
@@ -744,21 +779,23 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			Uri uri = Uri.parse(url);
 			try {
-				//If the protocol is registered then forward it to listener.
-				if(mListener != null && isRegisteredProtocol(uri)) {
+				// If the protocol is registered then forward it to listener.
+				if (mListener != null && isRegisteredProtocol(uri)) {
 					mListener.handleRequest(url);
 					return true;
 				}
-					
+
 				if (url.startsWith("tel:")) {
-					Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(url));
+					Intent intent = new Intent(Intent.ACTION_DIAL, Uri
+							.parse(url));
 					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					getContext().startActivity(intent);
 					return true;
 				}
 
 				if (url.startsWith("mailto:")) {
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri
+							.parse(url));
 					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					getContext().startActivity(intent);
 					return true;
@@ -787,7 +824,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		}
 
 		public void onLoadResource(WebView view, String url) {
-			 Log.d(TAG,"lr:"+url);
+			Log.d(TAG, "lr:" + url);
 		};
 
 	};
@@ -797,7 +834,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	WebChromeClient mWebChromeClient = new WebChromeClient() {
 		@Override
-		public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+		public boolean onJsAlert(WebView view, String url, String message,
+				JsResult result) {
 			Log.d("OrmmaView", message);
 			return false;
 		}
@@ -814,7 +852,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	private void initialize() {
 		setBackgroundColor(0);
 		DisplayMetrics metrics = new DisplayMetrics();
-		WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+		WindowManager wm = (WindowManager) getContext().getSystemService(
+				Context.WINDOW_SERVICE);
 
 		wm.getDefaultDisplay().getMetrics(metrics);
 		mDensity = metrics.density;
@@ -825,7 +864,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
 		mUtilityController = new OrmmaUtilityController(this, this.getContext());
 
-		addJavascriptInterface(mUtilityController, "ORMMAUtilityControllerBridge");
+		addJavascriptInterface(mUtilityController,
+				"ORMMAUtilityControllerBridge");
 
 		setWebViewClient(mWebViewClient);
 
@@ -855,11 +895,12 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	private synchronized void setScriptPath() {
 		if (mScriptPath == null) {
-			mScriptPath = mUtilityController.copyTextFromJarIntoAssetDir("/js/ormma.js", "js/ormma.js");
+			mScriptPath = mUtilityController.copyTextFromJarIntoAssetDir(
+					"/js/ormma.js", "js/ormma.js");
 		}
 		if (mBridgeScriptPath == null) {
-			mBridgeScriptPath = mUtilityController.copyTextFromJarIntoAssetDir("/js/ormma_bridge.js",
-					"js/ormma_bridge.js");
+			mBridgeScriptPath = mUtilityController.copyTextFromJarIntoAssetDir(
+					"/js/ormma_bridge.js", "js/ormma_bridge.js");
 		}
 	}
 
@@ -867,23 +908,16 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 * Close an expanded view.
 	 */
 	protected synchronized void closeExpanded() {
-		
-		/*FrameLayout contentView = (FrameLayout) getRootView().findViewById(R.id.content);
 
-		FrameLayout placeHolder = (FrameLayout) getRootView().findViewById(PLACEHOLDER_ID);
-		FrameLayout background = (FrameLayout) getRootView().findViewById(BACKGROUND_ID);
-		ViewGroup parent = (ViewGroup) placeHolder.getParent();
-		background.removeView(this);
-		contentView.removeView(background);
-		resetLayout();
-		parent.addView(this, mIndex);
-		parent.removeView(placeHolder);
-		parent.invalidate();*/
-		
 		resetContents();
 
-		String injection = "window.ormmaview.fireChangeEvent({ state: \'default\'," + " size: " + "{ width: "
-				+ mDefaultWidth + ", " + "height: " + mDefaultHeight + "}" + "});";
+		String injection = "window.ormmaview.fireChangeEvent({ state: \'default\',"
+				+ " size: "
+				+ "{ width: "
+				+ mDefaultWidth
+				+ ", "
+				+ "height: "
+				+ mDefaultHeight + "}" + "});";
 
 		injectJavaScript(injection);
 
@@ -900,7 +934,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 *            the opened frame
 	 */
 	protected void closeOpened(View openedFrame) {
-		((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(openedFrame);
+		((ViewGroup) ((Activity) getContext()).getWindow().getDecorView())
+				.removeView(openedFrame);
 		requestLayout();
 	}
 
@@ -959,7 +994,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 * @return the connectivity manager
 	 */
 	public ConnectivityManager getConnectivityManager() {
-		return (ConnectivityManager) this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+		return (ConnectivityManager) this.getContext().getSystemService(
+				Context.CONNECTIVITY_SERVICE);
 	}
 
 	/**
@@ -1015,156 +1051,213 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		getContext().startActivity(i);
 
 	}
-	
+
 	/**
-	 * Open Map 
-	 * @param url - map url
-	 * @param fullscreen - should map be shown in full screen 
+	 * Open Map
+	 * 
+	 * @param url
+	 *            - map url
+	 * @param fullscreen
+	 *            - should map be shown in full screen
 	 */
-	public void openMap(String POI, boolean fullscreen) {		
+	public void openMap(String POI, boolean fullscreen) {
 
 		Log.d(TAG, "Opening Map Url " + POI);
-		
+
 		POI = POI.trim();
-		POI = OrmmaUtils.convert(POI);		
+		POI = OrmmaUtils.convert(POI);
 
 		try {
 			// start google maps
-			Intent mapIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(POI));
+			Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(POI));
 			mapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	
-			getContext().startActivity(mapIntent);		
+
+			getContext().startActivity(mapIntent);
 		} catch (ActivityNotFoundException e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	public void playAudioImpl(Bundle data) {
-		
-		PlayerProperties properties = (PlayerProperties)data.getParcelable(PLAYER_PROPERTIES);
-		Dimensions d = (Dimensions) data.getParcelable(EXPAND_DIMENSIONS);
+
+		PlayerProperties properties = (PlayerProperties) data
+				.getParcelable(PLAYER_PROPERTIES);
+
 		String url = data.getString(EXPAND_URL);
-		
-		OrmmaPlayer audioPlayer = new OrmmaPlayer(getContext(), properties);
-		
-		if(properties.isFullScreen()){
-			FrameLayout contentView = (FrameLayout) getRootView().findViewById(R.id.content);
-			FrameLayout.LayoutParams bgfl = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT,
-					FrameLayout.LayoutParams.FILL_PARENT);
-			contentView.addView(audioPlayer, bgfl);			
-		}	
-		else if(d != null)
-			addView(audioPlayer);		
-		
-		audioPlayer.playAudio(url);	
-	}	
-	
+
+		OrmmaPlayer audioPlayer = getPlayer();
+		audioPlayer.setPlayData(properties, url);
+
+		((ViewGroup) getParent()).addView(audioPlayer);
+
+		audioPlayer.playAudio();
+
+	}
+
 	/**
 	 * Play audio
 	 * 
-	 * @param url - audio URL
-	 * @param autoPlay - should audio play immediately
-	 * @param controls - should native controls be visible
-	 * @param loop - should audio start over again after finishing
-	 * @param inline - should audio be included with ad content
-	 * @param startStyle - normal/fullscreen; full screen if audio should play in full screen
-	 * @param stopStyle - normal/exit; exit if audio should exit after audio stops
+	 * @param url
+	 *            - audio URL
+	 * @param autoPlay
+	 *            - should audio play immediately
+	 * @param controls
+	 *            - should native controls be visible
+	 * @param loop
+	 *            - should audio start over again after finishing
+	 * @param inline
+	 *            - should audio be included with ad content
+	 * @param startStyle
+	 *            - normal/fullscreen; full screen if audio should play in full
+	 *            screen
+	 * @param stopStyle
+	 *            - normal/exit; exit if audio should exit after audio stops
 	 */
-	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, Dimensions d, String startStyle, String stopStyle) {
+	public void playAudio(String url, boolean autoPlay, boolean controls,
+			boolean loop, boolean inline, String startStyle, String stopStyle) {
 
 		PlayerProperties properties = new PlayerProperties();
-		properties.setProperties(false, autoPlay, controls, loop,startStyle, stopStyle);
+
+		 properties.setProperties(false, autoPlay, controls, inline,loop, startStyle,
+		 stopStyle);
 
 		Bundle data = new Bundle();
-		data.putParcelable(PLAYER_PROPERTIES, properties);
-		if(d != null)
-			data.putParcelable(EXPAND_DIMENSIONS, d);
-		data.putString(EXPAND_URL, url);
-		
-		Message msg = mHandler.obtainMessage(MESSAGE_PLAY_AUDIO);
-		msg.setData(data);
 
-		mHandler.sendMessage(msg);						
+		data.putString(ACTION_KEY, ACTION.PLAY_AUDIO.toString());
+		data.putString(EXPAND_URL, url);
+		data.putParcelable(PLAYER_PROPERTIES, properties);
+
+		if (properties.isFullScreen()) {
+			Intent intent = new Intent(getContext(), OrmmaActionHandler.class);
+			intent.putExtras(data);
+			getContext().startActivity(intent);
+		} else {
+			Message msg = mHandler.obtainMessage(MESSAGE_PLAY_AUDIO);
+			msg.setData(data);
+			mHandler.sendMessage(msg);
+		}
 	}
-		
+
 	public void playVideoImpl(Bundle data) {
-		
-		PlayerProperties properties = (PlayerProperties)data.getParcelable(PLAYER_PROPERTIES);
+
+		PlayerProperties properties = (PlayerProperties) data
+				.getParcelable(PLAYER_PROPERTIES);
 		Dimensions d = (Dimensions) data.getParcelable(EXPAND_DIMENSIONS);
 		String url = data.getString(EXPAND_URL);
+
+		OrmmaPlayer videoPlayer = getPlayer();
+		videoPlayer.setPlayData(properties, url);
 		
-		OrmmaPlayer videoPlayer = new OrmmaPlayer(getContext(), properties);		
-		FrameLayout contentView = (FrameLayout) getRootView().findViewById(R.id.content);
-		
-		if(properties.isFullScreen()){			
-			FrameLayout.LayoutParams bgfl = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT,
-					FrameLayout.LayoutParams.FILL_PARENT);
-			contentView.addView(videoPlayer, bgfl);			
-		}	
-		else {						
-			// Inline case			
-			changeContentArea(d);			
-			addView(videoPlayer);
-			videoPlayer.setListener(new OrmmaPlayerListener() {				
-				@Override
-				public void onPrepared() {
-				}
-				
-				@Override
-				public void onError() {
-					resetContents();
-				}
-				
-				@Override
-				public void onComplete() {
-					resetContents();
-				}
-			});
-		}
-		
-		videoPlayer.playVideo(url);		
+		FrameLayout.LayoutParams fl = new FrameLayout.LayoutParams(
+				(int) (d.width), (int) (d.height));
+		fl.topMargin = (int) (d.x);
+		fl.leftMargin = (int) (d.y);
+		videoPlayer.setLayoutParams(fl);
+
+		FrameLayout backGround = new FrameLayout(getContext());
+		backGround.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				Log.i("ORMMA", "background touch called");
+				return true;
+			}
+		});
+		backGround.setId(BACKGROUND_ID);
+		backGround.setPadding((int) (d.x), (int) (d.y), 0, 0);
+
+		FrameLayout contentView = (FrameLayout) getRootView().findViewById(
+				R.id.content);
+		contentView.addView(backGround, new FrameLayout.LayoutParams(
+				FrameLayout.LayoutParams.FILL_PARENT,
+				FrameLayout.LayoutParams.FILL_PARENT));
+
+		backGround.addView(videoPlayer);
+		setVisibility(View.INVISIBLE);
+
+		videoPlayer.setListener(new OrmmaPlayerListener() {
+			@Override
+			public void onPrepared() {
+			}
+
+			@Override
+			public void onError() {
+				onComplete();
+			}
+
+			@Override
+			public void onComplete() {
+				FrameLayout background = (FrameLayout) getRootView()
+						.findViewById(BACKGROUND_ID);
+				((ViewGroup) background.getParent()).removeView(background);
+				setVisibility(View.VISIBLE);
+			}
+		});
+
+		videoPlayer.playVideo();
+
 	}
-	
+
 	/**
 	 * Play video
-	 * @param url - video URL
-	 * @param audioMuted - should audio be muted 
-	 * @param autoPlay - should video play immediately
-	 * @param controls - should native player controls be visible
-	 * @param loop - should video start over again after finishing
-	 * @param d - inline area dimensions
-	 * @param startStyle - normal/fullscreen; full screen if video should play in full screen
-	 * @param stopStyle - normal/exit; exit if video should exit after video stops
+	 * 
+	 * @param url
+	 *            - video URL
+	 * @param audioMuted
+	 *            - should audio be muted
+	 * @param autoPlay
+	 *            - should video play immediately
+	 * @param controls
+	 *            - should native player controls be visible
+	 * @param loop
+	 *            - should video start over again after finishing
+	 * @param d
+	 *            - inline area dimensions
+	 * @param startStyle
+	 *            - normal/fullscreen; full screen if video should play in full
+	 *            screen
+	 * @param stopStyle
+	 *            - normal/exit; exit if video should exit after video stops
 	 */
 	public void playVideo(String url, boolean audioMuted, boolean autoPlay,
 			boolean controls, boolean loop, Dimensions d, String startStyle,
 			String stopStyle) {
-		
+
 		Message msg = mHandler.obtainMessage(MESSAGE_PLAY_VIDEO);
 
 		PlayerProperties properties = new PlayerProperties();
-		properties.setProperties(audioMuted, autoPlay, controls, loop,startStyle, stopStyle);
-		Bundle data = new Bundle();
-		data.putParcelable(PLAYER_PROPERTIES, properties);
-		if(d != null)
-			data.putParcelable(EXPAND_DIMENSIONS, d);
-		data.putString(EXPAND_URL, url);
-		msg.setData(data);
 
-		mHandler.sendMessage(msg);		
+		properties.setProperties(audioMuted, autoPlay, controls, (d != null),loop,
+				startStyle, stopStyle);
+
+		Bundle data = new Bundle();
+		data.putString(EXPAND_URL, url);
+		data.putString(ACTION_KEY, ACTION.PLAY_VIDEO.toString());
+		data.putParcelable(PLAYER_PROPERTIES, properties);
+
+		if (properties.isFullScreen()) {
+			Intent intent = new Intent(getContext(), OrmmaActionHandler.class);
+			intent.putExtras(data);
+			getContext().startActivity(intent);
+		} else if(d != null){
+			data.putParcelable(EXPAND_DIMENSIONS, d);
+			msg.setData(data);
+			mHandler.sendMessage(msg);
+		}
 	}
-	
+
 	/**
 	 * Revert to earlier ad state
 	 */
-	public void resetContents(){
-		
-		FrameLayout contentView = (FrameLayout) getRootView().findViewById(R.id.content);
+	public void resetContents() {
 
-		FrameLayout placeHolder = (FrameLayout) getRootView().findViewById(PLACEHOLDER_ID);
-		FrameLayout background = (FrameLayout) getRootView().findViewById(BACKGROUND_ID);
+		FrameLayout contentView = (FrameLayout) getRootView().findViewById(
+				R.id.content);
+
+		FrameLayout placeHolder = (FrameLayout) getRootView().findViewById(
+				PLACEHOLDER_ID);
+		FrameLayout background = (FrameLayout) getRootView().findViewById(
+				BACKGROUND_ID);
 		ViewGroup parent = (ViewGroup) placeHolder.getParent();
 		background.removeView(this);
 		contentView.removeView(background);
@@ -1208,11 +1301,12 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		return bPageFinished;
 	}
 
-	//trap keyboard state and view height/width
+	// trap keyboard state and view height/width
 	@Override
 	public void onGlobalLayout() {
 		boolean state = bKeyboardOut;
-		if (!bKeyboardOut && mContentViewHeight >= 0 && getContentViewHeight() >= 0
+		if (!bKeyboardOut && mContentViewHeight >= 0
+				&& getContentViewHeight() >= 0
 				&& (mContentViewHeight != getContentViewHeight())) {
 
 			state = true;
@@ -1220,7 +1314,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 			injectJavaScript(injection);
 
 		}
-		if (bKeyboardOut && mContentViewHeight >= 0 && getContentViewHeight() >= 0
+		if (bKeyboardOut && mContentViewHeight >= 0
+				&& getContentViewHeight() >= 0
 				&& (mContentViewHeight == getContentViewHeight())) {
 
 			state = false;
@@ -1240,7 +1335,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 * @return the size
 	 */
 	public String getSize() {
-		return "{ width: " + (int) (getWidth() / mDensity) + ", " + "height: " + (int) (getHeight() / mDensity) + "}";
+		return "{ width: " + (int) (getWidth() / mDensity) + ", " + "height: "
+				+ (int) (getHeight() / mDensity) + "}";
 	}
 
 	/*
@@ -1282,7 +1378,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
 		mLocalFilePath = savedInstanceState.getString(AD_PATH);
 
-		String url = "file://" + mLocalFilePath + java.io.File.separator + CURRENT_FILE;
+		String url = "file://" + mLocalFilePath + java.io.File.separator
+				+ CURRENT_FILE;
 		super.loadUrl(url);
 
 		return null;
@@ -1303,7 +1400,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		 * Gesture detector for eating scroll events
 		 */
 		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		public boolean onScroll(MotionEvent e1, MotionEvent e2,
+				float distanceX, float distanceY) {
 			return true;
 		}
 	}
@@ -1315,5 +1413,13 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	public boolean isExpanded() {
 		return mViewState == ViewState.EXPANDED;
+	}
+
+	OrmmaPlayer getPlayer() {
+		if (player == null)
+			player = new OrmmaPlayer(getContext().getApplicationContext());
+		else
+			player.releasePlayer();
+		return player;
 	}
 }

@@ -97,8 +97,9 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param stopStyle - normal/exit (exit if player should exit after audio stops)
 	 */
 	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean inline, String startStyle, String stopStyle) {
-		Dimensions d = inline ? new Dimensions() : null;
-		mOrmmaView.playAudio(url, autoPlay, controls, loop, d, startStyle, stopStyle);
+		if(inline)
+			controls = !inline;		
+		mOrmmaView.playAudio(url, autoPlay, controls, loop, inline, startStyle, stopStyle);
 	}
 	
 	
