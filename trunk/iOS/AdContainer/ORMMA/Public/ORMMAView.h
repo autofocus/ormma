@@ -9,16 +9,13 @@
 #import <UIKit/UIKit.h>
 #import <MessageUI/MessageUI.h>
 #import "ORMMAWebBrowserViewController.h"
-
+#import "ORMMAAVPlayer.h"
 
 @class ORMMAJavascriptBridge;
 @class ORMMALocalServer;
 
 @protocol ORMMAViewDelegate;
 @protocol ORMMAJavascriptBridgeDelegate;
-
-
-
 
 typedef enum ORMMAViewStateEnum
 {
@@ -32,7 +29,8 @@ typedef enum ORMMAViewStateEnum
 
 @interface ORMMAView : UIView <MFMailComposeViewControllerDelegate,
 							   MFMessageComposeViewControllerDelegate,
-							   ORMMAWebBrowserViewControllerDelegate>
+							   ORMMAWebBrowserViewControllerDelegate,
+								ORMMAAVPlayerDelegate>
 {
 @private
 	UIDevice *m_currentDevice;
@@ -56,10 +54,11 @@ typedef enum ORMMAViewStateEnum
 	UIButton *m_blockingView;
 	
 	ORMMAWebBrowserViewController *m_webBrowser;
+	ORMMAAVPlayer *m_moviePlayer;
 	
 	NSURL *m_creativeURL;
-	NSString *m_creativeId;
-	
+	NSString *m_creativeId;	
+
 	BOOL m_applicationReady;
 	
 	BOOL m_allowLocationServices;
@@ -71,6 +70,7 @@ typedef enum ORMMAViewStateEnum
 	NSInteger m_modalityCounter;
 	
 	NSMutableArray *m_externalProtocols;
+
 }
 @property( nonatomic, assign ) id<ORMMAViewDelegate> ormmaDelegate;
 @property( nonatomic, copy ) NSString *htmlStub;
@@ -78,11 +78,8 @@ typedef enum ORMMAViewStateEnum
 @property( nonatomic, retain, readonly ) NSError *lastError;
 @property( nonatomic, assign, readonly ) ORMMAViewState currentState;
 @property( nonatomic, assign ) CGSize maxSize;
-
 @property( nonatomic, assign ) BOOL allowLocationServices;
-
 @property( nonatomic, assign, readonly ) BOOL isOrmmaAd;
-
 
 - (void)loadCreative:(NSURL *)url;
 
@@ -106,12 +103,10 @@ typedef enum ORMMAViewStateEnum
 // Returns the html string for the current creative
 - (NSString *)cachedHtmlForCreative;
 
-
 // Returns the computed creative id
 - (NSString *)creativeId;
 
 @end
-
 
 
 
@@ -188,6 +183,10 @@ typedef enum ORMMAViewStateEnum
 // allows the application to override the phone call process to, for example
 // display an alert to the user before hand
 - (void)placePhoneCall:(NSString *)number;
+
+// allows the application to override the click to app store, for example
+// display an alert to the user before hand
+- (void)placeCallToAppStore:(NSString *)urlString;
 
 // allows the application to override the create calendar event process to, for 
 // example display an alert to the user before hand

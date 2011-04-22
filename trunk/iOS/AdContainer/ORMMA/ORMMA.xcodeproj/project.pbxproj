@@ -1093,7 +1093,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: YJ Dharmaji (ZQ57QFQRLN)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1112,6 +1112,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ORMMATestBed;
+				PROVISIONING_PROFILE = "96D9B127-75B9-4804-8CC4-4D113F915C24";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -1120,7 +1121,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: YJ Dharmaji (ZQ57QFQRLN)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -1139,6 +1140,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ORMMATestBed;
+				PROVISIONING_PROFILE = "96D9B127-75B9-4804-8CC4-4D113F915C24";
 				SDKROOT = iphoneos;
 				ZERO_LINK = NO;
 			};
