@@ -14,7 +14,7 @@
 #import "ORMMAJavascriptBridge.h"
 #import "ORMMALocalServer.h"
 #import "ORMMAWebBrowserViewController.h"
-
+#import "ORMMAAVPlayer.h"
 
 @interface ORMMAView () <UIWebViewDelegate,
 						 ORMMAJavascriptBridgeDelegate,
@@ -23,6 +23,7 @@
 @property( nonatomic, retain, readwrite ) NSError *lastError;
 @property( nonatomic, assign, readwrite ) ORMMAViewState currentState;
 @property( nonatomic, retain ) ORMMAWebBrowserViewController *webBrowser;
+@property( nonatomic, retain ) ORMMAAVPlayer *moviePlayer;
 @property( nonatomic, assign, readwrite ) BOOL isOrmmaAd;
 @property( nonatomic, retain ) NSURL *launchURL;
 
@@ -96,7 +97,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 												   " screenSize: { width: %f, height: %f },"\
 												   " defaultPosition: { x: %f, y: %f, width: %f, height: %f },"\
 												   " orientation: %i,"\
-												   " supports: [ 'level-1', 'level-2', 'orientation', 'network', 'screen', 'shake', 'size', 'tilt'%@ ] }";
+												   " supports: [ 'level-1', 'level-2', 'orientation', 'network', 'screen', 'shake', 'size', 'tilt', 'audio', 'video', 'map'%@ ] }";
 
 
 #pragma mark -
@@ -109,12 +110,11 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 @synthesize currentState = m_currentState;
 @synthesize maxSize = m_maxSize;
 @synthesize webBrowser = m_webBrowser;
-
+@synthesize moviePlayer = m_moviePlayer;
 @synthesize allowLocationServices = m_allowLocationServices;
 
 @synthesize isOrmmaAd = m_isOrmmaAd;
 @synthesize launchURL = m_launchURL;
-
 
 #pragma mark -
 #pragma mark Initializers / Memory Management
@@ -195,7 +195,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	CGRect webViewFrame = CGRectMake( 0, 
 									  0, 
 									  self.frame.size.width, 
-									  self.frame.size.height);
+									  self.frame.size.height );
 	m_webView = [[UIWebView alloc] initWithFrame:webViewFrame];
 	[m_webView disableBouncesAndScrolling];
 	
@@ -246,7 +246,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 	[m_webBrowser release], m_webBrowser = nil;
 	[m_launchURL release], m_launchURL = nil;
 	[m_externalProtocols removeAllObjects], [m_externalProtocols release], m_externalProtocols = nil;
-    [m_creativeId release];
+	[m_creativeId release];
     [super dealloc];
 }
 
@@ -302,18 +302,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		// Direct access to the file system is disallowed
 		return NO;
 	}
+    NSString *fullUrl = [request.URL absoluteString];
 
-	// handle iTunes requests
-	NSString *fullUrl = [request.URL absoluteString];
-	if ( ( [fullUrl rangeOfString:@"://itunes.apple.com/"].length > 0 ) || 
-		 ( [fullUrl rangeOfString:@"://phobos.apple.com/"].length > 0 ) )
-	{
-		NSLog( @"Treating URL %@ as call to app store", request.URL );
-		[self verifyExternalLaunchWithTitle:@"Launch AppStore"
-										URL:request.URL];
-		return NO;
-	}
-	
 	// normal ad
 	if ( [m_javascriptBridge processURL:url
 							 forWebView:webView] )
@@ -354,7 +344,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		[app openURL:url];
 		return NO;
 	}
-		
+	
 	// not handled by ORMMA, see if the delegate wants it
 	if ( m_externalProtocols.count > 0 )
 	{
@@ -750,7 +740,6 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// step 4: create a blocking view that fills the current window
 	// if the status bar is visible, we need to account for it
 	CGRect f = keyWindow.frame;
-    
 	if ( !app.statusBarHidden )
 	{
 	   // status bar is visible
@@ -971,6 +960,28 @@ blockingOpacity:(CGFloat)blockingOpacity
 	}
 }
 
+- (void) placeClickToApp:(NSString *)urlString
+{
+    if ( [self.ormmaDelegate respondsToSelector:@selector(placeCallToAppStore:)] )
+	{
+		// consumer wants to deal with it
+		[self.ormmaDelegate placeCallToAppStore:urlString];
+	}
+	else
+	{
+        // handle intenral iTunes requests
+        NSURL *url = [NSURL URLWithString:urlString];  
+        if ( ( [urlString rangeOfString:@"://itunes.apple.com/"].length > 0 ) || 
+            ( [urlString rangeOfString:@"://phobos.apple.com/"].length > 0 ) )
+        {
+            NSLog( @"Treating URL %@ as call to app store", urlString );
+            [self verifyExternalLaunchWithTitle:@"Launch AppStore"
+										URL:url];
+        }
+    }
+
+}
+
 
 - (void)placeCallTo:(NSString *)phoneNumber
 {
@@ -990,7 +1001,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 }
 
 
-- (void)addEventToCalenderForDate:(NSDate *)date
+- (void)addEventToCalanderForDate:(NSDate *)date
 						withTitle:(NSString *)title
 						 withBody:(NSString *)body
 {
@@ -1078,7 +1089,42 @@ blockingOpacity:(CGFloat)blockingOpacity
   withUrlString:(NSString *)urlString
   andFullScreen:(BOOL)fullscreen
 {
-
+    NSLog(@"Open map ");
+ //   [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
+    
+	NSLog( @"Open Browser" );
+	NSURL *url = [NSURL URLWithString:urlString];
+	if ( self.webBrowser != nil )
+	{
+		// Redirect
+		NSLog( @"Redirecting browser to new URL: %@", urlString );
+		self.webBrowser.URL = url;
+		return;
+	}
+	
+	// notify the app that it should stop work
+	[self fireAppShouldSuspend];
+	
+	// if the expanded view is on screen, hide it so we don't interfere with the full screen
+	if ( self.currentState == ORMMAViewStateExpanded )
+	{
+		self.hidden = YES;
+		m_blockingView.hidden = YES;
+	}
+	
+	// display the web browser
+	NSLog( @"Create Web Browser" );
+	self.webBrowser = [ORMMAWebBrowserViewController ormmaWebBrowserViewController];
+	NSLog( @"Web Browser created: %@", self.webBrowser );
+	self.webBrowser.browserDelegate = self;
+	self.webBrowser.backButtonEnabled = YES;
+	self.webBrowser.forwardButtonEnabled = YES;
+	self.webBrowser.refreshButtonEnabled = YES;
+	BOOL safariEnabled = [self.ormmaDelegate respondsToSelector:@selector(showURLFullScreen:)];
+	self.webBrowser.safariButtonEnabled = safariEnabled;
+	self.webBrowser.URL = url;
+	[self.ormmaDelegate.ormmaViewController presentModalViewController:self.webBrowser
+															  animated:YES];
 }
 
 - (void)playAudio:(UIWebView *)webView
@@ -1090,7 +1136,38 @@ blockingOpacity:(CGFloat)blockingOpacity
        startStyle:(NSString *)startStyle
         stopStyle:(NSString *) stopStyle
 {
+	[self fireAppShouldSuspend];
+	
+	// if the expanded view is on screen, hide it so we don't interfere with the full screen
+	if ( self.currentState == ORMMAViewStateExpanded )
+	{
+		self.hidden = YES;
+		m_blockingView.hidden = YES;
+	}
+	
+	if (Inline) {
+		loop = NO;
+		controls = NO;
+		stopStyle = @"exit";
+		autoplay = YES;
+	}
+	
+	if (loop) {
+		stopStyle = @"normal";
+		controls = YES;
+	}
     
+    if (!autoplay)
+        controls = YES;
+    
+    if (!controls)
+        stopStyle = @"exit";
+
+	
+	ORMMAAVPlayer* temp = [[[ORMMAAVPlayer alloc] initWithFrame:CGRectMake(0, 0, 320, 480)] autorelease];
+	temp.delegate = self;
+	self.moviePlayer = temp;
+	[self.moviePlayer playAudio:[NSURL URLWithString:urlString] attachTo:webView autoPlay:autoplay showControls:controls repeat:loop playInline:Inline fullScreenMode:[startStyle isEqualToString:@"fullscreen"] ? YES : NO autoExit:[stopStyle isEqualToString:@"normal"] ? NO : YES];
 }
 
 - (void)playVideo:(UIWebView *)webView
@@ -1103,11 +1180,63 @@ blockingOpacity:(CGFloat)blockingOpacity
        startStyle:(NSString *)startStyle
         stopStyle:(NSString *) stopStyle
 {
+	[self fireAppShouldSuspend];
+	
+	// if the expanded view is on screen, hide it so we don't interfere with the full screen
+	if ( self.currentState == ORMMAViewStateExpanded )
+	{
+		self.hidden = YES;
+		m_blockingView.hidden = YES;
+	}
+	
+	if (loop) {
+		stopStyle = @"normal";
+		controls = YES;
+	}
+	
+	CGRect position;
+	if (pos[0] < 0 || pos[1] < 0 || pos[2] <= 0 || pos[3] <= 0) {
+		position = [UIScreen mainScreen].bounds;
+	}
+	else {
+		position = CGRectMake(pos[0],pos[1],pos[2],pos[3]);
+	}
     
+    if (!autoplay)
+        controls = YES;
+
+	if (!controls) {
+		stopStyle = @"exit";
+	}
+	ORMMAAVPlayer* temp = [[[ORMMAAVPlayer alloc] initWithFrame:position] autorelease];
+	temp.delegate = self;
+	self.moviePlayer = temp;
+	[self.moviePlayer playVideo:[NSURL URLWithString:urlString] attachTo:webView autoPlay:autoplay showControls:controls repeat:loop fullScreenMode:[startStyle isEqualToString:@"fullscreen"] ? YES : NO autoExit:[stopStyle isEqualToString:@"normal"] ? NO : YES];
 }
 
+#pragma mark -
+#pragma mark Player Control
 
+-(void)playerCompleted
+{
+	self.moviePlayer = nil;
+	
+	// if the expanded view should be visible, make it so
+	if ( self.currentState == ORMMAViewStateExpanded )
+	{
+		self.hidden = NO;
+		m_blockingView.hidden = NO;
+	}
 
+	// called when the ad needs to be made visible
+	[self fireAdWillShow];
+	
+	// notify the app that it should start work
+	[self fireAppShouldResume];
+	
+	// called when the ad needs to be made visible
+	[self fireAdDidShow];	
+}
 
 #pragma mark -
 #pragma mark Web Browser Control
@@ -1223,16 +1352,16 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 - (void)cachedCreative:(NSURL *)creativeURL
 				 onURL:(NSURL *)url
-				withId:(NSString *)creativeId
+				withId:(NSString*)creativeId
 {
 	if ( [self.creativeURL isEqual:creativeURL] )
 	{
 		// now show the cached file
-        if(m_creativeId != creativeId)
-        {
-            [m_creativeId release];
-            m_creativeId = [creativeId retain];
-        }
+		if(m_creativeId != creativeId)
+		{
+             	 [m_creativeId release];
+             	 m_creativeId = [creativeId retain];
+         	}
 		NSURLRequest *request = [NSURLRequest requestWithURL:url];
 		m_loadingAd = YES;
 		[m_webView loadRequest:request];
@@ -1242,7 +1371,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 
 - (void)cachedResource:(NSURL *)url
-		   forCreative:(NSString *)creativeId
+		   forCreative:(NSString*)creativeId
 {
 	if ( [creativeId isEqualToString:m_creativeId] )
 	{
@@ -1252,14 +1381,14 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 
 - (void)cachedResourceRetired:(NSURL *)url
-				  forCreative:(NSString *)creativeId
+				  forCreative:(NSString*)creativeId
 {
 	// TODO
 }
 
 
 - (void)cachedResourceRemoved:(NSURL *)url
-				  forCreative:(NSString *)creativeId
+				  forCreative:(NSString*)creativeId
 {
 	// TODO
 }
@@ -1270,7 +1399,6 @@ blockingOpacity:(CGFloat)blockingOpacity
     ORMMALocalServer *cache = [ORMMALocalServer sharedInstance];
     return [cache cachedHtmlForCreative:m_creativeId];
 }
-
 
 // Returns the computed creative id
 - (NSString *)creativeId;

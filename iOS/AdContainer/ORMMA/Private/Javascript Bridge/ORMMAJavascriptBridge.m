@@ -109,9 +109,9 @@ NSString * const ORMMACommandPhone = @"phone";
 NSString * const ORMMACommandSMS = @"sms";
 
 NSString * const ORMMACommandOpen = @"open";
-NSString * const ORMMACommandOpenMap = @"openMap";
-NSString * const ORMMACommandPlayAudio = @"playAudio";
-NSString * const ORMMACommandPlayVideo = @"playVideo";
+NSString * const ORMMACommandOpenMap = @"openmap";
+NSString * const ORMMACommandPlayAudio = @"playaudio";
+NSString * const ORMMACommandPlayVideo = @"playvideo";
 NSString * const ORMMACommandRequest = @"request";
 
 NSString * const ORMMACommandService = @"service";
