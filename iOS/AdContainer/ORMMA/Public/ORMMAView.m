@@ -1001,7 +1001,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 }
 
 
-- (void)addEventToCalanderForDate:(NSDate *)date
+- (void)addEventToCalenderForDate:(NSDate *)date
 						withTitle:(NSString *)title
 						 withBody:(NSString *)body
 {
