@@ -15,7 +15,8 @@
         <activity android:name="com.ormma.view.Browser" >
         </activity>
         
-        
+        <activity android:name="com.ormma.view.OrmmaActionHandler">
+		</activity>
 
     </application>
 
