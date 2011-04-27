@@ -564,7 +564,11 @@
     *
     */
    ormmaview.addAsset = function( URL, alias ) {
-	 
+	   try {
+		   ORMMAAssetsControllerBridge.addAsset(URL, alias);
+	   } catch ( e ) {
+		   ormmaview.showAlert( "addAsset: " + e );
+	   }
    };
    /**
     *
@@ -576,6 +580,11 @@
     *
     */
    ormmaview.removeAsset = function( alias ) {
+	   try {
+		   ORMMAAssetsControllerBridge.removeAsset(alias);
+	   } catch ( e ) {
+		   ormmaview.showAlert( "removeAsset: " + e );
+	   }
    };
    
    
