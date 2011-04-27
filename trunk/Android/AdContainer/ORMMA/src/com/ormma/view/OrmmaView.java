@@ -61,6 +61,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
+import com.ormma.controller.OrmmaAssetController;
 import com.ormma.controller.OrmmaUtilityController;
 import com.ormma.controller.OrmmaController.Dimensions;
 import com.ormma.controller.OrmmaController.PlayerProperties;
@@ -176,10 +177,6 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	public OrmmaView(Context context, OrmmaViewListener listener) {
 		super(context);
 		setListener(listener);
-		setScrollContainer(false);
-		setVerticalScrollBarEnabled(false);
-		setHorizontalScrollBarEnabled(false);
-		mGestureDetector = new GestureDetector(new ScrollEater());
 		initialize();
 	}
 
@@ -208,10 +205,6 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	public OrmmaView(Context context) {
 		super(context);
-		setScrollContainer(false);
-		setVerticalScrollBarEnabled(false);
-		setHorizontalScrollBarEnabled(false);
-		mGestureDetector = new GestureDetector(new ScrollEater());
 		initialize();
 	}
 
@@ -537,10 +530,6 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	public OrmmaView(Context context, AttributeSet set) {
 		super(context, set);
-		setVerticalScrollBarEnabled(false);
-		setHorizontalScrollBarEnabled(false);
-		setScrollContainer(false);
-		mGestureDetector = new GestureDetector(new ScrollEater());
 
 		initialize();
 
@@ -834,8 +823,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	WebChromeClient mWebChromeClient = new WebChromeClient() {
 		@Override
-		public boolean onJsAlert(WebView view, String url, String message,
-				JsResult result) {
+		public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
 			Log.d("OrmmaView", message);
 			return false;
 		}
@@ -850,6 +838,12 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 * Initialize the view
 	 */
 	private void initialize() {
+		
+		setScrollContainer(false);
+		setVerticalScrollBarEnabled(false);
+		setHorizontalScrollBarEnabled(false);
+		mGestureDetector = new GestureDetector(new ScrollEater());
+		
 		setBackgroundColor(0);
 		DisplayMetrics metrics = new DisplayMetrics();
 		WindowManager wm = (WindowManager) getContext().getSystemService(
@@ -861,11 +855,10 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		bPageFinished = false;
 
 		getSettings().setJavaScriptEnabled(true);
-
+		
 		mUtilityController = new OrmmaUtilityController(this, this.getContext());
 
-		addJavascriptInterface(mUtilityController,
-				"ORMMAUtilityControllerBridge");
+		addJavascriptInterface(mUtilityController, "ORMMAUtilityControllerBridge");
 
 		setWebViewClient(mWebViewClient);
 
@@ -875,6 +868,11 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		mContentViewHeight = getContentViewHeight();
 
 		getViewTreeObserver().addOnGlobalLayoutListener(this);
+	}
+	
+	
+	public void addJavascriptObject(Object obj, String name){
+		addJavascriptInterface(obj, name);
 	}
 
 	/**
