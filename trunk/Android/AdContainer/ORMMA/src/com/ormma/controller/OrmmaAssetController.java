@@ -298,7 +298,7 @@ public class OrmmaAssetController extends OrmmaController {
 	 *
 	 * @return the files dir
 	 */
-	public String getFilesDir() {
+	private String getFilesDir() {
 		return mContext.getFilesDir().getPath();
 	}
 
