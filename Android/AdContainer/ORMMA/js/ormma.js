@@ -95,13 +95,6 @@
         height:0
     };
     
-    var expandProperties = {
-        useBackground:false,
-        backgroundColor:0xffffff,
-        backgroundOpacity:1.0,
-        isModal:false
-    };
-    
     var supports = {
         'level-1':true,
         'level-2':true,
@@ -355,7 +348,10 @@
     };
     
     var valid = function(obj, validators, action, full) {
+    //alert('valid 1');
+    	
         if (full) {
+        //	alert('valid 2: full');
             if (obj === undefined) {
                 broadcastEvent(EVENTS.ERROR, 'Required object missing.', action);
                 return false;
@@ -369,10 +365,13 @@
             }
         }
         for (var i in obj) {
+        	//alert('valid 3: i = ' + i);
             if (!validators[i]) {
+            //	alert('Invalid property specified - ');
                 broadcastEvent(EVENTS.ERROR, 'Invalid property specified - ' + i + '.', action);
                 return false;
             } else if (!validators[i](obj[i])) {
+            	//alert('Value of property ' + i + '<' + obj[i] + '>' +' is not valid type.')
                 broadcastEvent(EVENTS.ERROR, 'Value of property ' + i + '<' + obj[i] + '>' +' is not valid type.', action);
                 return false;
             }
@@ -442,7 +441,15 @@
     };
     
     ormma.getExpandProperties = function() {
-        return clone(expandProperties);
+    	//alert('ormma.getExpandProperties 1' );
+    	var properties = ormmaview.getExpandProperties();
+    	
+    	for (prop in properties){
+    		alert(prop + " = " + properties[prop]);
+    		
+    	}
+    	//alert('ormma.getExpandProperties 2');
+        return clone(properties);
     };
     
     ormma.getMaxSize = function() {
@@ -518,8 +525,11 @@
     };
     
     ormma.setExpandProperties = function(properties) {
+    //	alert('ormma.setExpandProperties 1');
         if (valid(properties, expandPropertyValidators, 'setExpandProperties')) {
+        	//alert('ormma.setExpandProperties 2');
             ormmaview.setExpandProperties(properties);
+           // alert('ormma.setExpandProperties 3');
         }
     };
     
@@ -742,13 +752,4 @@
             broadcastEvent(EVENTS.ASSETREMOVED, alias);
         }
     };
-    
- 	ormma.showAlert = function( message ) {
-      ormmaview.showAlert( message );
-   };    
-   
-    ormma.logHTML = function(){
- 		ormmaview.logHTML();
- 	
- 	};
 })();

@@ -20,7 +20,7 @@
    /** Expand Properties */
    var expandProperties = {
         useBackground:false,
-        backgroundColor:0xffffff,
+        backgroundColor:'#ffffff',
         backgroundOpacity:1.0,
         isModal:false
     };
@@ -223,7 +223,7 @@
       handlers.push( listener );
    };
 
- 
+
    /**
     *
     */
@@ -473,11 +473,17 @@
 	  }
    };
 
+   
+   ormmaview.getExpandProperties = function(){
+	   return expandProperties;
+   }
+   
  
    /**
     *
     */
    ormmaview.setExpandProperties = function( properties ) {
+	   //alert('ormmaview.setExpandProperties 1');
 	  expandProperties = properties;
    };
 
