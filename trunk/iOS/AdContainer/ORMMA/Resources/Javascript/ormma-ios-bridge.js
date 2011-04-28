@@ -17,7 +17,12 @@
    /****************************************************/
  
    /** Expand Properties */
-   var expandProperties = {};
+   var expandProperties = {
+            useBackground:false,
+            backgroundColor:'#ffffff',
+            backgroundOpacity:1.0,
+            isModal:false
+   };
  
  
    /** The set of listeners for ORMMA Native Bridge Events */
@@ -428,11 +433,15 @@
    };
 
  
+   ormmaview.getExpandProperties = function(){
+        return expandProperties;
+   } 
+ 
    /**
     *
     */
    ormmaview.setExpandProperties = function( properties ) {
-	  expandProperties = properties;
+        expandProperties = properties;
    };
 
  

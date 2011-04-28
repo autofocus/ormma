@@ -94,13 +94,7 @@
         height:0
     };
     
-    var expandProperties = {
-        useBackground:false,
-        backgroundColor:0xffffff,
-        backgroundOpacity:1.0,
-        isModal:false
-    };
-    
+       
     var supports = {
         'level-1':true,
         'level-2':true,
@@ -435,7 +429,7 @@
     };
     
     ormma.getExpandProperties = function() {
-        return clone(expandProperties);
+        return clone(ormmaview.getExpandProperties());
     };
     
     ormma.getMaxSize = function() {
