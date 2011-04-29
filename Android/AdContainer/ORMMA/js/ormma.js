@@ -441,15 +441,7 @@
     };
     
     ormma.getExpandProperties = function() {
-    	//alert('ormma.getExpandProperties 1' );
-    	var properties = ormmaview.getExpandProperties();
-    	
-    	for (prop in properties){
-    		alert(prop + " = " + properties[prop]);
-    		
-    	}
-    	//alert('ormma.getExpandProperties 2');
-        return clone(properties);
+        return clone(ormmaview.getExpandProperties());
     };
     
     ormma.getMaxSize = function() {
