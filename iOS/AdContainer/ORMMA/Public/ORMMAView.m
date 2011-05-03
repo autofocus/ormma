@@ -145,7 +145,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 			toPath:path];
 	
 	// load the Native Javascript API
-	[self copyFile:@"ormma-ios-bridge"
+	[self copyFile:@"ormma_bridge"
 			ofType:@"js" 
 		fromBundle:s_ormmaBundle 
 			toPath:path];
@@ -285,7 +285,7 @@ didFailLoadWithError:(NSError *)error
 		( [self.ormmaDelegate respondsToSelector:@selector(failureLoadingAd:)] ) )
 	{
 		[self.ormmaDelegate failureLoadingAd:self];
-	}
+	}   
 	m_loadingAd = NO;
 }
 
