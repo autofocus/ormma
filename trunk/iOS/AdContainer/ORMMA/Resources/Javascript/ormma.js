@@ -157,7 +157,7 @@
         useBackground:function(value) { return (value === true || value === false); },
         backgroundColor:function(value) { return (typeof value == 'string' && value.substr(0,1) == '#' && !isNaN(parseInt(value.substr(1), 16))); },
         backgroundOpacity:function(value) { return !isNaN(value) && value >= 0 && value <= 1; },
-        isModal:function(value) { return (value === true || value === false); }
+        lockOrientation:function(value) { return (value === true || value === false); }
     };
     
     var shakePropertyValidators = {
