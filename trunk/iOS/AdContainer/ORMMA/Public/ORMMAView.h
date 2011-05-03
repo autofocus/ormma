@@ -68,6 +68,7 @@ typedef enum ORMMAViewStateEnum
 	BOOL m_loadingAd;
 	
 	NSInteger m_modalityCounter;
+    
 	
 	NSMutableArray *m_externalProtocols;
 

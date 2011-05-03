@@ -18,8 +18,7 @@
 	playingAudio = YES;
 	oldStyle = [UIApplication sharedApplication].statusBarStyle;
 	self.backgroundColor = [UIColor blackColor];
-
-	
+    
 	if ([self.ormmaPlayer respondsToSelector:@selector(loadState)]) 
 	{
 		is3XDevice = NO;

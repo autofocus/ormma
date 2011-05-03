@@ -94,7 +94,13 @@
         height:0
     };
     
-       
+    var expandProperties = {
+        useBackground:false,
+        backgroundColor:0xffffff,
+        backgroundOpacity:1.0,
+        isModal:false
+    };
+    
     var supports = {
         'level-1':true,
         'level-2':true,
@@ -429,7 +435,7 @@
     };
     
     ormma.getExpandProperties = function() {
-        return clone(ormmaview.getExpandProperties());
+        return clone(expandProperties);
     };
     
     ormma.getMaxSize = function() {
@@ -522,6 +528,7 @@
     };
     
     ormma.playAudio = function(URL, properties) {
+
         if (!supports[FEATURES.AUDIO]) {
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'playAudio');
         } else if (!URL || typeof URL != 'string') {

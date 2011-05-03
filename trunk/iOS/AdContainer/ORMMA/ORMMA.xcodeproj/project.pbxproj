@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3721058C136F5AE5002FF796 /* ormma_bridge.js in Sources */ = {isa = PBXBuildFile; fileRef = 3721058B136F5AE5002FF796 /* ormma_bridge.js */; };
+		3721058E136F7A5B002FF796 /* ormma_bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = 3721058B136F5AE5002FF796 /* ormma_bridge.js */; };
 		37AF0C1D13611D2600363D4F /* ORMMAAVPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 37AF0C1B13611D2600363D4F /* ORMMAAVPlayer.h */; };
 		37AF0C1E13611D2600363D4F /* ORMMAAVPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 37AF0C1C13611D2600363D4F /* ORMMAAVPlayer.m */; };
 		37AF0C31136209A300363D4F /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C30136209A300363D4F /* MapKit.framework */; };
@@ -103,7 +105,6 @@
 		FAD723A4129190B7001D702B /* UIDevice-ORMMA.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD723A2129190B7001D702B /* UIDevice-ORMMA.h */; };
 		FAD723A5129190B7001D702B /* UIDevice-ORMMA.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD723A3129190B7001D702B /* UIDevice-ORMMA.m */; };
 		FAD724151292D1D5001D702B /* ormma.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD1A30012902C6F009379B3 /* ormma.js */; };
-		FAD724161292D1D5001D702B /* ormma-ios-bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = FAD1A30212902CCD009379B3 /* ormma-ios-bridge.js */; };
 		FAD72673129346FA001D702B /* ORMMAWebBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FAE2E8EB128C4D6200A1B1ED /* ORMMAWebBrowserViewController.xib */; };
 		FAD90477129D8B0C00C3F5DE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD9044A129D8A9200C3F5DE /* main.m */; };
 		FAD90478129D8B0C00C3F5DE /* ORMMATestBedAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD9044E129D8A9200C3F5DE /* ORMMATestBedAppDelegate.m */; };
@@ -190,6 +191,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3721058B136F5AE5002FF796 /* ormma_bridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ormma_bridge.js; sourceTree = "<group>"; };
 		37AF0C1B13611D2600363D4F /* ORMMAAVPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAAVPlayer.h; sourceTree = "<group>"; };
 		37AF0C1C13611D2600363D4F /* ORMMAAVPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAAVPlayer.m; sourceTree = "<group>"; };
 		37AF0C30136209A300363D4F /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -235,7 +237,6 @@
 		FACCB0CB1283290000B65BD6 /* refresh.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = refresh.png; sourceTree = "<group>"; };
 		FACCB0CC1283290000B65BD6 /* refresh@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "refresh@2x.png"; sourceTree = "<group>"; };
 		FAD1A30012902C6F009379B3 /* ormma.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ormma.js; sourceTree = "<group>"; };
-		FAD1A30212902CCD009379B3 /* ormma-ios-bridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ormma-ios-bridge.js"; sourceTree = "<group>"; };
 		FAD232FC1268A93E00921D13 /* ORMMALocalServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMALocalServer.h; sourceTree = "<group>"; };
 		FAD232FD1268A93E00921D13 /* ORMMALocalServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMALocalServer.m; sourceTree = "<group>"; };
 		FAD233B61268EF1B00921D13 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
@@ -647,8 +648,8 @@
 		FAD28C5A12381C3F00562D0B /* Javascript */ = {
 			isa = PBXGroup;
 			children = (
+				3721058B136F5AE5002FF796 /* ormma_bridge.js */,
 				FAD1A30012902C6F009379B3 /* ormma.js */,
-				FAD1A30212902CCD009379B3 /* ormma-ios-bridge.js */,
 			);
 			path = Javascript;
 			sourceTree = "<group>";
@@ -844,6 +845,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3721058E136F7A5B002FF796 /* ormma_bridge.js in Resources */,
 				FAD3FA4D126CA0B100468F35 /* 1.sql in Resources */,
 				FAD3FAAB126CABD000468F35 /* 2.sql in Resources */,
 				FAD3FAAC126CABD000468F35 /* 3.sql in Resources */,
@@ -866,7 +868,6 @@
 				FAC9732C12886BA8001567EB /* ORMMA_Standard_JS_Stub.html in Resources */,
 				FAD72673129346FA001D702B /* ORMMAWebBrowserViewController.xib in Resources */,
 				FAD724151292D1D5001D702B /* ormma.js in Resources */,
-				FAD724161292D1D5001D702B /* ormma-ios-bridge.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -960,6 +961,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3721058C136F5AE5002FF796 /* ormma_bridge.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1160,8 +1162,9 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ORMMATestBed;
-				PROVISIONING_PROFILE = "96D9B127-75B9-4804-8CC4-4D113F915C24";
+				PROVISIONING_PROFILE = "3116F402-9B25-4927-9AE5-CC8DFF5726E7";
 				SDKROOT = iphoneos;
+				r = "";
 			};
 			name = Debug;
 		};
@@ -1188,9 +1191,10 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ORMMATestBed;
-				PROVISIONING_PROFILE = "96D9B127-75B9-4804-8CC4-4D113F915C24";
+				PROVISIONING_PROFILE = "3116F402-9B25-4927-9AE5-CC8DFF5726E7";
 				SDKROOT = iphoneos;
 				ZERO_LINK = NO;
+				r = "";
 			};
 			name = Release;
 		};
