@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
@@ -26,7 +28,7 @@ import com.ormma.view.OrmmaView;
 public class OrmmaDisplayController extends OrmmaController {
 
 	//tag for logging
-	private static final String TAG = "OrmmaDisplayController";
+	private static final String LOG_TAG = "OrmmaDisplayController";
 	
 	private WindowManager mWindowManager;
 	private boolean bMaxSizeSet = false;
@@ -34,7 +36,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	private int mMaxHeight = -1;
 	private OrmmaConfigurationBroadcastReceiver mBroadCastReceiver;
 	private float mDensity;
-
+	
 	/**
 	 * Instantiates a new ormma display controller.
 	 *
@@ -92,14 +94,12 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param autoPlay - if audio should play immediately
 	 * @param controls - should native player controls be visible
 	 * @param loop - should video start over again after finishing
-	 * @param inline - should audio be included with ad content
-	 * @param startStyle - normal/fullscreen (if audio should play in native full screen mode)
+	 * @param position - should audio be included with ad content
+	 * @param startStyle - normal/full screen (if audio should play in native full screen mode)
 	 * @param stopStyle - normal/exit (exit if player should exit after audio stops)
 	 */
-	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean inline, String startStyle, String stopStyle) {
-		if(inline)
-			controls = !inline;		
-		mOrmmaView.playAudio(url, autoPlay, controls, loop, inline, startStyle, stopStyle);
+	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean position, String startStyle, String stopStyle) {
+		mOrmmaView.playAudio(url, autoPlay, controls, loop, position, startStyle, stopStyle);
 	}
 	
 	
@@ -110,18 +110,18 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param autoPlay - should video play immediately
 	 * @param controls  - should native player controls be visible
 	 * @param loop - should video start over again after finishing
-	 * @param inline - top and left coordinates of video in pixels if video should play inline
+	 * @param position - top and left coordinates of video in pixels if video should play inline
 	 * @param startStyle - normal/fullscreen (if video should play in native full screen mode)
 	 * @param stopStyle - normal/exit (exit if player should exit after video stops)
 	 */
-	public void playVideo(String url, boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, int[] inline, String startStyle, String stopStyle) {
+	public void playVideo(String url, boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, int[] position, String startStyle, String stopStyle) {
 		Dimensions d = null;
-		if(inline[0] != -1) {
+		if(position[0] != -1) {
 			d = new Dimensions();
-			d.x = inline[0];
-			d.y = inline[1];
-			d.width = inline[2];
-			d.height = inline[3];
+			d.x = position[0];
+			d.y = position[1];
+			d.width = position[2];
+			d.height = position[3];
 			d = getDeviceDimensions(d);
 		}		
 		mOrmmaView.playVideo(url, audioMuted, autoPlay, controls, loop, d, startStyle, stopStyle);
@@ -298,33 +298,15 @@ public class OrmmaDisplayController extends OrmmaController {
 		mMaxHeight = h;
 	}
 
-	// public void startOrientationListener() {
-	// if (mOrientationListenerCount == 0) {
-	// mBroadCastReceiver = new OrmmaConfigurationBroadcastReceiver(this);
-	// mFilter = new IntentFilter();
-	// mFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
-	// }
-	// mOrientationListenerCount++;
-	// mContext.registerReceiver(mBroadCastReceiver, mFilter);
-	// }
-	//
-	// public void stopOrientationListener() {
-	// mOrientationListenerCount--;
-	// if (mOrientationListenerCount == 0){
-	// mContext.unregisterReceiver(mBroadCastReceiver);
-	// mBroadCastReceiver = null;
-	// mFilter = null;
-	// }
-	// }
-
 	/**
 	 * On orientation changed.
 	 *
 	 * @param orientation the orientation
 	 */
 	public void onOrientationChanged(int orientation) {
-		mOrmmaView.injectJavaScript("Ormma.gotOrientationChange(" + orientation + ")");
-
+		String script = "window.ormmaview.fireChangeEvent({ orientation: " + orientation + "});";
+		Log.d(LOG_TAG, script );
+		mOrmmaView.injectJavaScript(script);
 	}
 
 	/**
@@ -333,7 +315,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param html the html
 	 */
 	public void logHTML(String html) {
-		Log.d(TAG, html);
+		Log.d(LOG_TAG, html);
 	}
 
 	/* (non-Javadoc)
@@ -341,10 +323,23 @@ public class OrmmaDisplayController extends OrmmaController {
 	 */
 	@Override
 	public void stopAllListeners() {
+		stopConfigurationListener();
+		mBroadCastReceiver = null;
+	}
+
+	public void stopConfigurationListener() {
 		try {
 			mContext.unregisterReceiver(mBroadCastReceiver);
 		} catch (Exception e) {
 		}
-		mBroadCastReceiver = null;
+	}
+	
+	public void startConfigurationListener() {
+		try {
+			if(mBroadCastReceiver == null) 
+				mBroadCastReceiver = new OrmmaConfigurationBroadcastReceiver(this);
+			mContext.registerReceiver(mBroadCastReceiver, new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+		}catch(Exception e) {
+		}
 	}
 }

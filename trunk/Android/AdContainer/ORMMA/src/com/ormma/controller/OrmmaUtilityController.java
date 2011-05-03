@@ -9,7 +9,12 @@ package com.ormma.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import android.R;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -22,6 +27,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.ListAdapter;
+import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.ormma.view.OrmmaView;
 
@@ -40,8 +48,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	private OrmmaDisplayController mDisplayController;
 	private OrmmaLocationController mLocationController;
 	private OrmmaNetworkController mNetworkController;
-
-	// private OrmmaSensorController mSensorController;
+	private OrmmaSensorController mSensorController;
 
 	/**
 	 * Instantiates a new ormma utility controller.
@@ -50,20 +57,20 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param context the context
 	 */
 	public OrmmaUtilityController(OrmmaView adView, Context context) {
+		
 		super(adView, context);
+		
 		mAssetController = new OrmmaAssetController(adView, context);
 		mDisplayController = new OrmmaDisplayController(adView, context);
 		mLocationController = new OrmmaLocationController(adView, context);
 		mNetworkController = new OrmmaNetworkController(adView, context);
-		// mSensorController = new OrmmaSensorController(adView, context);
+		mSensorController = new OrmmaSensorController(adView, context);
 
 		adView.addJavascriptInterface(mAssetController, "ORMMAAssetsControllerBridge");
 		adView.addJavascriptInterface(mDisplayController, "ORMMADisplayControllerBridge");
 		adView.addJavascriptInterface(mLocationController, "ORMMALocationControllerBridge");
 		adView.addJavascriptInterface(mNetworkController, "ORMMANetworkControllerBridge");
-		// adView.addJavascriptInterface(mSensorController,
-		// "ORMMASensorControllerBridge");
-
+		adView.addJavascriptInterface(mSensorController, "ORMMASensorControllerBridge");
 	}
 
 
@@ -92,23 +99,27 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @return the supports
 	 */
 	private String getSupports() {
-		String supports = "supports: [ 'level-1', 'screen', 'orientation', 'network'";
+		String supports = "supports: [ 'level-1', 'level-2', 'screen', 'orientation', 'network'";
 
-		boolean p = (mContext.checkCallingOrSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-				|| (mContext.checkCallingOrSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+		boolean p = mLocationController.allowLocationServices() &&
+				((mContext.checkCallingOrSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+				|| (mContext.checkCallingOrSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
 		if (p)
 			supports += ", 'location'";
+		
 		p = mContext.checkCallingOrSelfPermission(android.Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
 		if (p)
 			supports += ", 'sms'";
+		
 		p = mContext.checkCallingOrSelfPermission(android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED;
 		if (p)
 			supports += ", 'phone'";
+		
 		p = ((mContext.checkCallingOrSelfPermission(android.Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) && (mContext
 				.checkCallingOrSelfPermission(android.Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED));
 		if (p)
 			supports += ", 'calendar'";
-		
+				
 		supports += ", 'video'";
 		
 		supports += ", 'audio'";
@@ -202,53 +213,50 @@ public class OrmmaUtilityController extends OrmmaController {
 	public void createEvent(final String date, final String title, final String body) {
 		final ContentResolver cr = mContext.getContentResolver();
 		Cursor cursor;
-		if (Integer.parseInt(Build.VERSION.SDK) == 8)
-			cursor = cr.query(Uri.parse("content://com.android.calendar/calendars"), new String[] { "_id",
-					"displayname" }, null, null, null);
+		final String[] cols = new String[] { "_id", "displayName", "_sync_account" };
+		
+		if (Integer.parseInt(Build.VERSION.SDK) == 8) // 2.2 or higher
+			cursor = cr.query(Uri.parse("content://com.android.calendar/calendars"),
+					cols, null, null, null);
 		else
-			cursor = cr.query(Uri.parse("content://calendar/calendars"), new String[] { "_id", "displayname" }, null,
-					null, null);
-		if (cursor.moveToFirst()) {
-			final String[] calNames = new String[cursor.getCount()];
-			final int[] calIds = new int[cursor.getCount()];
-			for (int i = 0; i < calNames.length; i++) {
-				calIds[i] = cursor.getInt(0);
-				calNames[i] = cursor.getString(1);
+			cursor = cr.query(Uri.parse("content://calendar/calendars"), 
+					cols, null, null, null);
+		
+		if (!cursor.moveToFirst()) {
+			// No CalendarID found
+			cursor.close();
+			return;
+		}
+			
+		if(cursor.getCount() == 1){
+			addCalendarEvent(cursor.getInt(0), date, title, body);
+		}
+		else{
+			final List<Map<String, String>> entries = new ArrayList<Map<String,String>>();
+
+			for (int i = 0; i < cursor.getCount(); i++) {
+				Map<String,String> entry = new HashMap<String, String>();
+				entry.put("ID", cursor.getString(0));
+				entry.put("NAME", cursor.getString(1));
+				entry.put("EMAILID", cursor.getString(2));
+				entries.add(entry);
 				cursor.moveToNext();
 			}
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-			builder.setSingleChoiceItems(calNames, -1, new DialogInterface.OnClickListener() {
-
+			builder.setTitle("Choose Calendar");
+			ListAdapter adapter = new SimpleAdapter(mContext, 
+					entries, 
+					android.R.layout.two_line_list_item,
+					new String[] {"NAME", "EMAILID"},
+					new int[] {R.id.text1, R.id.text2});
+			
+			
+			builder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					long dtStart = Long.parseLong(date);
-					long dtEnd = dtStart + 60 * 1000 * 60;
-					ContentValues cv = new ContentValues();
-					cv.put("calendar_id", calIds[which]);
-					cv.put("title", title);
-					cv.put("dtstart", dtStart);
-					cv.put("hasAlarm", 1);
-					cv.put("dtend", dtEnd);
-
-					Uri newEvent;
-					if (Integer.parseInt(Build.VERSION.SDK) == 8)
-						newEvent = cr.insert(Uri.parse("content://com.android.calendar/events"), cv);
-					else
-						newEvent = cr.insert(Uri.parse("content://com.android.calendar/events"), cv);
-
-					if (newEvent != null) {
-						long id = Long.parseLong(newEvent.getLastPathSegment());
-						ContentValues values = new ContentValues();
-						values.put("event_id", id);
-						values.put("method", 1);
-						values.put("minutes", 15); // 15 minuti
-						if (Integer.parseInt(Build.VERSION.SDK) == 8)
-							cr.insert(Uri.parse("content://com.android.calendar/reminders"), values);
-						else
-							cr.insert(Uri.parse("content://calendar/reminders"), values);
-
-					}
+					Map<String, String> entry = entries.get(which);
+					addCalendarEvent(Integer.parseInt(entry.get("ID")), date, title, body);
 					dialog.cancel();
 				}
 
@@ -257,7 +265,50 @@ public class OrmmaUtilityController extends OrmmaController {
 			builder.create().show();
 		}
 		cursor.close();
+		
 	}
+	
+	/**
+	 * Add event into Calendar 
+	 * 
+	 * @param calendarID the callId
+	 * @param date the date
+	 * @param title the title
+	 * @param body the body
+	 */
+	private void addCalendarEvent(final int callId, final String date, final String title, final String body) {
+		final ContentResolver cr = mContext.getContentResolver();
+		long dtStart = Long.parseLong(date);
+		long dtEnd = dtStart + 60 * 1000 * 60;
+		ContentValues cv = new ContentValues();
+		cv.put("calendar_id", callId);
+		cv.put("title", title);
+		cv.put("description", body);
+		cv.put("dtstart", dtStart);
+		cv.put("hasAlarm", 1);
+		cv.put("dtend", dtEnd);
+
+		Uri newEvent;
+		if (Integer.parseInt(Build.VERSION.SDK) == 8)
+			newEvent = cr.insert(Uri.parse("content://com.android.calendar/events"), cv);
+		else
+			newEvent = cr.insert(Uri.parse("content://calendar/events"), cv);
+
+		if (newEvent != null) {
+			long id = Long.parseLong(newEvent.getLastPathSegment());
+			ContentValues values = new ContentValues();
+			values.put("event_id", id);
+			values.put("method", 1);
+			values.put("minutes", 15); // 15 minutes
+			if (Integer.parseInt(Build.VERSION.SDK) == 8)
+				cr.insert(Uri.parse("content://com.android.calendar/reminders"), values);
+			else
+				cr.insert(Uri.parse("content://calendar/reminders"), values);
+		}
+
+		Toast.makeText(mContext, "Event added to calendar", Toast.LENGTH_SHORT).show();
+	}
+	
 
 	/**
 	 * Copy text from jar into asset dir.
@@ -304,9 +355,20 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param event the event
 	 */
 	public void activate(String event) {
-		if (event.equalsIgnoreCase("network")) {
+		if (event.equalsIgnoreCase(Defines.Events.NETWORK_CHANGE)) {
 			mNetworkController.startNetworkListener();
+		}else if (mLocationController.allowLocationServices() && event.equalsIgnoreCase(Defines.Events.LOCATION_CHANGE)) {
+			mLocationController.startLocationListener();
+		}else if (event.equalsIgnoreCase(Defines.Events.SHAKE)) {
+			mSensorController.startShakeListener();
+		}else if (event.equalsIgnoreCase(Defines.Events.TILT_CHANGE)) {
+			mSensorController.startTiltListener();
+		}else if (event.equalsIgnoreCase(Defines.Events.HEADING_CHANGE)) {
+			mSensorController.startHeadingListener();
+		}else if (event.equalsIgnoreCase(Defines.Events.ORIENTATION_CHANGE)) {
+			mDisplayController.startConfigurationListener();
 		}
+		
 		// Log.d(TAG,"activate"+event);
 	}
 
@@ -316,8 +378,18 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param event the event
 	 */
 	public void deactivate(String event) {
-		if (event.equalsIgnoreCase("network")) {
+		if (event.equalsIgnoreCase(Defines.Events.NETWORK_CHANGE)) {
 			mNetworkController.stopNetworkListener();
+		} else if (event.equalsIgnoreCase(Defines.Events.LOCATION_CHANGE)) {
+			mLocationController.stopAllListeners();
+		} else if (event.equalsIgnoreCase(Defines.Events.SHAKE)) {
+			mSensorController.stopShakeListener();
+		} else if (event.equalsIgnoreCase(Defines.Events.TILT_CHANGE)) {
+			mSensorController.stopTiltListener();
+		} else if (event.equalsIgnoreCase(Defines.Events.HEADING_CHANGE)) {
+			mSensorController.stopHeadingListener();
+		}else if (event.equalsIgnoreCase(Defines.Events.ORIENTATION_CHANGE)) {
+			mDisplayController.stopConfigurationListener();
 		}
 		// Log.d(TAG,"deactivate"+event);
 
@@ -340,7 +412,7 @@ public class OrmmaUtilityController extends OrmmaController {
 			mDisplayController.stopAllListeners();
 			mLocationController.stopAllListeners();
 			mNetworkController.stopAllListeners();
-			// mSensorController.stopAllListeners();
+			mSensorController.stopAllListeners();
 		} catch (Exception e) {
 		}
 	}

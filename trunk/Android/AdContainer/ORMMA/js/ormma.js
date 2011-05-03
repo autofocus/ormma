@@ -348,10 +348,7 @@
     };
     
     var valid = function(obj, validators, action, full) {
-    //alert('valid 1');
-    	
         if (full) {
-        //	alert('valid 2: full');
             if (obj === undefined) {
                 broadcastEvent(EVENTS.ERROR, 'Required object missing.', action);
                 return false;
@@ -365,13 +362,10 @@
             }
         }
         for (var i in obj) {
-        	//alert('valid 3: i = ' + i);
             if (!validators[i]) {
-            //	alert('Invalid property specified - ');
                 broadcastEvent(EVENTS.ERROR, 'Invalid property specified - ' + i + '.', action);
                 return false;
             } else if (!validators[i](obj[i])) {
-            	//alert('Value of property ' + i + '<' + obj[i] + '>' +' is not valid type.')
                 broadcastEvent(EVENTS.ERROR, 'Value of property ' + i + '<' + obj[i] + '>' +' is not valid type.', action);
                 return false;
             }
@@ -398,11 +392,9 @@
     
     
     ormma.signalReady = function() {
-    //        ormmaview.logHTML();
         if (typeof ORMMAReady == 'function') {
             window.clearInterval(intervalID);
             ORMMAReady();
-    //        ormmaview.logHTML();
             broadcastEvent(EVENTS.INFO, 'callback invoked');
         } else {
             readyDuration += 20;
@@ -429,7 +421,6 @@
     };
     
     ormma.expand = function(dimensions, URL) {
-   // ormmaview.logHTML();
         broadcastEvent(EVENTS.INFO, 'expanding to ' + stringify(dimensions));
         if (valid(dimensions, dimensionValidators, 'expand', true)) {
             ormmaview.expand(dimensions, URL);
@@ -517,11 +508,8 @@
     };
     
     ormma.setExpandProperties = function(properties) {
-    //	alert('ormma.setExpandProperties 1');
         if (valid(properties, expandPropertyValidators, 'setExpandProperties')) {
-        	//alert('ormma.setExpandProperties 2');
             ormmaview.setExpandProperties(properties);
-           // alert('ormma.setExpandProperties 3');
         }
     };
     

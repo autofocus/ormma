@@ -9,6 +9,8 @@ package com.ormma.controller;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,7 +46,9 @@ public abstract class OrmmaController {
 	public static final String EXIT = "exit";
 	public static final String STYLE_NORMAL = "normal";
 
-
+	
+	public static final List<String> RESERVED_FIELDS = Arrays.asList("CONTENTS_FILE_DESCRIPTOR", "PARCELABLE_WRITE_RETURN_VALUE");
+	
 	/**
 	 * 
 	 * Contains audio and video properties
@@ -57,7 +61,7 @@ public abstract class OrmmaController {
 			autoPlay = showControl = true;
 			doLoop = audioMuted = false;
 			startStyle = stopStyle = STYLE_NORMAL;
-			inline = false;
+			inline = false;			
 		}
 		
 		/**
@@ -195,6 +199,7 @@ public abstract class OrmmaController {
 		protected Dimensions(Parcel in) {
 			super(in);
 		}
+		
 
 		/**
 		 * The dimenstion values
@@ -351,6 +356,10 @@ public abstract class OrmmaController {
 				Object obj = this;
 				for (int i = 0; i < fields.length; i++) {
 					Field f = fields[i];
+					
+					if(RESERVED_FIELDS.contains(f.getName()))
+						continue;
+					
 					Class<?> type = f.getType();
 					
 					if (type.isEnum()) {
@@ -374,11 +383,7 @@ public abstract class OrmmaController {
 			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
-//			catch (InstantiationException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			}
 
 		}
 
@@ -393,6 +398,10 @@ public abstract class OrmmaController {
 			try {
 				for (int i = 0; i < fields.length; i++) {
 					Field f = fields[i];
+					
+					if(RESERVED_FIELDS.contains(f.getName()))
+						continue;
+					
 					Class<?> type = f.getType();
 										
 					if (type.isEnum()) {
