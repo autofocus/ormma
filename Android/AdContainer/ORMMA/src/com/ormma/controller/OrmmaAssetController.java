@@ -8,6 +8,7 @@
 
 package com.ormma.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -185,12 +186,12 @@ public class OrmmaAssetController extends OrmmaController {
 	}
 
 	/**
-	 * Write an input stream to a file wrapping it with orrma stuff
+	 * Write an input stream to a file wrapping it with ormma stuff
 	 *
 	 * @param in the input stream
 	 * @param file the file to store it in
 	 * @param storeInHashedDirectory use a hashed directory name
-	 * @return the path where it was stired
+	 * @return the path where it was stored
 	 * @throws IllegalStateException the illegal state exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
@@ -200,9 +201,8 @@ public class OrmmaAssetController extends OrmmaController {
 	 * writes a HTTP entity to the specified filename and location on disk
 	 */
 	{
-		int i = 0;
 		byte buff[] = new byte[1024];
-
+		
 		MessageDigest digest = null;
 		if (storeInHashedDirectory) {
 			try {
@@ -211,36 +211,86 @@ public class OrmmaAssetController extends OrmmaController {
 				e.printStackTrace();
 			}
 		}
-		FileOutputStream out = getAssetOutputString(file);
-		out.write("<html>".getBytes());
-		out.write("<head>".getBytes());
-		out.write("<meta name='viewport' content='user-scalable=no initial-scale=1.0' />".getBytes());
-		out.write("<title>Advertisement</title> ".getBytes());
-		out.write(("<script src=\"file:/" + bridgePath + "\" type=\"text/javascript\"></script>").getBytes());
-		out.write(("<script src=\"file:/" + ormmaPath + "\" type=\"text/javascript\"></script>").getBytes());
-
-		if (injection != null) {
-			out.write("<script type=\"text/javascript\">".getBytes());
-			out.write(injection.getBytes());
-			out.write("</script>".getBytes());
-		}
-		out.write("</head>".getBytes());
-		out.write("<body style=\"margin:0; padding:0; overflow:hidden; background-color:transparent;\">".getBytes());
-		out.write("<div align=\"center\"> ".getBytes());
+		
+		//check for html tag in the input
+		ByteArrayOutputStream fromFile = new ByteArrayOutputStream();
 		do {
 			int numread = in.read(buff);
-			if (numread <= 0)
+			
+			if (numread <= 0){
 				break;
+			}
+			
 			if (storeInHashedDirectory && digest != null) {
 				digest.update(buff);
 			}
-			out.write(buff, 0, numread);
-			i++;
+			
+			fromFile.write(buff, 0, numread);
+			
 		} while (true);
-		out.write("</div> ".getBytes());
-		out.write("</body> ".getBytes());
-		out.write("</html> ".getBytes());
+		
+		String wholeHTML = fromFile.toString();
+		boolean hasHTMLWrap = wholeHTML.indexOf("<html") >= 0;
+		
+		//TODO   cannot have injection when full html
+		
+		StringBuffer wholeHTMLBuffer = null;
+		
+		if(hasHTMLWrap){
+			wholeHTMLBuffer = new StringBuffer(wholeHTML);
 
+            int start = wholeHTMLBuffer.indexOf("/ormma_bridge.js");
+            
+            if(start <= 0){
+            	//TODO error
+            }
+            
+            wholeHTMLBuffer.replace(start, start + "/ormma_bridge.js".length(), "file:/" + bridgePath);
+            
+            start = wholeHTMLBuffer.indexOf("/ormma.js");
+            
+            if(start <= 0){
+            	//TODO error
+            }
+            
+            wholeHTMLBuffer.replace(start, start + "/ormma.js".length(), "file:/" + ormmaPath);
+		}
+		
+		
+		FileOutputStream out = getAssetOutputString(file);
+		
+		if(!hasHTMLWrap){
+			out.write("<html>".getBytes());
+			out.write("<head>".getBytes());
+			out.write("<meta name='viewport' content='user-scalable=no initial-scale=1.0' />".getBytes());
+			out.write("<title>Advertisement</title> ".getBytes());
+			
+			out.write(("<script src=\"file:/" + bridgePath + "\" type=\"text/javascript\"></script>").getBytes());
+			out.write(("<script src=\"file:/" + ormmaPath + "\" type=\"text/javascript\"></script>").getBytes());
+	
+			if (injection != null) {
+				out.write("<script type=\"text/javascript\">".getBytes());
+				out.write(injection.getBytes());
+				out.write("</script>".getBytes());
+			}
+			out.write("</head>".getBytes());
+			out.write("<body style=\"margin:0; padding:0; overflow:hidden; background-color:transparent;\">".getBytes());
+			out.write("<div align=\"center\"> ".getBytes());
+		}
+		
+		if(!hasHTMLWrap){
+			out.write(fromFile.toByteArray());
+		}
+		else{
+			out.write(wholeHTMLBuffer.toString().getBytes());
+		}
+		
+		if(!hasHTMLWrap){
+			out.write("</div> ".getBytes());
+			out.write("</body> ".getBytes());
+			out.write("</html> ".getBytes());
+		}
+	
 		out.flush();
 		out.close();
 		in.close();
@@ -250,7 +300,6 @@ public class OrmmaAssetController extends OrmmaController {
 			filesDir = moveToAdDirectory(file, filesDir, asHex(digest));
 		}
 		return filesDir;
-
 	}
 
 	/**

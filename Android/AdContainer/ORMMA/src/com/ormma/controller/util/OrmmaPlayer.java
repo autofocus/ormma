@@ -27,7 +27,6 @@ import com.ormma.controller.OrmmaController.PlayerProperties;
 public class OrmmaPlayer extends VideoView implements OnCompletionListener, OnErrorListener, OnPreparedListener {
 
 	private PlayerProperties playProperties;
-	private Context ctx;
 	private AudioManager aManager;
 	private OrmmaPlayerListener listener;
 	private int mutedVolume;
@@ -37,15 +36,14 @@ public class OrmmaPlayer extends VideoView implements OnCompletionListener, OnEr
 	private static String transientText = "Loading. Please Wait..";
 	private static String LOG_TAG = "Ormma Player";
 	private boolean isReleased;
-		
+			
 	/**
 	 * Constructor
 	 * @param context - Current context	 * 
 	 */
 	public OrmmaPlayer(Context context){
 		super(context);
-		ctx = context;
-		aManager = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);		
+		aManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);		
 	}
 	
 	/**
@@ -73,7 +71,7 @@ public class OrmmaPlayer extends VideoView implements OnCompletionListener, OnEr
 	void displayControl() {
 		
 		if (playProperties.showControl()) {
-			MediaController ctrl = new MediaController(ctx);
+			MediaController ctrl = new MediaController(getContext());
 			setMediaController(ctrl);
 			ctrl.setAnchorView(this);
 		}
@@ -115,7 +113,7 @@ public class OrmmaPlayer extends VideoView implements OnCompletionListener, OnEr
 		
 		if (playProperties.isAutoPlay()) {
 			start();
-		}
+		}		
 	}
 
 	/**
@@ -160,6 +158,7 @@ public class OrmmaPlayer extends VideoView implements OnCompletionListener, OnEr
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		Log.i(LOG_TAG, "Player error : " + what);
+		clearTransientMessage();
 		removeView();
 		if(listener != null)
 			listener.onError();
@@ -205,11 +204,14 @@ public class OrmmaPlayer extends VideoView implements OnCompletionListener, OnEr
 	 */
 	void addTransientMessage(){
 		
-		transientLayout = new RelativeLayout(ctx);
-		transientLayout.setLayoutParams(((ViewGroup)this.getParent()).getLayoutParams());
+		if(playProperties.inline)
+			return;
+		
+		transientLayout = new RelativeLayout(getContext());
+		transientLayout.setLayoutParams(getLayoutParams());
 		
 		//create a transient text view
-		TextView transientView = new TextView(ctx);
+		TextView transientView = new TextView(getContext());
 		transientView.setText(transientText);
 		transientView.setTextColor(Color.WHITE);
 		

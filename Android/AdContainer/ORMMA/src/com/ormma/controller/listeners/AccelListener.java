@@ -89,17 +89,17 @@ public class AccelListener implements SensorEventListener {
 	 * Start tracking tilt.
 	 */
 	public void startTrackingTilt() {
+		if (registeredTiltListeners == 0) 
+			start();
 		registeredTiltListeners++;
-		start();
 	}
 
 	/**
 	 * Stop tracking tilt.
 	 */
 	public void stopTrackingTilt() {
-		if (registeredTiltListeners > 0) {
-			registeredTiltListeners--;
-			stop();
+		if (registeredTiltListeners > 0 && --registeredTiltListeners == 0) {
+				stop();
 		}
 	}
 
@@ -107,23 +107,21 @@ public class AccelListener implements SensorEventListener {
 	 * Start tracking shake.
 	 */
 	public void startTrackingShake() {
-		if (registeredShakeListeners == 0)
+		if (registeredShakeListeners == 0) {
 			setSensorDelay(SensorManager.SENSOR_DELAY_GAME);
+			start();
+		}
 		registeredShakeListeners++;
-		start();
 	}
 
 	/**
 	 * Stop tracking shake.
 	 */
 	public void stopTrackingShake() {
-		if (registeredShakeListeners > 0) {
-			registeredShakeListeners--;
-			if (registeredShakeListeners == 0)
+		if (registeredShakeListeners > 0 && --registeredShakeListeners == 0) {
 				setSensorDelay(SensorManager.SENSOR_DELAY_NORMAL);
-			stop();
-		}
-
+				stop();
+			}
 	}
 
 	/**
@@ -152,11 +150,9 @@ public class AccelListener implements SensorEventListener {
 	 * Stop tracking heading.
 	 */
 	public void stopTrackingHeading() {
-		if (registeredHeadingListeners > 0) {
-			registeredHeadingListeners--;
+		if (registeredHeadingListeners > 0 && --registeredHeadingListeners == 0) {
 			stop();
 		}
-
 	}
 
 	/**

@@ -353,8 +353,10 @@
   *
   */
   ormmaview.playAudio = function( URL, properties ) {
+	  
+	  alert('playAudio');
 	
-	var autoPlay = false, controls = false, loop = false, inline = false, 
+	var autoPlay = false, controls = false, loop = false, position = false, 
 	    startStyle = 'normal', stopStyle = 'normal';
 	 
     if ( properties != null ) {
@@ -371,8 +373,8 @@
         	loop = true;
         }
         
-        if ( ( typeof properties.inline != "undefined" ) && ( properties.inline != null ) ) {
-        	inline = true;
+        if ( ( typeof properties.position != "undefined" ) && ( properties.position != null ) ) {
+        	position = true;
         }
         
         //TODO check valid values...           
@@ -384,10 +386,34 @@
         if ( ( typeof properties.stopStyle != "undefined" ) && ( properties.stopStyle != null ) ) {
             stopStyle = properties.stopStyle;
         }  
+        
+        if(startStyle =='normal') {
+        	position = true;
+        }
+        
+ 		 if(position) {
+       		autoPlay = true;
+       		controls = false;
+       		loop = false;
+       		stopStyle = 'exit';
+       	}
+
+       	if(loop) {
+           stopStyle = 'normal'; 
+           controls = true;
+        }
+        
+        if(!autoPlay) {
+        	controls = true;
+        }
+               	
+       	if (!controls) {
+			stopStyle = 'exit';
+       }
     }  
     
     try{
-  	  ORMMADisplayControllerBridge.playAudio(URL, autoPlay, controls, loop, inline, startStyle, stopStyle);
+  	  ORMMADisplayControllerBridge.playAudio(URL, autoPlay, controls, loop, position, startStyle, stopStyle);
     } 
     catch ( e ) {
 	     ormmaview.showAlert( "playAudio: " + e );
@@ -399,7 +425,7 @@
    *
    */
   ormmaview.playVideo = function( URL, properties ) {
-	 var audioMuted = false, autoPlay = false, controls = false, loop = false, inline = [-1, -1, -1, -1], 
+	 var audioMuted = false, autoPlay = false, controls = false, loop = false, position = [-1, -1, -1, -1], 
 	    startStyle = 'normal', stopStyle = 'normal';
      if ( properties != null ) {
          
@@ -419,11 +445,11 @@
          	loop = true;
          }
          
-         if ( ( typeof properties.inline != "undefined" ) && ( properties.inline != null ) ) {
+         if ( ( typeof properties.position != "undefined" ) && ( properties.position != null ) ) {
         	 inline = new Array(4);
         	 
-        	 inline[0] = properties.inline.top;
-        	 inline[1] = properties.inline.left;
+        	 inline[0] = properties.position.top;
+        	 inline[1] = properties.position.left;
         	 
              if ( ( typeof properties.width != "undefined" ) && ( properties.width != null ) ) {
             	 inline[2] =  properties.width;
@@ -448,10 +474,26 @@
          if ( ( typeof properties.stopStyle != "undefined" ) && ( properties.stopStyle != null ) ) {
             stopStyle = properties.stopStyle;
          }  
+         
+		if (loop) {
+			stopStyle = 'normal';
+			controls = true;
+		}
+
+	    if (!autoPlay)
+	        controls = true;
+		        
+	  	if (!controls) {
+			stopStyle = 'exit';
+		} 
+		
+		if(position[0]== -1 || position[1] == -1)   {
+			startStyle = "fullscreen";
+		}      
      }    
      
      try{
-     	  ORMMADisplayControllerBridge.playVideo(URL, audioMuted, autoPlay, controls, loop, inline, startStyle, stopStyle);
+     	  ORMMADisplayControllerBridge.playVideo(URL, audioMuted, autoPlay, controls, loop, position, startStyle, stopStyle);
        } 
        catch ( e ) {
    	     ormmaview.showAlert( "playVideo: " + e );
@@ -483,7 +525,6 @@
     *
     */
    ormmaview.setExpandProperties = function( properties ) {
-	   //alert('ormmaview.setExpandProperties 1');
 	  expandProperties = properties;
    };
 
@@ -570,11 +611,7 @@
     *
     */
    ormmaview.addAsset = function( URL, alias ) {
-	   try {
-		   ORMMAAssetsControllerBridge.addAsset(URL, alias);
-	   } catch ( e ) {
-		   ormmaview.showAlert( "addAsset: " + e );
-	   }
+	 
    };
    /**
     *
@@ -586,11 +623,6 @@
     *
     */
    ormmaview.removeAsset = function( alias ) {
-	   try {
-		   ORMMAAssetsControllerBridge.removeAsset(alias);
-	   } catch ( e ) {
-		   ormmaview.showAlert( "removeAsset: " + e );
-	   }
    };
    
    

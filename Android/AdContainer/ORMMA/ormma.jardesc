@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="MacRoman" standalone="no"?>
 <jardesc>
-    <jar path="ORMMA/bin/ORMMA.jar"/>
-    <options buildIfNeeded="true" compress="true" descriptionLocation="/ORMMA/ormma.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <jar path="ORMMA_MAIN/ORMMA.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/ORMMA_MAIN/ormma.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
     <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
@@ -11,8 +11,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <folder path="/ORMMA/js"/>
-        <folder path="/ORMMA/bitmaps"/>
-        <javaElement handleIdentifier="=ORMMA/src"/>
+        <folder path="/ORMMA_MAIN/bitmaps"/>
+        <folder path="/ORMMA_MAIN/js"/>
+        <javaElement handleIdentifier="=ORMMA_MAIN/src"/>
     </selectedElements>
 </jardesc>

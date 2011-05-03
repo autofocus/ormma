@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import com.ormma.controller.util.OrmmaNetworkBroadcastReceiver;
 import com.ormma.view.OrmmaView;
@@ -19,6 +20,8 @@ import com.ormma.view.OrmmaView;
  * The Class OrmmaNetworkController.  OrmmaController for interacting with network states
  */
 public class OrmmaNetworkController extends OrmmaController {
+	
+	private static final String LOG_TAG = "OrmmaNetworkController";
 	
 	private ConnectivityManager mConnectivityManager;
 	private int mNetworkListenerCount;
@@ -94,7 +97,9 @@ public class OrmmaNetworkController extends OrmmaController {
 	 * On connection changed.
 	 */
 	public void onConnectionChanged() {
-		mOrmmaView.injectJavaScript("window.ormmaview.fireChangeEvent({ network: \'" + getNetwork() + "\'});");
+		String script = "window.ormmaview.fireChangeEvent({ network: \'" + getNetwork() + "\'});";
+		Log.d(LOG_TAG, script );
+		mOrmmaView.injectJavaScript(script);
 	}
 
 	/* (non-Javadoc)

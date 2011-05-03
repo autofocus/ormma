@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 
+import com.ormma.controller.OrmmaController.Dimensions;
 import com.ormma.controller.OrmmaController.PlayerProperties;
 import com.ormma.controller.util.OrmmaPlayer;
 import com.ormma.controller.util.OrmmaPlayerListener;
@@ -76,15 +77,25 @@ public class OrmmaActionHandler extends Activity {
 	 */
 	OrmmaPlayer initPlayer(Bundle playData,ACTION actionType){				
 
-		PlayerProperties properties = (PlayerProperties) playData
-				.getParcelable(OrmmaView.PLAYER_PROPERTIES);
+		PlayerProperties properties = (PlayerProperties) playData.getParcelable(OrmmaView.PLAYER_PROPERTIES);
 
+		Dimensions playDimensions = (Dimensions)playData.getParcelable(OrmmaView.DIMENSIONS);		
+				
 		OrmmaPlayer player = new OrmmaPlayer(this);
 		player.setPlayData(properties,OrmmaUtils.getData(OrmmaView.EXPAND_URL, playData));
 		
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT);
-		lp.addRule(RelativeLayout.CENTER_IN_PARENT);
-		
+		RelativeLayout.LayoutParams lp;
+		if(playDimensions == null) {
+			lp = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT);
+			lp.addRule(RelativeLayout.CENTER_IN_PARENT);				
+		}
+		else {
+			// Play video in dimensions given
+			lp = new RelativeLayout.LayoutParams(playDimensions.width, playDimensions.height);
+			lp.topMargin = playDimensions.y;
+			lp.leftMargin = playDimensions.x;		
+
+		}
 		player.setLayoutParams(lp);
 		layout.addView(player);
 		

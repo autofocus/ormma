@@ -13,6 +13,7 @@ import java.util.List;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
 import com.ormma.controller.listeners.LocListener;
 import com.ormma.view.OrmmaView;
@@ -22,13 +23,16 @@ import com.ormma.view.OrmmaView;
  */
 public class OrmmaLocationController extends OrmmaController {
 
+	private static final String LOG_TAG = "OrmmaLocationController";
+	
 	private LocationManager mLocationManager;
 	private boolean hasPermission = false;
 	final int INTERVAL = 1000;
 	private LocListener mGps;
 	private LocListener mNetwork;
 	private int mLocListenerCount;
-
+	private boolean allowLocationServices = true;
+	
 	/**
 	 * Instantiates a new ormma location controller.
 	 *
@@ -49,26 +53,25 @@ public class OrmmaLocationController extends OrmmaController {
 		}
 	}
 
-	// public int getHeading() {
-	// if (!hasPermission){
-	// return -1;
-	// }
-	// List<String> providers = mLocationManager.getProviders(true);
-	// Iterator<String> provider = providers.iterator();
-	// Location lastKnown = null;
-	// int bearing = -1;
-	// while (provider.hasNext()) {
-	// lastKnown = mLocationManager.getLastKnownLocation(provider.next());
-	// if (lastKnown != null) {
-	// if (lastKnown.hasBearing()) {
-	// bearing = (int) lastKnown.getBearing();
-	// break;
-	// }
-	// }
-	// }
-	// return bearing;
-	// }
+	/**
+	 * @param flag - Should the location services be enabled / not.
+	 */
+	public void allowLocationServices(boolean flag) {
+		this.allowLocationServices = flag;
+	}
 
+	/**
+	 * @return - allowLocationServices
+	 */
+	public boolean allowLocationServices() {
+		return allowLocationServices;
+	}	
+	
+	private static String formatLocation(Location loc)
+	{
+		return "{ lat: " + loc.getLatitude() + ", lon: " + loc.getLongitude() + ", acc: " + loc.getAccuracy() +"}";
+	}
+	
 	/**
 	 * Gets the location.
 	 *
@@ -88,7 +91,7 @@ public class OrmmaLocationController extends OrmmaController {
 			}
 		}
 		if (lastKnown != null) {
-			return "{ \"lat\": " + lastKnown.getLatitude() + ", " + "\"long\": " + lastKnown.getLongitude() + "}";
+			return formatLocation(lastKnown);
 		} else
 			return null;
 	}
@@ -127,15 +130,17 @@ public class OrmmaLocationController extends OrmmaController {
 	 * @param loc the loc
 	 */
 	public void success(Location loc) {
-		String ret = "{ \"lat\": " + loc.getLatitude() + ", " + "\"long\": " + loc.getLongitude() + "}";
-		mOrmmaView.injectJavaScript("OrmmaAdController.locationChanged(" + ret + ")");
+		String script = "window.ormmaview.fireChangeEvent({ location: "+ formatLocation(loc) + "})";
+		Log.d(LOG_TAG, script);
+		mOrmmaView.injectJavaScript(script);
 	}
 
 	/**
 	 * Fail.
 	 */
 	public void fail() {
-		mOrmmaView.injectJavaScript("OrmmaAdController.errored('loc')");
+		Log.e(LOG_TAG, "Location can't be determined");
+		mOrmmaView.injectJavaScript("window.ormmaview.fireErrorEvent(\"Location cannot be identified\", \"OrmmaLocationController\")");
 	}
 
 	/* (non-Javadoc)

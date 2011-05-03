@@ -8,6 +8,7 @@
 package com.ormma.controller;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.ormma.controller.listeners.AccelListener;
 import com.ormma.view.OrmmaView;
@@ -16,6 +17,7 @@ import com.ormma.view.OrmmaView;
  * The Class OrmmaSensorController.  OrmmaController for interacting with sensors
  */
 public class OrmmaSensorController extends OrmmaController {
+	private static final String LOG_TAG = "OrmmaSensorController";
 	final int INTERVAL = 1000;
 	private AccelListener mAccel;
 	private float mLastX = 0;
@@ -99,10 +101,10 @@ public class OrmmaSensorController extends OrmmaController {
 		mLastX = x;
 		mLastY = y;
 		mLastZ = z;
-
-		mOrmmaView.injectJavaScript("Ormma.gotTiltChange({ x : \"" + mLastX + "\", y : \"" + mLastY + "\", z : \""
-				+ mLastZ + "\"})");
-
+		
+		String script = "window.ormmaview.fireChangeEvent({ tilt: "+ getTilt() + "})";
+		Log.d(LOG_TAG, script );
+		mOrmmaView.injectJavaScript(script);
 	}
 
 	/**
@@ -120,7 +122,9 @@ public class OrmmaSensorController extends OrmmaController {
 	 * @param f the f
 	 */
 	public void onHeadingChange(float f) {
-		mOrmmaView.injectJavaScript("Ormma.gotHeadingChange(" + (int) (f * (180 / Math.PI)) + ")");
+		String script = "window.ormmaview.fireChangeEvent({ heading: " + (int) (f * (180 / Math.PI)) + "});";
+		Log.d(LOG_TAG, script );
+		mOrmmaView.injectJavaScript(script);
 	}
 
 	/**
