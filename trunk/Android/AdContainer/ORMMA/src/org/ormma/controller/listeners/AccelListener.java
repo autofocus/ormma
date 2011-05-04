@@ -36,6 +36,7 @@ public class AccelListener implements SensorEventListener {
 	private static final int SHAKE_TIMEOUT = 500;
 	private static final int SHAKE_DURATION = 2000;
 	private static final int SHAKE_COUNT = 2;
+	
 
 	//parent controller
 	OrmmaSensorController mSensorController;
