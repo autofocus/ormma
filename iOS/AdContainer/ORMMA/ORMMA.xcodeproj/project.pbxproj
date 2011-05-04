@@ -85,17 +85,6 @@
 		FAD28BFC12381B2A00562D0B /* ASIProgressDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD512381B2A00562D0B /* ASIProgressDelegate.h */; };
 		FAD28BFD12381B2A00562D0B /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD612381B2A00562D0B /* Reachability.h */; };
 		FAD28BFE12381B2A00562D0B /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BD712381B2A00562D0B /* Reachability.m */; };
-		FAD28BFF12381B2A00562D0B /* JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BD912381B2A00562D0B /* JSON.h */; };
-		FAD28C0012381B2A00562D0B /* NSObject+SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BDB12381B2A00562D0B /* NSObject+SBJSON.h */; };
-		FAD28C0112381B2A00562D0B /* NSObject+SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BDC12381B2A00562D0B /* NSObject+SBJSON.m */; };
-		FAD28C0212381B2A00562D0B /* NSString+SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BDD12381B2A00562D0B /* NSString+SBJSON.h */; };
-		FAD28C0312381B2A00562D0B /* NSString+SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BDE12381B2A00562D0B /* NSString+SBJSON.m */; };
-		FAD28C0412381B2A00562D0B /* SBJsonBase.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BDF12381B2A00562D0B /* SBJsonBase.h */; };
-		FAD28C0512381B2A00562D0B /* SBJsonBase.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BE012381B2A00562D0B /* SBJsonBase.m */; };
-		FAD28C0612381B2A00562D0B /* SBJsonParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BE112381B2A00562D0B /* SBJsonParser.h */; };
-		FAD28C0712381B2A00562D0B /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BE212381B2A00562D0B /* SBJsonParser.m */; };
-		FAD28C0812381B2A00562D0B /* SBJsonWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD28BE312381B2A00562D0B /* SBJsonWriter.h */; };
-		FAD28C0912381B2A00562D0B /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD28BE412381B2A00562D0B /* SBJsonWriter.m */; };
 		FAD28C6E12381DFF00562D0B /* ORMMA_Standard_HTML_Stub.html in Resources */ = {isa = PBXBuildFile; fileRef = FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */; };
 		FAD3FA4D126CA0B100468F35 /* 1.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3F9C7126C84B300468F35 /* 1.sql */; };
 		FAD3FAAB126CABD000468F35 /* 2.sql in Resources */ = {isa = PBXBuildFile; fileRef = FAD3FAA9126CABB100468F35 /* 2.sql */; };
@@ -270,18 +259,6 @@
 		FAD28BD512381B2A00562D0B /* ASIProgressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIProgressDelegate.h; sourceTree = "<group>"; };
 		FAD28BD612381B2A00562D0B /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		FAD28BD712381B2A00562D0B /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		FAD28BD912381B2A00562D0B /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
-		FAD28BDA12381B2A00562D0B /* License.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = License.md; sourceTree = "<group>"; };
-		FAD28BDB12381B2A00562D0B /* NSObject+SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SBJSON.h"; sourceTree = "<group>"; };
-		FAD28BDC12381B2A00562D0B /* NSObject+SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SBJSON.m"; sourceTree = "<group>"; };
-		FAD28BDD12381B2A00562D0B /* NSString+SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SBJSON.h"; sourceTree = "<group>"; };
-		FAD28BDE12381B2A00562D0B /* NSString+SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SBJSON.m"; sourceTree = "<group>"; };
-		FAD28BDF12381B2A00562D0B /* SBJsonBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonBase.h; sourceTree = "<group>"; };
-		FAD28BE012381B2A00562D0B /* SBJsonBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonBase.m; sourceTree = "<group>"; };
-		FAD28BE112381B2A00562D0B /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
-		FAD28BE212381B2A00562D0B /* SBJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonParser.m; sourceTree = "<group>"; };
-		FAD28BE312381B2A00562D0B /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
-		FAD28BE412381B2A00562D0B /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
 		FAD28C4E12381BF800562D0B /* ORMMA.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORMMA.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAD28C4F12381BF800562D0B /* ORMMA Bundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ORMMA Bundle-Info.plist"; sourceTree = "<group>"; };
 		FAD28C6D12381DF900562D0B /* ORMMA_Standard_HTML_Stub.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ORMMA_Standard_HTML_Stub.html; sourceTree = "<group>"; };
@@ -584,7 +561,6 @@
 				FA77569E1263570500CC8838 /* Cocoa HTTP Server */,
 				FAB6E0451240291D00DF64C9 /* Erica Sadun */,
 				FAD233B51268EF1B00921D13 /* FMDB */,
-				FAD28BD812381B2A00562D0B /* JSON Framework */,
 			);
 			path = "Third Party";
 			sourceTree = "<group>";
@@ -613,25 +589,6 @@
 				FAD28BD712381B2A00562D0B /* Reachability.m */,
 			);
 			path = "ASI HTTP Request";
-			sourceTree = "<group>";
-		};
-		FAD28BD812381B2A00562D0B /* JSON Framework */ = {
-			isa = PBXGroup;
-			children = (
-				FAD28BD912381B2A00562D0B /* JSON.h */,
-				FAD28BDA12381B2A00562D0B /* License.md */,
-				FAD28BDB12381B2A00562D0B /* NSObject+SBJSON.h */,
-				FAD28BDC12381B2A00562D0B /* NSObject+SBJSON.m */,
-				FAD28BDD12381B2A00562D0B /* NSString+SBJSON.h */,
-				FAD28BDE12381B2A00562D0B /* NSString+SBJSON.m */,
-				FAD28BDF12381B2A00562D0B /* SBJsonBase.h */,
-				FAD28BE012381B2A00562D0B /* SBJsonBase.m */,
-				FAD28BE112381B2A00562D0B /* SBJsonParser.h */,
-				FAD28BE212381B2A00562D0B /* SBJsonParser.m */,
-				FAD28BE312381B2A00562D0B /* SBJsonWriter.h */,
-				FAD28BE412381B2A00562D0B /* SBJsonWriter.m */,
-			);
-			path = "JSON Framework";
 			sourceTree = "<group>";
 		};
 		FAD28C5912381C3400562D0B /* Resources */ = {
@@ -720,12 +677,6 @@
 				FAD28BFA12381B2A00562D0B /* ASINetworkQueue.h in Headers */,
 				FAD28BFC12381B2A00562D0B /* ASIProgressDelegate.h in Headers */,
 				FAD28BFD12381B2A00562D0B /* Reachability.h in Headers */,
-				FAD28BFF12381B2A00562D0B /* JSON.h in Headers */,
-				FAD28C0012381B2A00562D0B /* NSObject+SBJSON.h in Headers */,
-				FAD28C0212381B2A00562D0B /* NSString+SBJSON.h in Headers */,
-				FAD28C0412381B2A00562D0B /* SBJsonBase.h in Headers */,
-				FAD28C0612381B2A00562D0B /* SBJsonParser.h in Headers */,
-				FAD28C0812381B2A00562D0B /* SBJsonWriter.h in Headers */,
 				FAB6E05012402A6E00DF64C9 /* UIDevice-Hardware.h in Headers */,
 				FA7756B91263598300CC8838 /* AsyncSocket.h in Headers */,
 				FA7756BB1263598300CC8838 /* DDData.h in Headers */,
@@ -927,11 +878,6 @@
 				FAD28BF912381B2A00562D0B /* ASIInputStream.m in Sources */,
 				FAD28BFB12381B2A00562D0B /* ASINetworkQueue.m in Sources */,
 				FAD28BFE12381B2A00562D0B /* Reachability.m in Sources */,
-				FAD28C0112381B2A00562D0B /* NSObject+SBJSON.m in Sources */,
-				FAD28C0312381B2A00562D0B /* NSString+SBJSON.m in Sources */,
-				FAD28C0512381B2A00562D0B /* SBJsonBase.m in Sources */,
-				FAD28C0712381B2A00562D0B /* SBJsonParser.m in Sources */,
-				FAD28C0912381B2A00562D0B /* SBJsonWriter.m in Sources */,
 				FAB6E05112402A6E00DF64C9 /* UIDevice-Hardware.m in Sources */,
 				FA7756BA1263598300CC8838 /* AsyncSocket.m in Sources */,
 				FA7756BC1263598300CC8838 /* DDData.m in Sources */,
