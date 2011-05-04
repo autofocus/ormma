@@ -455,9 +455,17 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	// account for status bar, if needed
 	CGFloat yDelta = 0;
 	UIApplication *app = [UIApplication sharedApplication];
-	if ( !app.statusBarHidden )
+	// Height and width must be swapped for landscape orientation
+    if ( !app.statusBarHidden )
 	{
-		yDelta = app.statusBarFrame.size.height;
+        if(app.statusBarFrame.size.height < app.statusBarFrame.size.width)
+        {
+            yDelta = app.statusBarFrame.size.height;
+        }
+        else
+        {
+            yDelta = app.statusBarFrame.size.width;
+        }
 	}
 	
 	// ok, to make it easy on the client, we don't require them to give us all
@@ -468,11 +476,16 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	// we override the appropriate value. this allows the client to say things
 	// like "using the current ad position, expand the ad's height to 300px"
 	CGRect f = [self.bridgeDelegate getAdFrameInWindowCoordinates];
-	CGFloat x = f.origin.x;
-	CGFloat y = f.origin.y;
-	CGFloat w = f.size.width;
-	CGFloat h = f.size.height;
-	
+    
+    // Get the current ad rectangle that is actually presented to the client, regardless of the rotation,
+    // since the app keyWindow does not rotate. 
+    CGRect fNotRotated = [self.bridgeDelegate rectAccordingToOrientation:f];
+    
+	CGFloat x = fNotRotated.origin.x;
+	CGFloat y = fNotRotated.origin.y;
+	CGFloat w = fNotRotated.size.width;
+	CGFloat h = fNotRotated.size.height;
+
 	// now get the sizes as specified by the creative
 	x = [self floatFromDictionary:parameters
 						   forKey:@"x"
@@ -520,6 +533,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	NSString *urlString = [parameters valueForKey:@"url"];
 	NSURL *url = [NSURL URLWithString:urlString];
 	NSLog( @"Expanding to ( %f, %f ) ( %f x %f ) showing %@", x, y, w, h, url );
+    // The newFrame is the not rotated frame. The callee has to take the current rotation into consideration.
 	CGRect newFrame = CGRectMake( x, ( y + yDelta ), w, h );
 	[self.bridgeDelegate expandTo:newFrame
 						  withURL:url
@@ -1001,7 +1015,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 {
 	UIDevice *device = [UIDevice currentDevice];
 	UIDeviceOrientation orientation = device.orientation;
-	NSInteger orientationAngle = -1;
+    NSInteger orientationAngle = -1;
 	switch ( orientation )
 	{
 		case UIDeviceOrientationPortrait:
@@ -1023,9 +1037,11 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 			return;
 	}
 	CGSize screenSize = [device screenSizeForOrientation:orientation];
+	// We have to change the screenSize before the orientation -- order of listeners triggered is important for ormma.js
 	[self.bridgeDelegate usingWebView:self.bridgeDelegate.webView
-					executeJavascript:@"window.ormmaview.fireChangeEvent( { orientation: %i, screenSize: { width: %f, height: %f } } );", orientationAngle,
-																																		  screenSize.width, screenSize.height];
+					executeJavascript:@"window.ormmaview.fireChangeEvent( {screenSize: { width: %f, height: %f }, orientation: %i } );", 
+                                    screenSize.width, screenSize.height, orientationAngle];    
+    [self.bridgeDelegate rotateExpandedWindowsToCurrentOrientation];
 }
 
 
