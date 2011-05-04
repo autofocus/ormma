@@ -549,9 +549,12 @@
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'createEvent');
         } else if (!date || typeof date != 'object' || !date.getDate) {
             broadcastEvent(EVENTS.ERROR, 'Valid date required.', 'createEvent');
-        } else if (!title || typeof title != 'string') {
+        } else if (!title || typeof title != 'string'|| trim(title).length == 0) {
             broadcastEvent(EVENTS.ERROR, 'Valid title required.', 'createEvent');
-        } else {
+        }else if (!body || typeof body != 'string' || trim(body).length == 0){
+        	broadcastEvent(EVENTS.ERROR, 'Valid body required.', 'createEvent');
+        }
+        else {
             ormmaview.createEvent(date, title, body);
         }
     };
