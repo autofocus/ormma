@@ -22,7 +22,7 @@
     android:layout_height="wrap_content" 
     android:text="load"
 />		
- <com.ormma.view.OrmmaView  
+ <org.ormma.view.OrmmaView  
  	android:id="@+id/ad"
     android:layout_width="wrap_content" 
     android:layout_height="wrap_content" 
