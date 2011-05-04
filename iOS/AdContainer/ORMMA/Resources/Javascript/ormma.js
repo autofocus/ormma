@@ -521,7 +521,6 @@
     };
     
     ormma.playAudio = function(URL, properties) {
-
         if (!supports[FEATURES.AUDIO]) {
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'playAudio');
         } else if (!URL || typeof URL != 'string') {

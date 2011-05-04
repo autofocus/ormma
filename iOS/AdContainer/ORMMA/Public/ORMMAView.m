@@ -151,7 +151,7 @@ NSString * const kDefaultPositionORMMAPropertiesFormat = @"{ defaultPosition: { 
 			toPath:path];
 	
 	// load the Native Javascript API
-	[self copyFile:@"ormma_bridge"
+	[self copyFile:@"ormma-ios-bridge"
 			ofType:@"js" 
 		fromBundle:s_ormmaBundle 
 			toPath:path];
@@ -291,7 +291,7 @@ didFailLoadWithError:(NSError *)error
 		( [self.ormmaDelegate respondsToSelector:@selector(failureLoadingAd:)] ) )
 	{
 		[self.ormmaDelegate failureLoadingAd:self];
-	}   
+	}
 	m_loadingAd = NO;
 }
 

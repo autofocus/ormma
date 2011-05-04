@@ -21,7 +21,7 @@
 	id delegate;
 	BOOL exitOnComplete;
 	BOOL autoPlay;
-	BOOL inlinePlayer;    
+	BOOL inlinePlayer;
 	
 	BOOL playingAudio;
 	BOOL is3XDevice;

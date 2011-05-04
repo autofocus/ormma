@@ -716,7 +716,6 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 }
 
 
-
 - (BOOL)processRequestCommand:(NSDictionary *)parameters
 				   forWebView:(UIWebView *)webView
 {
