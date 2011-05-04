@@ -71,7 +71,13 @@ typedef enum ORMMAViewStateEnum
     
 	
 	NSMutableArray *m_externalProtocols;
-
+    
+    // Save the frame that the host application wants us to apply
+    // and apply it to the ormmaView when it is not in expanded state
+    CGRect m_originalFrame;
+    CGAffineTransform m_originalTransform;
+    // The ORMMAView frame in the expanded state
+    CGRect m_expandedFrame;
 }
 @property( nonatomic, assign ) id<ORMMAViewDelegate> ormmaDelegate;
 @property( nonatomic, copy ) NSString *htmlStub;
@@ -107,6 +113,11 @@ typedef enum ORMMAViewStateEnum
 // Returns the computed creative id
 - (NSString *)creativeId;
 
+
+// These method let the app indicate whether it considers the ORMMAView to be visible or not.  
+// This is useful when ORMMAView are embedded in a scrolling view and need to be loaded in advance.
+// Calling these method will let the ORMMAView set the proper default ad position based on the currently displayed view.
+- (void)ormmaViewDisplayed;
 @end
 
 

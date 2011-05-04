@@ -126,4 +126,8 @@
 
 - (CGRect)getAdFrameInWindowCoordinates;
 
+- (void)rotateExpandedWindowsToCurrentOrientation;
+
+- (CGRect)rectAccordingToOrientation:(CGRect)rect;
+
 @end

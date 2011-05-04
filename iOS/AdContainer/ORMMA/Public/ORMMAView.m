@@ -69,9 +69,14 @@
 -(void)verifyExternalLaunchWithTitle:(NSString *)title
 								 URL:(NSURL*)url;
 
+- (void)alwaysSetFrame:(CGRect)frame;
+- (CGRect)rectAccordingToOrientation:(CGRect)rect;
+- (void)rotateExpandedWindowsToOrientation:(UIInterfaceOrientation)orientation;
+- (CGRect)webFrameAccordingToOrientation:(CGRect)rect;
+- (void)setJavascriptDefaultFrame:(CGRect)frame;
+- (CGRect)convertedRectAccordingToOrientation:(CGRect)rect;
+- (CGSize)statusBarSize:(CGSize)size accordingToOrientation:(UIInterfaceOrientation)orientation;
 @end
-
-
 
 
 @implementation ORMMAView
@@ -99,6 +104,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 												   " orientation: %i,"\
 												   " supports: [ 'level-1', 'level-2', 'orientation', 'network', 'screen', 'shake', 'size', 'tilt', 'audio', 'video', 'map'%@ ] }";
 
+NSString * const kDefaultPositionORMMAPropertiesFormat = @"{ defaultPosition: { x: %f, y: %f, width: %f, height: %f }, size: { width: %f, height: %f } }";
 
 #pragma mark -
 #pragma mark Properties
@@ -497,6 +503,14 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 
 
 
+// These method let the app indicate whether it considers the ORMMAView to be visible or not.  
+// This is useful when ORMMAView are embedded in a scrolling view and need to be loaded in advance.
+// Calling these method will let the ORMMAView set the proper default ad position based on the currently displayed view.
+- (void)ormmaViewDisplayed
+{
+    [self setJavascriptDefaultFrame:self.frame];
+}
+
 #pragma mark -
 #pragma mark Javascript Bridge Delegate
 - (UIWebView *)webView
@@ -639,14 +653,14 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 		[UIView setAnimationDelegate:self];
 
 		// step 2: change our frame to the stored translated frame
-		self.frame = m_translatedFrame;
-
+		[self alwaysSetFrame:m_translatedFrame];
+        
 		// update the web view as well
-		CGRect webFrame = CGRectMake( 0, 0, m_translatedFrame.size.width, m_translatedFrame.size.height );
+		CGRect webFrame = [self webFrameAccordingToOrientation:m_translatedFrame];
 		webView.frame = webFrame;
-		
+        
 		[UIView commitAnimations];
-
+        
 		// step 3: wait for the animation to complete
 		// (more happens after the animation completes)
     }
@@ -740,11 +754,18 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// step 4: create a blocking view that fills the current window
 	// if the status bar is visible, we need to account for it
 	CGRect f = keyWindow.frame;
+    UIInterfaceOrientation orientation = app.statusBarOrientation;
 	if ( !app.statusBarHidden )
 	{
 	   // status bar is visible
-	   endingFrame.origin.y -= app.statusBarFrame.size.height;
+        endingFrame.origin.y -= [self statusBarSize:app.statusBarFrame.size accordingToOrientation:orientation].height;
 	}
+    m_expandedFrame = endingFrame;
+   
+    
+    // The endingFrame is not a rotated frame. The function has to take the current rotation into consideration.
+    endingFrame = [self convertedRectAccordingToOrientation:endingFrame];
+    
 	if ( m_blockingView != nil )
 	{
 		[m_blockingView removeFromSuperview], m_blockingView = nil;
@@ -752,6 +773,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 	m_blockingView = [[UIView alloc] initWithFrame:f];
 	m_blockingView.backgroundColor = blockingColor;
 	m_blockingView.alpha = blockingOpacity;
+    m_originalTransform = self.transform;
+    [self rotateExpandedWindowsToOrientation:orientation];
 	[keyWindow addSubview:m_blockingView];
 	
 	// step 5: store the current tag for the parent view
@@ -776,9 +799,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 								   toView:keyWindow];
 	
 	// step 10: change our frame to the new one
-	self.frame = m_translatedFrame;
-	
-	// step 11: add ourselves to the key window
+	[self alwaysSetFrame:m_translatedFrame];
+    
+    // step 11: add ourselves to the key window
 	[keyWindow addSubview:self];
 	
 	// step 12: start a new animation, and change our frame
@@ -786,10 +809,10 @@ blockingOpacity:(CGFloat)blockingOpacity
 					context:nil];
 	[UIView setAnimationDuration:0.5];
 	[UIView setAnimationDelegate:self];
-	self.frame = endingFrame;
-
+	[self alwaysSetFrame:endingFrame];
+    
 	// Create frame for web view
-	CGRect webFrame = CGRectMake( 0, 0, endingFrame.size.width, endingFrame.size.height );
+    CGRect webFrame = [self webFrameAccordingToOrientation:endingFrame];
 	webView.frame = webFrame;
 	
 	[UIView commitAnimations];
@@ -1214,6 +1237,60 @@ blockingOpacity:(CGFloat)blockingOpacity
 	[self.moviePlayer playVideo:[NSURL URLWithString:urlString] attachTo:webView autoPlay:autoplay showControls:controls repeat:loop fullScreenMode:[startStyle isEqualToString:@"fullscreen"] ? YES : NO autoExit:[stopStyle isEqualToString:@"normal"] ? NO : YES];
 }
 
+
+- (void)rotateExpandedWindowsToCurrentOrientation
+{
+    if ( ORMMAViewStateExpanded == self.currentState )
+    {
+        // ORMMAView takes full screen on expansion
+        
+        UIApplication *app = [UIApplication sharedApplication];
+        CGRect modifiedOriginalFrame = m_originalFrame;
+        if(!app.statusBarHidden)
+        {
+            modifiedOriginalFrame.origin.y += 20; 
+        }
+        UIInterfaceOrientation orientation = app.statusBarOrientation;
+        [self rotateExpandedWindowsToOrientation:orientation];
+        CGRect endingFrame = m_expandedFrame;
+        UIWindow *keyWindow = [app keyWindow];
+        CGRect screenFrame = keyWindow.frame;
+        CGFloat statusBarHeight = 0;
+        if(!app.statusBarHidden)
+        {
+            statusBarHeight = [self statusBarSize:app.statusBarFrame.size accordingToOrientation:orientation].height;
+        }
+        switch (orientation) 
+        {
+            case UIInterfaceOrientationPortraitUpsideDown:
+                endingFrame = CGRectMake(screenFrame.size.width - endingFrame.size.width - endingFrame.origin.x, 
+                                         screenFrame.size.height - endingFrame.size.height - endingFrame.origin.y, 
+                                         endingFrame.size.width, endingFrame.size.height);
+                break;
+                
+            case UIInterfaceOrientationLandscapeLeft:
+                endingFrame = CGRectMake(endingFrame.origin.y, 
+                                         screenFrame.size.height - endingFrame.size.width - endingFrame.origin.x, 
+                                         endingFrame.size.height, endingFrame.size.width);
+                break;
+                
+            case UIInterfaceOrientationLandscapeRight:
+                endingFrame = CGRectMake(screenFrame.size.width - endingFrame.size.height - endingFrame.origin.y, 
+                                         endingFrame.origin.x, 
+                                         endingFrame.size.height, endingFrame.size.width);
+                break;
+                
+            default:
+                endingFrame= m_expandedFrame;
+        }
+        
+        [self alwaysSetFrame:endingFrame];
+        m_webView.frame = [self webFrameAccordingToOrientation:endingFrame];
+        m_translatedFrame = [self convertedRectAccordingToOrientation:modifiedOriginalFrame];
+    }
+}
+
+
 #pragma mark -
 #pragma mark Player Control
 
@@ -1237,6 +1314,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// called when the ad needs to be made visible
 	[self fireAdDidShow];	
 }
+
 
 #pragma mark -
 #pragma mark Web Browser Control
@@ -1288,8 +1366,9 @@ blockingOpacity:(CGFloat)blockingOpacity
 	{
 		// finish the close expanded function
 		// step 4: restore our frame to the original untranslated frame
-		self.frame = m_defaultFrame;
-		
+        // m_originalFrame might get changed by the host application while the ORMMAView was in the expanded state.
+        
+        
 		// step 5: get a handle to the key window
 		UIApplication *app = [UIApplication sharedApplication];
 		UIWindow *keyWindow = [app keyWindow];
@@ -1305,10 +1384,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 		
 		// step 9: remove the blocking view
 		[m_blockingView removeFromSuperview], m_blockingView = nil;
-		
-		// step 10: fire the size changed ORMMA event
-		[self usingWebView:m_webView
-		 executeJavascript:@"window.ormmaview.fireChangeEvent( { size: { width: %f, height: %f } } );", self.frame.size.width, self.frame.size.height ];
+
+		// step 10: moved to after step 13 -- don't signal until after expanded has finished closing
 		
 		// step 11: update the state to default
 		self.currentState = ORMMAViewStateDefault;
@@ -1319,6 +1396,14 @@ blockingOpacity:(CGFloat)blockingOpacity
 		
 		// step 13: fire the application did close delegate call
 		[self fireAdDidClose];
+        self.transform = m_originalTransform;
+        [self alwaysSetFrame:m_originalFrame];
+        self.webView.frame = CGRectMake(0, 0, m_originalFrame.size.width, m_originalFrame.size.height);
+        [self setJavascriptDefaultFrame:m_originalFrame];
+
+        // step 10: fire the size changed ORMMA event
+		[self usingWebView:m_webView
+         executeJavascript:@"window.ormmaview.fireChangeEvent( { size: { width: %f, height: %f } } );", self.frame.size.width, self.frame.size.height ];
 	}
 	else
 	{
@@ -1606,8 +1691,15 @@ blockingOpacity:(CGFloat)blockingOpacity
 	// setup the ad size
 	CGSize size = m_webView.frame.size;
 	
+    UIApplication *app = [UIApplication sharedApplication];
+    
 	// setup orientation
 	UIDeviceOrientation orientation = m_currentDevice.orientation;
+    if(UIDeviceOrientationUnknown == orientation)
+    {
+        orientation = app.statusBarOrientation;
+        
+    }
 	NSInteger angle = [self angleFromOrientation:orientation];
 	
 	// setup the screen size
@@ -1615,31 +1707,31 @@ blockingOpacity:(CGFloat)blockingOpacity
 	CGSize screenSize = [device screenSizeForOrientation:orientation];	
 	
 	// get the key window
-	UIApplication *app = [UIApplication sharedApplication];
 	UIWindow *keyWindow = [app keyWindow];
 	
 	// setup the default position information (translated into window coordinates)
 	// convertRect should be called not by the ORMMAView but by the parent of the ORMMAView
 	CGRect defaultPosition = [self.superview convertRect:self.frame
-										toView:keyWindow];	
+                                                  toView:keyWindow];	
 	
+    defaultPosition = [self rectAccordingToOrientation:defaultPosition];
 	// determine our network connectivity
 	NSString *network = m_javascriptBridge.networkStatus;
 	
 	// build the initial properties
 	NSString *properties = [NSString stringWithFormat:kInitialORMMAPropertiesFormat, @"default",
-																					 network,
-																					 size.width, size.height,
-																					 self.maxSize.width, self.maxSize.height,
-																					 screenSize.width, screenSize.height,
-																					 defaultPosition.origin.x, defaultPosition.origin.y, defaultPosition.size.width, defaultPosition.size.height,
-																					 angle,
-																					 features];
+                            network,
+                            size.width, size.height,
+                            self.maxSize.width, self.maxSize.height,
+                            screenSize.width, screenSize.height,
+                            defaultPosition.origin.x, defaultPosition.origin.y, defaultPosition.size.width, defaultPosition.size.height,
+                            angle,
+                            features];
 	[self usingWebView:webView 
 	 executeJavascript:@"window.ormmaview.fireChangeEvent( %@ );", properties];
-
+    
 	// make sure things are visible
-//	[self fireAdDidShow];
+    //	[self fireAdDidShow];
 }
 
 
@@ -1857,6 +1949,35 @@ blockingOpacity:(CGFloat)blockingOpacity
 
 
 
+- (void)setJavascriptDefaultFrame:(CGRect)frame
+{
+    if(nil != m_webView)
+    {
+        // get the key window
+        UIApplication *app = [UIApplication sharedApplication];
+        UIWindow *keyWindow = [app keyWindow];
+        
+        // setup the default position information (translated into window coordinates)
+
+        UIView *superView = self.superview;
+        if(nil == superView)
+        {
+            return;
+        }
+        // convertRect should be called not by the ORMMAView but by the parent of the ORMMAView
+        CGRect defaultPosition = [superView convertRect:frame toView:keyWindow];	
+        
+        defaultPosition = [self rectAccordingToOrientation:defaultPosition];
+        
+        // build the default position properties
+        NSString *properties = [NSString stringWithFormat:kDefaultPositionORMMAPropertiesFormat, 
+                                defaultPosition.origin.x, defaultPosition.origin.y, defaultPosition.size.width, defaultPosition.size.height,
+                                defaultPosition.size.width, defaultPosition.size.height];
+        [self usingWebView:m_webView executeJavascript:@"window.ormmaview.fireChangeEvent( %@ );", properties];
+    }
+}
+
+
 #pragma mark -
 #pragma mark Launch External Locations
 
@@ -1901,4 +2022,139 @@ clickedButtonAtIndex:(NSInteger)buttonIndex
 												f.size.height );
 }
 
-@end
+
+#pragma mark -
+#pragma mark UIView overrides
+
+- (void)setFrame:(CGRect)frame
+{
+    // Save the frame that the host application wants us to apply
+    // and apply it to the ormmaView when it is not in expanded state
+    m_originalFrame = frame;
+    if( ORMMAViewStateExpanded != self.currentState )
+    {
+        
+        [super setFrame:frame];
+        [self setJavascriptDefaultFrame:frame];
+    }
+}
+
+
+- (void)alwaysSetFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+}
+
+
+#pragma mark -
+#pragma mark Rotation
+
+- (void)rotateExpandedWindowsToOrientation:(UIInterfaceOrientation)orientation
+{
+    CGFloat angle = 0.0;
+   
+    switch (orientation) { 
+        case UIInterfaceOrientationPortraitUpsideDown:
+            angle = M_PI; 
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            angle = - M_PI_2; // / 2.0f;
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            angle = M_PI_2; // / 2.0f;
+            break;
+        default: // as UIInterfaceOrientationPortrait
+            angle = 0.0;
+            break;
+    } 
+    self.transform = CGAffineTransformMakeRotation(angle);
+}
+
+
+- (CGRect)webFrameAccordingToOrientation:(CGRect)rect
+{
+    CGRect webFrame = CGRectZero;
+    UIApplication *app = [UIApplication sharedApplication];
+    UIInterfaceOrientation orientation = app.statusBarOrientation;
+    if(UIInterfaceOrientationIsPortrait(orientation))
+    {
+        webFrame = CGRectMake( 0, 0, rect.size.width, rect.size.height );
+    }
+    else
+    {
+        webFrame = CGRectMake( 0, 0, rect.size.height, rect.size.width );
+    }
+    //webFrame = CGRectMake( 0, 0, rect.size.height, rect.size.width );
+    return webFrame;
+}
+
+
+- (CGRect)rectAccordingToOrientation:(CGRect)rect
+{
+    UIApplication *app = [UIApplication sharedApplication];
+    UIWindow      *keyWindow = [app keyWindow];
+	CGFloat statusBarHeight = 0;
+    if ( !app.statusBarHidden )
+	{
+        // status bar is visible
+        statusBarHeight = 20;
+	}
+    UIInterfaceOrientation orientation = app.statusBarOrientation;
+    switch (orientation) { 
+        case UIInterfaceOrientationPortraitUpsideDown:
+            rect.origin.y = keyWindow.frame.size.height - rect.origin.y - rect.size.height;
+            rect.origin.x = keyWindow.frame.size.width - rect.origin.x - rect.size.width;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            rect = CGRectMake(keyWindow.frame.size.height - rect.origin.y - rect.size.height, rect.origin.x, rect.size.height, rect.size.width);
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            rect = CGRectMake(rect.origin.y, keyWindow.frame.size.width - rect.origin.x - rect.size.width, rect.size.height, rect.size.width);
+            break;
+        default: // as UIInterfaceOrientationPortrait
+            break;
+    }
+    return rect;
+}
+
+
+
+- (CGRect)convertedRectAccordingToOrientation:(CGRect)rect
+{
+    UIApplication *app = [UIApplication sharedApplication];
+    UIWindow      *keyWindow = [app keyWindow];
+	CGFloat statusBarHeight = 0;
+    if ( !app.statusBarHidden )
+	{
+        // status bar is visible
+        statusBarHeight = 20;
+	}
+    
+    UIInterfaceOrientation orientation = app.statusBarOrientation;
+    switch (orientation) { 
+        case UIInterfaceOrientationPortraitUpsideDown:
+            rect.origin.y = keyWindow.frame.size.height - rect.origin.y - rect.size.height;
+            rect.origin.x = keyWindow.frame.size.width - rect.origin.x - rect.size.width;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            rect = CGRectMake(rect.origin.y, keyWindow.frame.size.height - rect.origin.x - rect.size.width, rect.size.height, rect.size.width);
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            rect = CGRectMake(keyWindow.frame.size.width - rect.origin.y - rect.size.height, rect.origin.x, rect.size.height, rect.size.width);
+            break;
+        default: // as UIInterfaceOrientationPortrait
+            break;
+    }
+    return rect;
+}
+
+
+- (CGSize)statusBarSize:(CGSize)size accordingToOrientation:(UIInterfaceOrientation)orientation
+{
+    if(UIInterfaceOrientationIsLandscape(orientation))
+    {
+        size = CGSizeMake(size.height, size.width);
+    }
+    return size;
+}
+@end // ORMMAView
