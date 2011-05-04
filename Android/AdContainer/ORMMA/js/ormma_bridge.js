@@ -22,6 +22,7 @@
         useBackground:false,
         backgroundColor:'#ffffff',
         backgroundOpacity:1.0,
+        lockOrientation:false
     };
  
  
