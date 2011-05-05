@@ -151,7 +151,7 @@ NSString * const kDefaultPositionORMMAPropertiesFormat = @"{ defaultPosition: { 
 			toPath:path];
 	
 	// load the Native Javascript API
-	[self copyFile:@"ormma-ios-bridge"
+	[self copyFile:@"ormma_bridge"
 			ofType:@"js" 
 		fromBundle:s_ormmaBundle 
 			toPath:path];
@@ -1155,7 +1155,7 @@ blockingOpacity:(CGFloat)blockingOpacity
          autoPlay:(BOOL)autoplay
          controls: (BOOL)controls
              loop: (BOOL)loop
-           Inline: (BOOL)Inline
+           position: (BOOL)position
        startStyle:(NSString *)startStyle
         stopStyle:(NSString *) stopStyle
 {
@@ -1168,7 +1168,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 		m_blockingView.hidden = YES;
 	}
 	
-	if (Inline) {
+	if (position) {
 		loop = NO;
 		controls = NO;
 		stopStyle = @"exit";
@@ -1190,7 +1190,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	ORMMAAVPlayer* temp = [[[ORMMAAVPlayer alloc] initWithFrame:CGRectMake(0, 0, 320, 480)] autorelease];
 	temp.delegate = self;
 	self.moviePlayer = temp;
-	[self.moviePlayer playAudio:[NSURL URLWithString:urlString] attachTo:webView autoPlay:autoplay showControls:controls repeat:loop playInline:Inline fullScreenMode:[startStyle isEqualToString:@"fullscreen"] ? YES : NO autoExit:[stopStyle isEqualToString:@"normal"] ? NO : YES];
+	[self.moviePlayer playAudio:[NSURL URLWithString:urlString] attachTo:webView autoPlay:autoplay showControls:controls repeat:loop playInline:position fullScreenMode:[startStyle isEqualToString:@"fullscreen"] ? YES : NO autoExit:[stopStyle isEqualToString:@"normal"] ? NO : YES];
 }
 
 - (void)playVideo:(UIWebView *)webView
@@ -1199,7 +1199,7 @@ blockingOpacity:(CGFloat)blockingOpacity
          autoPlay:(BOOL)autoplay
          controls: (BOOL)controls
              loop: (BOOL)loop
-       inline_pos:(int[4]) pos
+       position:(int[4]) pos
        startStyle:(NSString *)startStyle
         stopStyle:(NSString *) stopStyle
 {
@@ -1220,6 +1220,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	CGRect position;
 	if (pos[0] < 0 || pos[1] < 0 || pos[2] <= 0 || pos[3] <= 0) {
 		position = [UIScreen mainScreen].bounds;
+		startStyle = @"fullscreen";
 	}
 	else {
 		position = CGRectMake(pos[0],pos[1],pos[2],pos[3]);

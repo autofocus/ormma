@@ -640,8 +640,8 @@ const CGFloat kDefaultShakeIntensity = 1.5;
                                          forKey:@"loop"]; 
     
     
-    BOOL Inline = [self booleanFromDictionary:parameters
-                                        forKey:@"inline"];   
+    BOOL position = [self booleanFromDictionary:parameters
+                                        forKey:@"position"];   
     
     NSString* startStyle = [self requiredStringFromDictionary:parameters
                                        forKey:@"startStyle"];
@@ -654,7 +654,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
                    autoPlay:autoplay
                    controls: controls
                    loop: loop
-                   Inline: Inline
+                   position: position
                    startStyle: startStyle
                    stopStyle: stopStyle
     ];
@@ -683,17 +683,17 @@ const CGFloat kDefaultShakeIntensity = 1.5;
                                      forKey:@"loop"]; 
     
     
-    int inline_top = [self intFromDictionary:parameters
-                                       forKey:@"inline_top"];  
+    int position_top = [self intFromDictionary:parameters
+                                       forKey:@"position_top"];  
     
-    int inline_left = [self intFromDictionary:parameters
-                                      forKey:@"inline_left"];   
+    int position_left = [self intFromDictionary:parameters
+                                      forKey:@"position_left"];   
     
-    int inline_width = [self intFromDictionary:parameters
-                                       forKey:@"inline_width"];
+    int position_width = [self intFromDictionary:parameters
+                                       forKey:@"position_width"];
     
-    int inline_height = [self intFromDictionary:parameters
-                                       forKey:@"inline_height"];     
+    int position_height = [self intFromDictionary:parameters
+                                       forKey:@"position_height"];     
     
     NSString* startStyle = [self requiredStringFromDictionary:parameters
                                                        forKey:@"startStyle"];
@@ -707,7 +707,7 @@ const CGFloat kDefaultShakeIntensity = 1.5;
                           autoPlay:autoplay
                           controls: controls
                               loop: loop
-                        inline_pos: (int[4]) {inline_top, inline_left, inline_width, inline_height}
+                        position: (int[4]) {position_top, position_left, position_width, position_height}
                         startStyle: startStyle
                          stopStyle: stopStyle
      ];
@@ -1254,14 +1254,15 @@ monitoringDidFailForRegion:(CLRegion *)region
 									forKey:(NSString *)key
 {
 	NSString *value = [dictionary objectForKey:key];
-	if ( value == nil )
+	if ( value == nil || [value isEqual:[NSNull null]] )
 	{
 		// error
 		NSLog( @"Missing required parameter: %@", key );
 		return nil;
 	}
 	value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-	if ( value.length == 0 )
+	NSLog(@"Value is \"%@\"", value);
+	if ( value.length == 0 || [value isEqual:[NSNull null]] || value == nil)
 	{
 		NSLog( @"Missing required parameter: %@", key );
 		return nil;

@@ -9,141 +9,133 @@
 #import "ORMMAAVPlayer.h"
 #include <objc/runtime.h>
 
+
+@implementation LoadingView
+
+-(id)initWithFrame:(CGRect)frame
+{
+	if (self = [super initWithFrame:frame]) {
+		self.backgroundColor = [UIColor blackColor];
+		
+		actIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+		actIndicator.frame = CGRectMake((frame.size.width-20)/2.0, (frame.size.height-20)/2.0, 20, 20);
+		[actIndicator startAnimating];
+		[self addSubview:actIndicator];
+	}
+	return self;
+}
+
+-(void)dealloc
+{
+	[actIndicator release];
+	[super dealloc];
+}
+
+@end
+
 @implementation ORMMAAVPlayer
 @synthesize delegate;
 @synthesize ormmaPlayer;
 
--(void)playAudio:(NSURL *)audioURL attachTo:(UIView*)parentView autoPlay:(BOOL)autoplay showControls:(BOOL)showcontrols repeat:(BOOL)autorepeat playInline:(BOOL)Inline fullScreenMode:(BOOL)isFullScreen autoExit:(BOOL)exit
+-(void)playAudio:(NSURL *)audioURL attachTo:(UIView*)parentView autoPlay:(BOOL)autoplay showControls:(BOOL)showcontrols repeat:(BOOL)autorepeat playInline:(BOOL)Inline fullScreenMode:(BOOL)fullScreen autoExit:(BOOL)exit
 {
-	playingAudio = YES;
+	isAudio = YES;
 	oldStyle = [UIApplication sharedApplication].statusBarStyle;
 	self.backgroundColor = [UIColor blackColor];
 
+	avPlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:audioURL];
+	self.ormmaPlayer = avPlayer.moviePlayer;
 	
-	if ([self.ormmaPlayer respondsToSelector:@selector(loadState)]) 
-	{
-		is3XDevice = NO;
-		avPlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:audioURL];
-		self.ormmaPlayer = avPlayer.moviePlayer;
-		
-		self.ormmaPlayer.controlStyle = showcontrols ? MPMovieControlStyleFullscreen : MPMovieControlStyleNone;
-		self.ormmaPlayer.repeatMode = autorepeat ? MPMovieRepeatModeOne : MPMovieRepeatModeNone;	
-		self.ormmaPlayer.shouldAutoplay = autoplay;
-		self.ormmaPlayer.view.frame = [self bounds];
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(moviePlayerLoadStateChanged:) 
-													 name:MPMoviePlayerLoadStateDidChangeNotification 
-												   object:nil];		
-		[self.ormmaPlayer prepareToPlay];
-	}
-	else 
-	{
-		is3XDevice = YES;
-		self.ormmaPlayer = [[MPMoviePlayerController alloc] initWithContentURL:audioURL];
-		
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(moviePreloadDidFinish:) 
-													 name:MPMoviePlayerContentPreloadDidFinishNotification 
-												   object:nil];
-		
-		self.ormmaPlayer.movieControlMode = showcontrols ? MPMovieControlModeDefault : MPMovieControlModeHidden; 	
-		self.ormmaPlayer.backgroundColor	= [UIColor blackColor];	
-		
-		m_playerViewController = nil;
-		id internal;
-		object_getInstanceVariable(self.ormmaPlayer, "_internal", (void**)&internal);
-		object_getInstanceVariable(internal, "_videoViewController", (void**)&m_playerViewController);
-		m_playerViewController.view.frame = [self bounds];
-	}
 
-
+	self.ormmaPlayer.controlStyle = showcontrols ? MPMovieControlStyleFullscreen : MPMovieControlStyleNone;
+	self.ormmaPlayer.repeatMode = autorepeat ? MPMovieRepeatModeOne : MPMovieRepeatModeNone;	
+	self.ormmaPlayer.shouldAutoplay = autoplay;
+	self.ormmaPlayer.view.frame = [self frame];
+	
+	//call to show the loading screen consisting activity indicator
+	[self showLoadingScreen:ormmaPlayer.view.frame];
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(moviePlayerLoadStateChanged:) 
+												 name:MPMoviePlayerLoadStateDidChangeNotification 
+											   object:nil];		
+	[self.ormmaPlayer prepareToPlay];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(moviePlayBackDidFinish:) 
 												 name:MPMoviePlayerPlaybackDidFinishNotification 
 											   object:nil];
-	
-	
-
-	
-	
-	
 	autoPlay = autoplay;
 	exitOnComplete = exit;
 	inlinePlayer = Inline;
 }
 
--(void)playVideo:(NSURL *)videoURL attachTo:(UIView*)parentView autoPlay:(BOOL)autoplay showControls:(BOOL)showcontrols repeat:(BOOL)autorepeat fullScreenMode:(BOOL)isFullScreen autoExit:(BOOL)exit
-{
-	playingAudio = NO;
+-(void)playVideo:(NSURL *)videoURL attachTo:(UIView*)parentView autoPlay:(BOOL)autoplay showControls:(BOOL)showcontrols repeat:(BOOL)autorepeat fullScreenMode:(BOOL)fullScreen autoExit:(BOOL)exit
+{	
+	isAudio = NO;
 	oldStyle = [UIApplication sharedApplication].statusBarStyle;
 	inlinePlayer = NO;
 	self.backgroundColor = [UIColor blackColor];
 	ormmaPlayer = [[MPMoviePlayerController alloc] initWithContentURL:videoURL];
 	ormmaPlayer.scalingMode = MPMovieScalingModeAspectFit;
 
-	if ([ormmaPlayer respondsToSelector:@selector(loadState)]) 
+	ormmaPlayer.controlStyle = showcontrols ? MPMovieControlStyleFullscreen : MPMovieControlStyleNone;
+	ormmaPlayer.repeatMode = autorepeat ? MPMovieRepeatModeOne : MPMovieRepeatModeNone;	
+	ormmaPlayer.shouldAutoplay = autoplay;
+	isFullScreen = fullScreen;
+	if (isFullScreen) 
 	{
-		is3XDevice = NO;
-		
-		ormmaPlayer.controlStyle = showcontrols ? MPMovieControlStyleFullscreen : MPMovieControlStyleNone;
-		ormmaPlayer.repeatMode = autorepeat ? MPMovieRepeatModeOne : MPMovieRepeatModeNone;	
-		ormmaPlayer.shouldAutoplay = autoplay;
-		ormmaPlayer.view.frame = [self bounds];
-		
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(moviePlayerLoadStateChanged:) 
-													 name:MPMoviePlayerLoadStateDidChangeNotification 
-												   object:nil];	
-		[ormmaPlayer prepareToPlay];
+		ormmaPlayer.view.frame = [UIScreen mainScreen].bounds;
 	}
 	else 
 	{
-		is3XDevice = YES;
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(moviePreloadDidFinish:) 
-													 name:MPMoviePlayerContentPreloadDidFinishNotification 
-												   object:nil];
+		ormmaPlayer.view.frame = [self frame];
 		
-		ormmaPlayer.movieControlMode = showcontrols ? MPMovieControlModeDefault : MPMovieControlModeHidden; 	
-		ormmaPlayer.backgroundColor	= [UIColor blackColor];	
+		CGRect frameRect = ormmaPlayer.view.frame;
+		if (frameRect.origin.y < 20) 
+		{
+			frameRect.origin.y = 20;
+		} 
+		ormmaPlayer.view.frame = frameRect;
 		
-		m_playerViewController = nil;
-		id internal;
-		object_getInstanceVariable(self.ormmaPlayer, "_internal", (void**)&internal);
-		object_getInstanceVariable(internal, "_videoViewController", (void**)&m_playerViewController);
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(movingScalingModeChanged) name:MPMoviePlayerScalingModeDidChangeNotification 
+												   object:nil];		
 	}
-
+	//call to show the loading screen consisting activity indicator
+	[self showLoadingScreen:ormmaPlayer.view.frame];
 	
-	
+	statusBarAvailable = [[UIApplication sharedApplication] isStatusBarHidden];
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(moviePlayerLoadStateChanged:) 
+												 name:MPMoviePlayerLoadStateDidChangeNotification 
+											   object:nil];
+	[ormmaPlayer prepareToPlay];
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(moviePlayBackDidFinish:) 
 												 name:MPMoviePlayerPlaybackDidFinishNotification 
 											   object:nil];
-	
-	
-
 	autoPlay = autoplay;
 	exitOnComplete = exit;
 }
 
-- (void) moviePreloadDidFinish:(NSNotification*)notification 
+-(void)movingScalingModeChanged
 {
-	// Remove observer
-	[[NSNotificationCenter 	defaultCenter] removeObserver:self
-											name:MPMoviePlayerContentPreloadDidFinishNotification
-											object:nil];
-	
-	// Play the movie
-	[ormmaPlayer play];	//we have to start play ... auto play is not supported
-	
-	if (!inlinePlayer) 
-	{
-		UIWindow* window = [[UIApplication sharedApplication] keyWindow];
-		[window addSubview:m_playerViewController.view];	
-		[window bringSubviewToFront:m_playerViewController.view];						
+	if (!isFullScreen) {
+		ormmaPlayer.view.frame = [UIScreen mainScreen].bounds;
+		isFullScreen = YES;
 	}
-	
+	else 
+	{
+		ormmaPlayer.view.frame = [self frame];
+		CGRect frameRect = ormmaPlayer.view.frame;
+		if (frameRect.origin.y < 20) 
+		{
+			frameRect.origin.y = 20;
+		} 
+		ormmaPlayer.view.frame = frameRect;
+		isFullScreen = NO;
+	}
 }
 
 - (void) moviePlayerLoadStateChanged:(NSNotification*)notification 
@@ -153,6 +145,14 @@
 		[[NSNotificationCenter 	defaultCenter] removeObserver:self 
 														 name:MPMoviePlayerLoadStateDidChangeNotification 
 													   object:nil];
+		[loadingView removeFromSuperview];
+		[loadingView release];
+		loadingView = nil;
+		
+        if (!statusBarAvailable && !isAudio) 
+        {
+            [[UIApplication sharedApplication] setStatusBarHidden:YES];
+        }
 		
 		if (autoPlay) 
 		{
@@ -175,59 +175,48 @@
 
 - (void) moviePlayBackDidFinish:(NSNotification*)notification
 {
-	if ([ormmaPlayer respondsToSelector:@selector(loadState)]) 
+	NSDictionary* userinfo = [notification userInfo];
+	NSLog(@"%@",userinfo);
+	NSNumber* status = [userinfo objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
+	if ([status intValue] == MPMovieFinishReasonPlaybackError) 
 	{
-		NSDictionary* userinfo = [notification userInfo];
-		NSLog(@"%@",userinfo);
-		NSNumber* status = [userinfo objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
-		if ([status intValue] == MPMovieFinishReasonUserExited || (exitOnComplete && [status intValue] == MPMovieFinishReasonPlaybackEnded)) 
+		if (loadingView) 
 		{
-			[[NSNotificationCenter defaultCenter] removeObserver:self
-															name:MPMoviePlayerPlaybackDidFinishNotification
-														  object:nil];		
-			
-			[ormmaPlayer stop];
-			if (!inlinePlayer) 
-			{
-				[ormmaPlayer.view removeFromSuperview];			
-			}
-			
-			[ormmaPlayer release];
-			ormmaPlayer = nil;
-			[[UIApplication sharedApplication] setStatusBarStyle:oldStyle];
-			if(self.delegate)
-			{
-				[self.delegate playerCompleted];
-			}
+			[loadingView removeFromSuperview];
+			[loadingView release];
+			loadingView = nil;
 		}
-	}
-	else {
-		[[NSNotificationCenter defaultCenter] removeObserver:self
-														name:MPMoviePlayerPlaybackDidFinishNotification
-													  object:nil];		
 		
-		if (playingAudio) 
-		{
-			if (!inlinePlayer) 	
-			{
-				[m_playerViewController.view removeFromSuperview];			
-			}
-		}
-		else 
-		{
-			[m_playerViewController.view removeFromSuperview];			
-		}
-
-		[ormmaPlayer stop];
 		[ormmaPlayer release];
 		ormmaPlayer = nil;
-		[[UIApplication sharedApplication] setStatusBarStyle:oldStyle];		
 		if(self.delegate)
 		{
 			[self.delegate playerCompleted];
-		}			
+		}	
+		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}
-
+	else if ([status intValue] == MPMovieFinishReasonUserExited || (exitOnComplete && [status intValue] == MPMovieFinishReasonPlaybackEnded))
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:self];
+		
+		[ormmaPlayer stop];
+		if (!inlinePlayer) 
+		{
+			[ormmaPlayer.view removeFromSuperview];			
+		}
+		if (!statusBarAvailable) 
+        {
+            [[UIApplication sharedApplication] setStatusBarHidden:NO];
+            [[UIApplication sharedApplication] setStatusBarStyle:oldStyle];
+        }
+		ormmaPlayer.initialPlaybackTime = -1;
+		[ormmaPlayer release];
+		ormmaPlayer = nil;
+		if(self.delegate)
+		{
+			[self.delegate playerCompleted];
+		}
+	}
 }
 
 - (void)dealloc {		
@@ -237,6 +226,13 @@
 		avPlayer = nil;		
 	}
     [super dealloc];
+}
+
+-(void)showLoadingScreen:(CGRect)frame
+{
+	loadingView = [[LoadingView alloc] initWithFrame:frame];
+	UIWindow* window = [[UIApplication sharedApplication] keyWindow];
+	[window addSubview:loadingView];
 }
 
 @end
