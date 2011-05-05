@@ -32,6 +32,14 @@ import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.ormma.controller.OrmmaController.Dimensions;
+import org.ormma.controller.OrmmaController.PlayerProperties;
+import org.ormma.controller.OrmmaController.Properties;
+import org.ormma.controller.OrmmaUtilityController;
+import org.ormma.controller.util.OrmmaPlayer;
+import org.ormma.controller.util.OrmmaPlayerListener;
+import org.ormma.controller.util.OrmmaUtils;
+
 import android.R;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -55,19 +63,12 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.webkit.JsResult;
+import android.webkit.URLUtil;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
-
-import org.ormma.controller.OrmmaController.Dimensions;
-import org.ormma.controller.OrmmaController.PlayerProperties;
-import org.ormma.controller.OrmmaController.Properties;
-import org.ormma.controller.OrmmaUtilityController;
-import org.ormma.controller.util.OrmmaPlayer;
-import org.ormma.controller.util.OrmmaPlayerListener;
-import org.ormma.controller.util.OrmmaUtils;
 
 /**
  * This is the view to place into a layout to implement ormma functionality. It
@@ -106,6 +107,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	private static final int MESSAGE_OPEN = 1006;
 	private static final int MESSAGE_PLAY_VIDEO = 1007;
 	private static final int MESSAGE_PLAY_AUDIO = 1008;
+	private static final int MESSAGE_RAISE_ERROR = 1009;
 
 	// Extra constants
 	public static final String DIMENSIONS = "expand_dimensions";
@@ -117,6 +119,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	private static final String RESIZE_HEIGHT = "resize_height";
 	private static final String CURRENT_FILE = "_ormma_current";
 	private static final String AD_PATH = "AD_PATH";
+	private static final String ERROR_MESSAGE = "message";
+	private static final String ERROR_ACTION = "action";
 
 	// Debug message constant
 	private static final String TAG = "OrmmaView";
@@ -469,6 +473,16 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		finally{
+			if(is != null){
+				try{
+					is.close();
+				}catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+			is = null;
+		}
 	}
 
 	/**
@@ -624,7 +638,12 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				playVideoImpl(data);
 				break;
 			}
-
+			case MESSAGE_RAISE_ERROR:
+				String strMsg = data.getString(ERROR_MESSAGE);
+				String action = data.getString(ERROR_ACTION);
+				String injection = "window.ormmaview.fireErrorEvent(\""+strMsg+"\", \""+action+"\")";
+				injectJavaScript(injection);
+				break;
 			}
 			super.handleMessage(msg);
 		}
@@ -692,8 +711,9 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		Dimensions d = (Dimensions) data.getParcelable(DIMENSIONS);
 		String url = data.getString(EXPAND_URL);
 		Properties p = data.getParcelable(EXPAND_PROPERTIES);
-		if (url != null && !url.equals("undefined"))
+		if (URLUtil.isValidUrl(url)){
 			loadUrl(url);
+		}
 
 		FrameLayout backGround = changeContentArea(d);
 
@@ -1407,6 +1427,18 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				float distanceX, float distanceY) {
 			return true;
 		}
+	}
+	
+	
+	public void raiseError(String strMsg, String action){
+		
+		Message msg = mHandler.obtainMessage(MESSAGE_RAISE_ERROR);
+
+		Bundle data = new Bundle();
+		data.putString(ERROR_MESSAGE, strMsg);
+		data.putString(ERROR_ACTION, action);
+		msg.setData(data);
+		mHandler.sendMessage(msg);
 	}
 
 	/**

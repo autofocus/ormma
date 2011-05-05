@@ -17,6 +17,7 @@ import org.ormma.controller.util.TransitionStringEnum;
 import org.ormma.view.OrmmaView;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -280,14 +281,24 @@ public abstract class OrmmaController {
 			String typeStr = type.toString();
 			try {
 				if (typeStr.equals(INT_TYPE)) {
-					String value;
-					value = json.getString(JSONName);
-					int iVal;
-					if (value.startsWith("#")) {
-						iVal = Integer.parseInt(value.substring(1), 16);
-					} else
+					String value = json.getString(JSONName).toLowerCase();
+					int iVal = 0;
+					if(value.startsWith("#")){
+						iVal = Color.WHITE;
+						try{
+							if(value.startsWith("#0x")){
+								iVal = Integer.decode(value.substring(1)).intValue();
+							}
+							else{
+								iVal = Integer.parseInt(value.substring(1), 16);
+							}
+						}catch (NumberFormatException e) {
+							// TODO: handle exception
+						}
+					}
+					else{
 						iVal = Integer.parseInt(value);
-
+					}
 					f.set(obj, iVal);
 				} else if (typeStr.equals(STRING_TYPE)) {
 					String value = json.getString(JSONName);

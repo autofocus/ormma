@@ -195,12 +195,13 @@ public class OrmmaUtilityController extends OrmmaController {
 	public void makeCall(String number) {
 		String url = createTelUrl(number);
 		if (url == null) {
-			mOrmmaView.injectJavaScript("Ormma.fireError(\"makeCall\",\"Bad Phone Number\")");
+			mOrmmaView.raiseError("Bad Phone Number","makeCall");
 		}
-		Intent i = new Intent(Intent.ACTION_CALL, Uri.parse(url.toString()));
-		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		mContext.startActivity(i);
-
+		else{
+			Intent i = new Intent(Intent.ACTION_CALL, Uri.parse(url.toString()));
+			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			mContext.startActivity(i);
+		}
 	}
 
 	/**
@@ -222,9 +223,11 @@ public class OrmmaUtilityController extends OrmmaController {
 			cursor = cr.query(Uri.parse("content://calendar/calendars"), 
 					cols, null, null, null);
 		
-		if (!cursor.moveToFirst()) {
+		if (cursor == null || (cursor != null && !cursor.moveToFirst()) ) {
 			// No CalendarID found
-			cursor.close();
+			Toast.makeText(mContext, "No calendar account found", Toast.LENGTH_SHORT).show();
+			if(cursor != null)
+				cursor.close();
 			return;
 		}
 			
