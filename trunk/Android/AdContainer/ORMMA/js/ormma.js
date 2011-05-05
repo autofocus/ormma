@@ -143,10 +143,10 @@
     var readyDuration = 0;
     
     var dimensionValidators = {
-        x:function(value) { return !isNaN(value) && value >= 0; },
-        y:function(value) { return !isNaN(value) && value >= 0; },
-        width:function(value) { return !isNaN(value) && value >= 0; },
-        height:function(value) { return !isNaN(value) && value >= 0; }
+            x:function(value) { return !isNaN(value) && value >= 0; },
+            y:function(value) { return !isNaN(value) && value >= 0; },
+            width:function(value) { return !isNaN(value) && value >= 0 && value <= screenSize.width; },
+            height:function(value) { return !isNaN(value) && value >= 0 && value <= screenSize.height; }
     };
     
     var sizeValidators = {
