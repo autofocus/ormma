@@ -31,16 +31,17 @@ import android.os.StatFs;
 import org.ormma.view.OrmmaView;
 
 /**
- * The Class OrmmaAssetController.  This
- * class handles asset management for orrma
+ * The Class OrmmaAssetController. This class handles asset management for orrma
  */
 public class OrmmaAssetController extends OrmmaController {
-	
+
 	/**
 	 * Instantiates a new ormma asset controller.
-	 *
-	 * @param adView the ad view
-	 * @param c the c
+	 * 
+	 * @param adView
+	 *            the ad view
+	 * @param c
+	 *            the c
 	 */
 	public OrmmaAssetController(OrmmaView adView, Context c) {
 		super(adView, c);
@@ -48,14 +49,18 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Copy text file from jar into asset directory.
-	 *
-	 * @param alias the alias to store it in
-	 * @param source the source
+	 * 
+	 * @param alias
+	 *            the alias to store it in
+	 * @param source
+	 *            the source
 	 * @return the path to the copied asset
 	 */
 	public String copyTextFromJarIntoAssetDir(String alias, String source) {
+		InputStream in = null;
 		try {
-			URL url = OrmmaAssetController.class.getClassLoader().getResource(source);
+			URL url = OrmmaAssetController.class.getClassLoader().getResource(
+					source);
 			String file = url.getFile();
 			if (file.startsWith("file:")) {
 				file = file.substring(5);
@@ -65,30 +70,52 @@ public class OrmmaAssetController extends OrmmaController {
 				file = file.substring(0, pos);
 			JarFile jf = new JarFile(file);
 			JarEntry entry = jf.getJarEntry(source);
-			InputStream in = jf.getInputStream(entry);
+			in = jf.getInputStream(entry);
 			String name = writeToDisk(in, alias, false);
 			return name;
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				in = null;
+			}
 		}
 		return null;
 	}
 
 	/**
 	 * Adds an asset.
-	 *
-	 * @param alias the alias
-	 * @param url the url
+	 * 
+	 * @param alias
+	 *            the alias
+	 * @param url
+	 *            the url
 	 */
 	public void addAsset(String alias, String url) {
 		HttpEntity entity = getHttpEntity(url);
+		InputStream in = null;
 		try {
-			InputStream in = entity.getContent();
+			in = entity.getContent();
 			writeToDisk(in, alias, false);
 			String str = "OrmmaAdController.addedAsset('" + alias + "' )";
 			mOrmmaView.injectJavaScript(str);
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				in = null;
+			}
+
 		}
 		try {
 			entity.consumeContent();
@@ -99,8 +126,9 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * pulls a resource from the web
-	 *
-	 * @param url the url
+	 * 
+	 * @param url
+	 *            the url
 	 * @return the http entity
 	 */
 	private HttpEntity getHttpEntity(String url)
@@ -123,7 +151,7 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Cache remaining.
-	 *
+	 * 
 	 * @return the cache remaining
 	 */
 	public int cacheRemaining() {
@@ -135,16 +163,22 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Write a stream to disk.
-	 *
-	 * @param in the input stream
-	 * @param file the file to store it in
-	 * @param storeInHashedDirectory use a hashed directory name
+	 * 
+	 * @param in
+	 *            the input stream
+	 * @param file
+	 *            the file to store it in
+	 * @param storeInHashedDirectory
+	 *            use a hashed directory name
 	 * @return the path where it was stired
-	 * @throws IllegalStateException the illegal state exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IllegalStateException
+	 *             the illegal state exception
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
-	public String writeToDisk(InputStream in, String file, boolean storeInHashedDirectory)
-			throws IllegalStateException, IOException
+	public String writeToDisk(InputStream in, String file,
+			boolean storeInHashedDirectory) throws IllegalStateException,
+			IOException
 	/**
 	 * writes a HTTP entity to the specified filename and location on disk
 	 */
@@ -160,22 +194,34 @@ public class OrmmaAssetController extends OrmmaController {
 				e.printStackTrace();
 			}
 		}
-		FileOutputStream out = getAssetOutputString(file);
-		do {
-			int numread = in.read(buff);
-			if (numread <= 0)
-				break;
+		FileOutputStream out = null;
+		try {
+			out = getAssetOutputString(file);
+			do {
+				int numread = in.read(buff);
+				if (numread <= 0)
+					break;
 
-			if (storeInHashedDirectory && digest != null) {
-				digest.update(buff);
+				if (storeInHashedDirectory && digest != null) {
+					digest.update(buff);
+				}
+				out.write(buff, 0, numread);
+				// System.out.println("numread" + numread);
+				i++;
+			} while (true);
+			out.flush();
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				out = null;
 			}
-			out.write(buff, 0, numread);
-			// System.out.println("numread" + numread);
-			i++;
-		} while (true);
-		out.flush();
-		out.close();
-		in.close();
+		}
+		// out.close();
+		// in.close();
 		String filesDir = getFilesDir();
 
 		if (storeInHashedDirectory && digest != null) {
@@ -187,22 +233,29 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Write an input stream to a file wrapping it with ormma stuff
-	 *
-	 * @param in the input stream
-	 * @param file the file to store it in
-	 * @param storeInHashedDirectory use a hashed directory name
+	 * 
+	 * @param in
+	 *            the input stream
+	 * @param file
+	 *            the file to store it in
+	 * @param storeInHashedDirectory
+	 *            use a hashed directory name
 	 * @return the path where it was stored
-	 * @throws IllegalStateException the illegal state exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IllegalStateException
+	 *             the illegal state exception
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
-	public String writeToDiskWrap(InputStream in, String file, boolean storeInHashedDirectory, String injection,
-			String bridgePath, String ormmaPath) throws IllegalStateException, IOException
+	public String writeToDiskWrap(InputStream in, String file,
+			boolean storeInHashedDirectory, String injection,
+			String bridgePath, String ormmaPath) throws IllegalStateException,
+			IOException
 	/**
 	 * writes a HTTP entity to the specified filename and location on disk
 	 */
 	{
 		byte buff[] = new byte[1024];
-		
+
 		MessageDigest digest = null;
 		if (storeInHashedDirectory) {
 			try {
@@ -211,89 +264,115 @@ public class OrmmaAssetController extends OrmmaController {
 				e.printStackTrace();
 			}
 		}
-		
-		//check for html tag in the input
-		ByteArrayOutputStream fromFile = new ByteArrayOutputStream();
-		do {
-			int numread = in.read(buff);
-			
-			if (numread <= 0){
-				break;
-			}
-			
-			if (storeInHashedDirectory && digest != null) {
-				digest.update(buff);
-			}
-			
-			fromFile.write(buff, 0, numread);
-			
-		} while (true);
-		
-		String wholeHTML = fromFile.toString();
-		boolean hasHTMLWrap = wholeHTML.indexOf("<html") >= 0;
-		
-		//TODO   cannot have injection when full html
-		
-		StringBuffer wholeHTMLBuffer = null;
-		
-		if(hasHTMLWrap){
-			wholeHTMLBuffer = new StringBuffer(wholeHTML);
 
-            int start = wholeHTMLBuffer.indexOf("/ormma_bridge.js");
-            
-            if(start <= 0){
-            	//TODO error
-            }
-            
-            wholeHTMLBuffer.replace(start, start + "/ormma_bridge.js".length(), "file:/" + bridgePath);
-            
-            start = wholeHTMLBuffer.indexOf("/ormma.js");
-            
-            if(start <= 0){
-            	//TODO error
-            }
-            
-            wholeHTMLBuffer.replace(start, start + "/ormma.js".length(), "file:/" + ormmaPath);
-		}
-		
-		
-		FileOutputStream out = getAssetOutputString(file);
-		
-		if(!hasHTMLWrap){
-			out.write("<html>".getBytes());
-			out.write("<head>".getBytes());
-			out.write("<meta name='viewport' content='user-scalable=no initial-scale=1.0' />".getBytes());
-			out.write("<title>Advertisement</title> ".getBytes());
-			
-			out.write(("<script src=\"file:/" + bridgePath + "\" type=\"text/javascript\"></script>").getBytes());
-			out.write(("<script src=\"file:/" + ormmaPath + "\" type=\"text/javascript\"></script>").getBytes());
-	
-			if (injection != null) {
-				out.write("<script type=\"text/javascript\">".getBytes());
-				out.write(injection.getBytes());
-				out.write("</script>".getBytes());
+		// check for html tag in the input
+		ByteArrayOutputStream fromFile = new ByteArrayOutputStream();
+		FileOutputStream out = null;
+		try {
+			do {
+				int numread = in.read(buff);
+
+				if (numread <= 0) {
+					break;
+				}
+
+				if (storeInHashedDirectory && digest != null) {
+					digest.update(buff);
+				}
+
+				fromFile.write(buff, 0, numread);
+
+			} while (true);
+
+			String wholeHTML = fromFile.toString();
+			boolean hasHTMLWrap = wholeHTML.indexOf("<html") >= 0;
+
+			// TODO cannot have injection when full html
+
+			StringBuffer wholeHTMLBuffer = null;
+
+			if (hasHTMLWrap) {
+				wholeHTMLBuffer = new StringBuffer(wholeHTML);
+
+				int start = wholeHTMLBuffer.indexOf("/ormma_bridge.js");
+
+				if (start <= 0) {
+					// TODO error
+				}
+
+				wholeHTMLBuffer.replace(start,
+						start + "/ormma_bridge.js".length(), "file:/"
+								+ bridgePath);
+
+				start = wholeHTMLBuffer.indexOf("/ormma.js");
+
+				if (start <= 0) {
+					// TODO error
+				}
+
+				wholeHTMLBuffer.replace(start, start + "/ormma.js".length(),
+						"file:/" + ormmaPath);
 			}
-			out.write("</head>".getBytes());
-			out.write("<body style=\"margin:0; padding:0; overflow:hidden; background-color:transparent;\">".getBytes());
-			out.write("<div align=\"center\"> ".getBytes());
+
+			out = getAssetOutputString(file);
+
+			if (!hasHTMLWrap) {
+				out.write("<html>".getBytes());
+				out.write("<head>".getBytes());
+				out.write("<meta name='viewport' content='user-scalable=no initial-scale=1.0' />"
+						.getBytes());
+				out.write("<title>Advertisement</title> ".getBytes());
+
+				out.write(("<script src=\"file:/" + bridgePath + "\" type=\"text/javascript\"></script>")
+						.getBytes());
+				out.write(("<script src=\"file:/" + ormmaPath + "\" type=\"text/javascript\"></script>")
+						.getBytes());
+
+				if (injection != null) {
+					out.write("<script type=\"text/javascript\">".getBytes());
+					out.write(injection.getBytes());
+					out.write("</script>".getBytes());
+				}
+				out.write("</head>".getBytes());
+				out.write("<body style=\"margin:0; padding:0; overflow:hidden; background-color:transparent;\">"
+						.getBytes());
+				out.write("<div align=\"center\"> ".getBytes());
+			}
+
+			if (!hasHTMLWrap) {
+				out.write(fromFile.toByteArray());
+			} else {
+				out.write(wholeHTMLBuffer.toString().getBytes());
+			}
+
+			if (!hasHTMLWrap) {
+				out.write("</div> ".getBytes());
+				out.write("</body> ".getBytes());
+				out.write("</html> ".getBytes());
+			}
+
+			out.flush();
+//			out.close();
+//			in.close();
+		} finally {
+              if(fromFile != null){
+            	  try{
+            		   fromFile.close();
+            	  }catch (Exception e) {
+					// TODO: handle exception
+				}
+            	  fromFile = null;
+              }
+              if(out != null){
+            	  try{
+            		  out.close();
+            	  }
+            	  catch (Exception e) {
+					// TODO: handle exception
+				}
+            	 out = null;
+              }
 		}
-		
-		if(!hasHTMLWrap){
-			out.write(fromFile.toByteArray());
-		}
-		else{
-			out.write(wholeHTMLBuffer.toString().getBytes());
-		}
-		
-		if(!hasHTMLWrap){
-			out.write("</div> ".getBytes());
-			out.write("</body> ".getBytes());
-			out.write("</html> ".getBytes());
-		}
-	
-		out.flush();
-		out.close();
-		in.close();
 		String filesDir = getFilesDir();
 
 		if (storeInHashedDirectory && digest != null) {
@@ -304,17 +383,21 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Move a file to ad directory.
-	 *
-	 * @param fn the filename
-	 * @param filesDir the files directory
-	 * @param subDir the sub directory
+	 * 
+	 * @param fn
+	 *            the filename
+	 * @param filesDir
+	 *            the files directory
+	 * @param subDir
+	 *            the sub directory
 	 * @return the path where it was stored
 	 */
 	private String moveToAdDirectory(String fn, String filesDir, String subDir) {
 		File file = new File(filesDir + java.io.File.separator + fn);
 		File adDir = new File(filesDir + java.io.File.separator + "ad");
 		adDir.mkdir();
-		File dir = new File(filesDir + java.io.File.separator + "ad" + java.io.File.separator + subDir);
+		File dir = new File(filesDir + java.io.File.separator + "ad"
+				+ java.io.File.separator + subDir);
 		dir.mkdir();
 		file.renameTo(new File(dir, file.getName()));
 		return dir.getPath() + java.io.File.separator;
@@ -323,13 +406,14 @@ public class OrmmaAssetController extends OrmmaController {
 	/**
 	 * The Constant HEX_CHARS.
 	 */
-	private static final char[] HEX_CHARS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
-			'e', 'f', };
+	private static final char[] HEX_CHARS = { '0', '1', '2', '3', '4', '5',
+			'6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
 
 	/**
 	 * Builds a hex string
-	 *
-	 * @param digest the digest
+	 * 
+	 * @param digest
+	 *            the digest
 	 * @return the string
 	 */
 	private String asHex(MessageDigest digest) {
@@ -344,7 +428,7 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Gets the files dir for the activity.
-	 *
+	 * 
 	 * @return the files dir
 	 */
 	private String getFilesDir() {
@@ -353,12 +437,15 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Gets the asset output string.
-	 *
-	 * @param asset the asset
+	 * 
+	 * @param asset
+	 *            the asset
 	 * @return the asset output string
-	 * @throws FileNotFoundException the file not found exception
+	 * @throws FileNotFoundException
+	 *             the file not found exception
 	 */
-	public FileOutputStream getAssetOutputString(String asset) throws FileNotFoundException {
+	public FileOutputStream getAssetOutputString(String asset)
+			throws FileNotFoundException {
 		File dir = getAssetDir(getAssetPath(asset));
 		dir.mkdirs();
 		File file = new File(dir, getAssetName(asset));
@@ -367,8 +454,9 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Removes the asset.
-	 *
-	 * @param asset the asset
+	 * 
+	 * @param asset
+	 *            the asset
 	 */
 	public void removeAsset(String asset) {
 		File dir = getAssetDir(getAssetPath(asset));
@@ -382,20 +470,23 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Gets the asset dir.
-	 *
-	 * @param path the path
+	 * 
+	 * @param path
+	 *            the path
 	 * @return the asset dir
 	 */
 	private File getAssetDir(String path) {
 		File filesDir = mContext.getFilesDir();
-		File newDir = new File(filesDir.getPath() + java.io.File.separator + path);
+		File newDir = new File(filesDir.getPath() + java.io.File.separator
+				+ path);
 		return newDir;
 	}
 
 	/**
 	 * Gets the asset path.
-	 *
-	 * @param asset the asset
+	 * 
+	 * @param asset
+	 *            the asset
 	 * @return the asset path
 	 */
 	private String getAssetPath(String asset) {
@@ -403,15 +494,17 @@ public class OrmmaAssetController extends OrmmaController {
 		String path = "/";
 
 		if (lastSep >= 0) {
-			path = asset.substring(0, asset.lastIndexOf(java.io.File.separatorChar));
+			path = asset.substring(0,
+					asset.lastIndexOf(java.io.File.separatorChar));
 		}
 		return path;
 	}
 
 	/**
 	 * Gets the asset name.
-	 *
-	 * @param asset the asset
+	 * 
+	 * @param asset
+	 *            the asset
 	 * @return the asset name
 	 */
 	private String getAssetName(String asset) {
@@ -419,14 +512,15 @@ public class OrmmaAssetController extends OrmmaController {
 		String name = asset;
 
 		if (lastSep >= 0) {
-			name = asset.substring(asset.lastIndexOf(java.io.File.separatorChar) + 1);
+			name = asset.substring(asset
+					.lastIndexOf(java.io.File.separatorChar) + 1);
 		}
 		return name;
 	}
 
 	/**
 	 * Gets the asset path.
-	 *
+	 * 
 	 * @return the asset path
 	 */
 	public String getAssetPath() {
@@ -435,8 +529,9 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Delete directory.
-	 *
-	 * @param path the path
+	 * 
+	 * @param path
+	 *            the path
 	 * @return true, if successful
 	 */
 	static public boolean deleteDirectory(String path) {
@@ -447,8 +542,9 @@ public class OrmmaAssetController extends OrmmaController {
 
 	/**
 	 * Delete directory.
-	 *
-	 * @param path the path
+	 * 
+	 * @param path
+	 *            the path
 	 * @return true, if successful
 	 */
 	static public boolean deleteDirectory(File path) {
@@ -474,7 +570,9 @@ public class OrmmaAssetController extends OrmmaController {
 		deleteDirectory(adDir);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.ormma.controller.OrmmaController#stopAllListeners()
 	 */
 	@Override

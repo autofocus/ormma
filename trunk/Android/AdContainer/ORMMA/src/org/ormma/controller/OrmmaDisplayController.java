@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.URLUtil;
 
 import org.ormma.controller.util.OrmmaConfigurationBroadcastReceiver;
 import org.ormma.view.OrmmaView;
@@ -60,7 +61,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 */
 	public void resize(int width, int height) {
 		if (((mMaxHeight > 0) && (height > mMaxHeight)) || ((mMaxWidth > 0) && (width > mMaxWidth))) {
-			mOrmmaView.injectJavaScript("OrmmaAdController.fireError(\"Maximum size exceeded\", \"resize\")");
+			mOrmmaView.raiseError("Maximum size exceeded", "resize");
 		} else
 			mOrmmaView.resize((int) (mDensity * width), (int) (mDensity * height));
 
@@ -75,7 +76,12 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param refresh show the refresh button
 	 */
 	public void open(String url, boolean back, boolean forward, boolean refresh) {
-		mOrmmaView.open(url, back, forward, refresh);
+		if(!URLUtil.isValidUrl(url)){
+			mOrmmaView.raiseError("Invalid url", "open");
+		}else{
+			mOrmmaView.open(url, back, forward, refresh);
+		}
+		
 
 	}
 	
@@ -99,7 +105,12 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param stopStyle - normal/exit (exit if player should exit after audio stops)
 	 */
 	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean position, String startStyle, String stopStyle) {
-		mOrmmaView.playAudio(url, autoPlay, controls, loop, position, startStyle, stopStyle);
+		if(!URLUtil.isValidUrl(url)){
+			mOrmmaView.raiseError("Invalid url", "playAudio");
+		}else{
+			mOrmmaView.playAudio(url, autoPlay, controls, loop, position, startStyle, stopStyle);
+		}
+		
 	}
 	
 	
@@ -124,7 +135,11 @@ public class OrmmaDisplayController extends OrmmaController {
 			d.height = position[3];
 			d = getDeviceDimensions(d);
 		}		
-		mOrmmaView.playVideo(url, audioMuted, autoPlay, controls, loop, d, startStyle, stopStyle);
+		if(!URLUtil.isValidUrl(url)){
+			mOrmmaView.raiseError("Invalid url", "playVideo");
+		}else{
+			mOrmmaView.playVideo(url, audioMuted, autoPlay, controls, loop, d, startStyle, stopStyle);
+		}
 	}
 
 	/**

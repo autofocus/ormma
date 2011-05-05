@@ -636,7 +636,7 @@
     ormma.makeCall = function(number) {
         if (!supports[FEATURES.PHONE]) {
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'makeCall');
-        } else if (!number || typeof number != 'string') {
+        } else if (!number || typeof number != 'string' || trim(number).length == 0) {
             broadcastEvent(EVENTS.ERROR, 'Request must provide a number to call.', 'makeCall');
         } else {
             ormmaview.makeCall(number);
@@ -646,7 +646,7 @@
     ormma.sendMail = function(recipient, subject, body) {
         if (!supports[FEATURES.EMAIL]) {
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'sendMail');
-        } else if (!recipient || typeof recipient != 'string') {
+        } else if (!recipient || typeof recipient != 'string' || trim(recipient).length == 0) {
             broadcastEvent(EVENTS.ERROR, 'Request must specify a recipient.', 'sendMail');
         } else {
             ormmaview.sendMail(recipient, subject, body);
@@ -656,7 +656,7 @@
     ormma.sendSMS = function(recipient, body) {
         if (!supports[FEATURES.SMS]) {
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'sendSMS');
-        } else if (!recipient || typeof recipient != 'string') {
+        } else if (!recipient || typeof recipient != 'string' ||  trim(recipient).length == 0) {
             broadcastEvent(EVENTS.ERROR, 'Request must specify a recipient.', 'sendSMS');
         } else {
             ormmaview.sendSMS(recipient, body);

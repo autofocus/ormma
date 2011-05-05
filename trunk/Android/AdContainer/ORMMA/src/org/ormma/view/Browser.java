@@ -36,12 +36,11 @@ import org.ormma.controller.OrmmaAssetController;
 
 // TODO: Auto-generated Javadoc
 /**
- * Activity for implementing Ormma open calls.
- * Configurable via the following extras:
- * URL_EXTRA String : url to load
- * SHOW_BACK_EXTRA boolean (default false) : show the back button
- * SHOW_FORWARD_EXTRA boolean (default false) : show the forward button
- * SHOW_REFRESH_EXTRA boolean (default false) : show the prefresh button
+ * Activity for implementing Ormma open calls. Configurable via the following
+ * extras: URL_EXTRA String : url to load SHOW_BACK_EXTRA boolean (default
+ * false) : show the back button SHOW_FORWARD_EXTRA boolean (default false) :
+ * show the forward button SHOW_REFRESH_EXTRA boolean (default false) : show the
+ * prefresh button
  * 
  * layout is constructed programatically
  */
@@ -52,48 +51,54 @@ public class Browser extends Activity {
 	public static final String SHOW_BACK_EXTRA = "open_show_back";
 	public static final String SHOW_FORWARD_EXTRA = "open_show_forward";
 	public static final String SHOW_REFRESH_EXTRA = "open_show_refresh";
-	
+
 	/** Layout Id constants. */
 	private static final int ButtonId = 100;
 	private static final int WebViewId = 101;
 	private static final int ForwardId = 102;
 	private static final int BackwardId = 103;
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		
+
 		// Build the layout
 		RelativeLayout rl = new RelativeLayout(this);
 		WebView webview = new WebView(this);
 
 		this.getWindow().requestFeature(Window.FEATURE_PROGRESS);
-		getWindow().setFeatureInt(Window.FEATURE_PROGRESS, Window.PROGRESS_VISIBILITY_ON);
+		getWindow().setFeatureInt(Window.FEATURE_PROGRESS,
+				Window.PROGRESS_VISIBILITY_ON);
 
 		Intent i = getIntent();
 
-		//Build the button bar
+		// Build the button bar
 		LinearLayout bll = new LinearLayout(this);
 		bll.setOrientation(LinearLayout.HORIZONTAL);
 		bll.setId(ButtonId);
 		bll.setWeightSum(100);
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,
+		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.FILL_PARENT,
 				RelativeLayout.LayoutParams.FILL_PARENT);
 		lp.addRule(RelativeLayout.ABOVE, ButtonId);
-		BitmapDrawable bkgDrawable = new BitmapDrawable(bitmapFromJar("bitmaps/bkgrnd.png"));
+		BitmapDrawable bkgDrawable = new BitmapDrawable(
+				bitmapFromJar("bitmaps/bkgrnd.png"));
 		bll.setBackgroundDrawable(bkgDrawable);
 		rl.addView(webview, lp);
 
-		lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,
+		lp = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.FILL_PARENT,
 				RelativeLayout.LayoutParams.WRAP_CONTENT);
 		lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		rl.addView(bll, lp);
 
-		LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+		LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
+				RelativeLayout.LayoutParams.WRAP_CONTENT,
 				RelativeLayout.LayoutParams.FILL_PARENT);
 		lp2.weight = 25;
 		lp2.gravity = Gravity.CENTER_VERTICAL;
@@ -123,7 +128,8 @@ public class Browser extends Activity {
 		ImageButton forwardButton = new ImageButton(this);
 		forwardButton.setBackgroundColor(R.color.transparent);
 		forwardButton.setId(ForwardId);
-		lp2 = new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+		lp2 = new LinearLayout.LayoutParams(
+				RelativeLayout.LayoutParams.WRAP_CONTENT,
 				RelativeLayout.LayoutParams.FILL_PARENT);
 		lp2.weight = 25;
 		lp2.gravity = Gravity.CENTER_VERTICAL;
@@ -143,7 +149,8 @@ public class Browser extends Activity {
 		ImageButton refreshButton = new ImageButton(this);
 		refreshButton.setImageBitmap(bitmapFromJar("bitmaps/refresh.png"));
 		refreshButton.setBackgroundColor(R.color.transparent);
-		lp2 = new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+		lp2 = new LinearLayout.LayoutParams(
+				RelativeLayout.LayoutParams.WRAP_CONTENT,
 				RelativeLayout.LayoutParams.WRAP_CONTENT);
 		lp2.weight = 25;
 		lp2.gravity = Gravity.CENTER_VERTICAL;
@@ -164,7 +171,8 @@ public class Browser extends Activity {
 		ImageButton closeButton = new ImageButton(this);
 		closeButton.setImageBitmap(bitmapFromJar("bitmaps/close.png"));
 		closeButton.setBackgroundColor(R.color.transparent);
-		lp2 = new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+		lp2 = new LinearLayout.LayoutParams(
+				RelativeLayout.LayoutParams.WRAP_CONTENT,
 				RelativeLayout.LayoutParams.WRAP_CONTENT);
 		lp2.weight = 25;
 		lp2.gravity = Gravity.CENTER_VERTICAL;
@@ -178,10 +186,10 @@ public class Browser extends Activity {
 			}
 		});
 
-		//Show progress bar
+		// Show progress bar
 		getWindow().requestFeature(Window.FEATURE_PROGRESS);
-		
-		//Enable cookies
+
+		// Enable cookies
 		CookieSyncManager.createInstance(this);
 		CookieSyncManager.getInstance().startSync();
 		webview.getSettings().setJavaScriptEnabled(true);
@@ -189,9 +197,11 @@ public class Browser extends Activity {
 		webview.setId(WebViewId);
 
 		webview.setWebViewClient(new WebViewClient() {
-			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+			public void onReceivedError(WebView view, int errorCode,
+					String description, String failingUrl) {
 				Activity a = (Activity) view.getContext();
-				Toast.makeText(a, "Ormma Error:" + description, Toast.LENGTH_SHORT).show();
+				Toast.makeText(a, "Ormma Error:" + description,
+						Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
@@ -204,7 +214,8 @@ public class Browser extends Activity {
 			public void onPageStarted(WebView view, String url, Bitmap favicon) {
 				super.onPageStarted(view, url, favicon);
 				ImageButton forwardButton = (ImageButton) findViewById(ForwardId);
-				forwardButton.setImageBitmap(bitmapFromJar("bitmaps/unrightarrow.png"));
+				forwardButton
+						.setImageBitmap(bitmapFromJar("bitmaps/unrightarrow.png"));
 			}
 
 			@Override
@@ -212,11 +223,13 @@ public class Browser extends Activity {
 				super.onPageFinished(view, url);
 				ImageButton forwardButton = (ImageButton) findViewById(ForwardId);
 
-				//grey out buttons when appropriate
+				// grey out buttons when appropriate
 				if (view.canGoForward()) {
-					forwardButton.setImageBitmap(bitmapFromJar("bitmaps/rightarrow.png"));
+					forwardButton
+							.setImageBitmap(bitmapFromJar("bitmaps/rightarrow.png"));
 				} else {
-					forwardButton.setImageBitmap(bitmapFromJar("bitmaps/unrightarrow.png"));
+					forwardButton
+							.setImageBitmap(bitmapFromJar("bitmaps/unrightarrow.png"));
 				}
 
 			}
@@ -225,10 +238,10 @@ public class Browser extends Activity {
 
 		webview.setWebChromeClient(new WebChromeClient() {
 			public void onProgressChanged(WebView view, int progress) {
-				//show progress bar while loading, url when loaded
+				// show progress bar while loading, url when loaded
 				Activity a = (Activity) view.getContext();
 				a.setTitle("Loading...");
-				a.setProgress(progress * 100); 
+				a.setProgress(progress * 100);
 				if (progress == 100)
 					a.setTitle(view.getUrl());
 			}
@@ -236,7 +249,9 @@ public class Browser extends Activity {
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onPause()
 	 */
 	@Override
@@ -245,7 +260,9 @@ public class Browser extends Activity {
 		CookieSyncManager.getInstance().stopSync();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onResume()
 	 */
 	@Override
@@ -255,15 +272,18 @@ public class Browser extends Activity {
 	}
 
 	/**
-	 * Accessing a jar in the normal way leaves a referece to the entire jar
-	 * so this function is used to minimize memory usage
-	 *
-	 * @param the file to pull from the jar
+	 * Accessing a jar in the normal way leaves a referece to the entire jar so
+	 * this function is used to minimize memory usage
+	 * 
+	 * @param the
+	 *            file to pull from the jar
 	 * @return the bitmap
 	 */
 	public Bitmap bitmapFromJar(String source) {
+		InputStream in = null;
 		try {
-			URL url = OrmmaAssetController.class.getClassLoader().getResource(source);
+			URL url = OrmmaAssetController.class.getClassLoader().getResource(
+					source);
 			String file = url.getFile();
 			if (file.startsWith("file:")) {
 				file = file.substring(5);
@@ -273,12 +293,21 @@ public class Browser extends Activity {
 				file = file.substring(0, pos);
 			JarFile jf = new JarFile(file);
 			JarEntry entry = jf.getJarEntry(source);
-			InputStream in = jf.getInputStream(entry);
+			in = jf.getInputStream(entry);
 			Bitmap bmp = BitmapFactory.decodeStream(in);
 			return bmp;
 
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				in = null;
+			}
 		}
 		return null;
 	}
