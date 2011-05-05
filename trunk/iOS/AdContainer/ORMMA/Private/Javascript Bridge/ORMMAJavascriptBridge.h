@@ -88,7 +88,7 @@
          autoPlay:(BOOL)autoplay
          controls: (BOOL)controls
              loop: (BOOL)loop
-           Inline: (BOOL)Inline
+           position: (BOOL)position
        startStyle:(NSString *)startStyle
         stopStyle:(NSString *) stopStyle;
 
@@ -98,7 +98,7 @@
          autoPlay:(BOOL)autoplay
          controls: (BOOL)controls
              loop: (BOOL)loop
-       inline_pos:(int[4]) pos
+       position:(int[4]) pos
        startStyle:(NSString *)startStyle
         stopStyle:(NSString *) stopStyle;
 

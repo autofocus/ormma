@@ -7,13 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3721058C136F5AE5002FF796 /* ormma_bridge.js in Sources */ = {isa = PBXBuildFile; fileRef = 3721058B136F5AE5002FF796 /* ormma_bridge.js */; };
-		3721058E136F7A5B002FF796 /* ormma_bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = 3721058B136F5AE5002FF796 /* ormma_bridge.js */; };
 		37AF0C1D13611D2600363D4F /* ORMMAAVPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 37AF0C1B13611D2600363D4F /* ORMMAAVPlayer.h */; };
 		37AF0C1E13611D2600363D4F /* ORMMAAVPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 37AF0C1C13611D2600363D4F /* ORMMAAVPlayer.m */; };
 		37AF0C31136209A300363D4F /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C30136209A300363D4F /* MapKit.framework */; };
 		37AF0C33136209B000363D4F /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C32136209B000363D4F /* MediaPlayer.framework */; };
 		37AF0C35136209DF00363D4F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C34136209DF00363D4F /* UIKit.framework */; };
+		37F360C41371FDB1002DCF6B /* ormma_bridge.js in Sources */ = {isa = PBXBuildFile; fileRef = 37F360C31371FDB1002DCF6B /* ormma_bridge.js */; };
 		AA747D9F0F9514B9006C5449 /* ORMMA_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		FA61E227129C27CB00214103 /* ORMMAView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = FAD28BC112381B2A00562D0B /* ORMMAView.h */; };
@@ -180,12 +179,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3721058B136F5AE5002FF796 /* ormma_bridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ormma_bridge.js; sourceTree = "<group>"; };
 		37AF0C1B13611D2600363D4F /* ORMMAAVPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMAAVPlayer.h; sourceTree = "<group>"; };
 		37AF0C1C13611D2600363D4F /* ORMMAAVPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORMMAAVPlayer.m; sourceTree = "<group>"; };
 		37AF0C30136209A300363D4F /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		37AF0C32136209B000363D4F /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		37AF0C34136209DF00363D4F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		37F360C31371FDB1002DCF6B /* ormma_bridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ormma_bridge.js; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMA_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libORMMA.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libORMMA.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -605,7 +604,7 @@
 		FAD28C5A12381C3F00562D0B /* Javascript */ = {
 			isa = PBXGroup;
 			children = (
-				3721058B136F5AE5002FF796 /* ormma_bridge.js */,
+				37F360C31371FDB1002DCF6B /* ormma_bridge.js */,
 				FAD1A30012902C6F009379B3 /* ormma.js */,
 			);
 			path = Javascript;
@@ -796,7 +795,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3721058E136F7A5B002FF796 /* ormma_bridge.js in Resources */,
 				FAD3FA4D126CA0B100468F35 /* 1.sql in Resources */,
 				FAD3FAAB126CABD000468F35 /* 2.sql in Resources */,
 				FAD3FAAC126CABD000468F35 /* 3.sql in Resources */,
@@ -907,7 +905,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3721058C136F5AE5002FF796 /* ormma_bridge.js in Sources */,
+				37F360C41371FDB1002DCF6B /* ormma_bridge.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

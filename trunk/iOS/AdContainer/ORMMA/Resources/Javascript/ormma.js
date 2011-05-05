@@ -141,11 +141,15 @@
     var readyTimeout = 10000;
     var readyDuration = 0;
     
+    function trim(str) {
+		return str.replace(/^\s+|\s+$/g,"");
+	}
+    
     var dimensionValidators = {
-        x:function(value) { return !isNaN(value); },
-        y:function(value) { return !isNaN(value); },
-        width:function(value) { return !isNaN(value) && value >= 0; },
-        height:function(value) { return !isNaN(value) && value >= 0; }
+        x:function(value) { return !isNaN(value) && value >= 0; },
+        y:function(value) { return !isNaN(value) && value >= 0; },
+        width:function(value) { return !isNaN(value) && value >= 0 && value <= screenSize.width; },
+        height:function(value) { return !isNaN(value) && value >= 0 && value <= screenSize.height; }
     };
     
     var sizeValidators = {
@@ -545,16 +549,17 @@
     // LEVEL 2 ////////////////////////////////////////////////////////////////////
     
     ormma.createEvent = function(date, title, body) {
+		title = trim(title);
+		body = trim(body);
         if (!supports[FEATURES.CALENDAR]) {
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'createEvent');
         } else if (!date || typeof date != 'object' || !date.getDate) {
             broadcastEvent(EVENTS.ERROR, 'Valid date required.', 'createEvent');
-        } else if (!title || typeof title != 'string'|| trim(title).length == 0) {
+        } else if (!title || typeof title != 'string' || title.length == 0) {
             broadcastEvent(EVENTS.ERROR, 'Valid title required.', 'createEvent');
-        }else if (!body || typeof body != 'string' || trim(body).length == 0){
-        	broadcastEvent(EVENTS.ERROR, 'Valid body required.', 'createEvent');
-        }
-        else {
+		}	else if (!body || typeof body != 'string' || body.length == 0) {
+			broadcastEvent(EVENTS.ERROR, 'Valid body required.', 'createEvent');
+        } else {
             ormmaview.createEvent(date, title, body);
         }
     };
