@@ -69,6 +69,11 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.Toast;
+
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapView;
+
 
 /**
  * This is the view to place into a layout to implement ormma functionality. It
@@ -132,10 +137,10 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
 	// private constants
 	private TimeOut mTimeOut; // timeout for loading a url
-	private static String mScriptPath = null; // holds the path for the ormma.js
-	private static String mBridgeScriptPath = null; // holds the path for the
+	private static String mScriptPath/* = null*/; // holds the path for the ormma.js
+	private static String mBridgeScriptPath /*= null*/; // holds the path for the
 	// ormma_bridge.js
-	private boolean bPageFinished = false; // boolean flag holding the loading
+	private boolean bPageFinished /*= false*/; // boolean flag holding the loading
 	// state of a page
 	private OrmmaUtilityController mUtilityController; // primary javascript
 	// bridge
@@ -168,6 +173,8 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	public enum ACTION {
 		PLAY_AUDIO, PLAY_VIDEO
 	}
+	
+	private String mapAPIKey;
 
 	/**
 	 * Instantiates a new ormma view.
@@ -208,6 +215,18 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	public OrmmaView(Context context) {
 		super(context);
+		initialize();
+	}
+	
+	public OrmmaView(Context context, String mapAPIKey){
+		super(context);
+		
+		if(!(context instanceof MapActivity)){
+			throw new IllegalArgumentException("MapActivity context required");
+		}
+		
+		this.mapAPIKey = mapAPIKey;
+		
 		initialize();
 	}
 
@@ -1075,17 +1094,41 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		POI = POI.trim();
 		POI = OrmmaUtils.convert(POI);
 
-		try {
-			// start google maps
-			Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(POI));
-			mapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		if(fullscreen){
+			try {
+				// start google maps
+				Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(POI));
+				mapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-			getContext().startActivity(mapIntent);
-		} catch (ActivityNotFoundException e) {
-			// TODO: handle exception
-			e.printStackTrace();
+				getContext().startActivity(mapIntent);
+				
+			} catch (ActivityNotFoundException e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+		}
+		else{
+			// if not fullscreen, display map in current OrmmaView space
+			//TODO
+			if(mapAPIKey != null){
+			
+				try {
+					//TODO fix the following line gets:
+					//java.lang.RuntimeException: stub
+					MapView mapView = new MapView(getContext(), mapAPIKey);
+					mapView.setBuiltInZoomControls(true);
+					
+				} catch (Exception e) {
+					// TODO
+					e.printStackTrace();
+				}	
+			}
+			else{
+				Toast.makeText(getContext(), "Error: no Google Maps API Key provided for embedded map", Toast.LENGTH_LONG).show();
+			}
 		}
 	}
+	
 
 	public void playAudioImpl(Bundle data) {
 
