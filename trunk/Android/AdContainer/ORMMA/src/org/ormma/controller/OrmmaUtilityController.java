@@ -225,7 +225,7 @@ public class OrmmaUtilityController extends OrmmaController {
 		
 		if (cursor == null || (cursor != null && !cursor.moveToFirst()) ) {
 			// No CalendarID found
-			Toast.makeText(mContext, "No calendar account found", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, "No calendar account found", Toast.LENGTH_LONG).show();
 			if(cursor != null)
 				cursor.close();
 			return;
