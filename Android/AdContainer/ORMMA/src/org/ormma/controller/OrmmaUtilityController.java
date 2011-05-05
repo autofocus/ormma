@@ -247,7 +247,7 @@ public class OrmmaUtilityController extends OrmmaController {
 			}
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-			builder.setTitle("Choose Calendar");
+			builder.setTitle("Choose Calendar to save event to");
 			ListAdapter adapter = new SimpleAdapter(mContext, 
 					entries, 
 					android.R.layout.two_line_list_item,
