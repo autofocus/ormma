@@ -46,24 +46,28 @@ public class OrmmaNetworkController extends OrmmaController {
 	 */
 	public String getNetwork() {
 		NetworkInfo ni = mConnectivityManager.getActiveNetworkInfo();
-
-		if (ni == null)
-			return "offline";
-
-		switch (ni.getState()) {
-		case UNKNOWN:
-			return "unknown";
-		case DISCONNECTED:
-			return "offline";
-		default:
-			int type = ni.getType();
-			if (type == ConnectivityManager.TYPE_MOBILE)
-				return "cell";
-			if (type == ConnectivityManager.TYPE_WIFI)
-				return "wifi";
+        String networkType = "unknown";
+		if (ni == null){
+			networkType = "offline";
 		}
-
-		return "unknown";
+		else{
+			switch (ni.getState()) {
+			case UNKNOWN:
+				networkType = "unknown";
+				break;
+			case DISCONNECTED:
+				networkType = "offline";
+				break;
+			default:
+				int type = ni.getType();
+				if (type == ConnectivityManager.TYPE_MOBILE)
+					networkType = "cell";
+				else if (type == ConnectivityManager.TYPE_WIFI)
+					networkType = "wifi";
+			}
+		}
+		Log.d(LOG_TAG, "getNetwork: " + networkType);
+		return networkType;
 	}
 
 	/**

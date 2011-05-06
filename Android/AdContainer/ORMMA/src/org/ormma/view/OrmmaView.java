@@ -92,6 +92,8 @@ import com.google.android.maps.MapView;
  */
 public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 
+	private static final String LOG_TAG = "OrmmaView";
+	
 	/**
 	 * enum representing possible view states
 	 */
@@ -188,6 +190,10 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		super(context);
 		setListener(listener);
 		initialize();
+	}
+	
+	public void setMapAPIKey(String key){
+		this.mapAPIKey = key;
 	}
 
 	/**
@@ -516,30 +522,32 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 	 */
 	public void loadUrl(String url, boolean dontLoad, String dataToInject) {
 //		mDataToInject = dataToInject;
-		if (!dontLoad) {
-			InputStream is = null;
-			bPageFinished = false;
-			try {
-				URL u = new URL(url);
-				String name = u.getFile();
-				// if it is in the asset directory use the assetmanager
-				if (url.startsWith("file:///android_asset/")) {
-					name = url.replace("file:///android_asset/", "");
-					AssetManager am = getContext().getAssets();
-					is = am.open(name);
-				} else {
-					is = u.openStream();
+		if(URLUtil.isValidUrl(url)){
+			if (!dontLoad) {
+				InputStream is = null;
+				bPageFinished = false;
+				try {
+					URL u = new URL(url);
+					String name = u.getFile();
+					// if it is in the asset directory use the assetmanager
+					if (url.startsWith("file:///android_asset/")) {
+						name = url.replace("file:///android_asset/", "");
+						AssetManager am = getContext().getAssets();
+						is = am.open(name);
+					} else {
+						is = u.openStream();
+					}
+					loadInputStream(is, dataToInject);
+					return;
+	
+				} catch (MalformedURLException e) {
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
 				}
-				loadInputStream(is, dataToInject);
-				return;
-
-			} catch (MalformedURLException e) {
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
 			}
+			super.loadUrl(url);
 		}
-		super.loadUrl(url);
 	}
 
 	/**
@@ -748,7 +756,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				+ (int) (d.width / mDensity)
 				+ ", "
 				+ "height: " + (int) (d.height / mDensity) + "}" + " });";
-
+		Log.d(LOG_TAG, "doExpand: injection: " + injection);
 		injectJavaScript(injection);
 		if (mListener != null)
 			mListener.onExpand();
@@ -768,6 +776,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				+ ", "
 				+ "height: "
 				+ mDefaultHeight + "}" + "});";
+		Log.d(LOG_TAG, "closeResized: injection: " + injection);
 		injectJavaScript(injection);
 		resetLayout();
 	}
@@ -945,7 +954,7 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 				+ ", "
 				+ "height: "
 				+ mDefaultHeight + "}" + "});";
-
+        Log.d(LOG_TAG, "closeExpanded: injection: " + injection);
 		injectJavaScript(injection);
 
 		mViewState = ViewState.DEFAULT;

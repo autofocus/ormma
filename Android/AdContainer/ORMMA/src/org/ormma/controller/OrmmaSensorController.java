@@ -113,7 +113,9 @@ public class OrmmaSensorController extends OrmmaController {
 	 * @return the tilt
 	 */
 	public String getTilt() {
-		return ("{ x : \"" + mLastX + "\", y : \"" + mLastY + "\", z : \"" + mLastZ + "\"}");
+		String tilt = "{ x : \"" + mLastX + "\", y : \"" + mLastY + "\", z : \"" + mLastZ + "\"}";
+		Log.d(LOG_TAG, "getTilt: " + tilt);
+		return tilt;
 	}
 
 	/**
@@ -133,6 +135,7 @@ public class OrmmaSensorController extends OrmmaController {
 	 * @return the heading
 	 */
 	public float getHeading() {
+		Log.d(LOG_TAG, "getHeading: " + mAccel.getHeading());
 		return mAccel.getHeading();
 	}
 

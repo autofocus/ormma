@@ -41,7 +41,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	/**
 	 * The Constant TAG.
 	 */
-	private static final String TAG = "OrmmaUtilityController";
+	private static final String LOG_TAG = "OrmmaUtilityController";
 	
 	//other controllers
 	private OrmmaAssetController mAssetController;
@@ -88,7 +88,7 @@ public class OrmmaUtilityController extends OrmmaController {
 				+ ", width: " + (int) (mOrmmaView.getWidth() / density) + ", height: "
 				+ (int) (mOrmmaView.getHeight() / density) + " }," + " orientation:"
 				+ mDisplayController.getOrientation() + "," + getSupports() + " });";
-
+        Log.d(LOG_TAG, "init: injection: " + injection);
 		mOrmmaView.injectJavaScript(injection);
 
 	}
@@ -127,6 +127,7 @@ public class OrmmaUtilityController extends OrmmaController {
 		supports += ", 'map'";
 		
 		supports += ", 'email' ]";
+		Log.d(LOG_TAG, "getSupports: " + supports);
 		return supports;
 
 	}
@@ -146,6 +147,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param body the body
 	 */
 	public void sendSMS(String recipient, String body) {
+		Log.d(LOG_TAG, "sendSMS: recipient: " + recipient + " body: " + body);
 		Intent sendIntent = new Intent(Intent.ACTION_VIEW);
 		sendIntent.putExtra("address", recipient);
 		sendIntent.putExtra("sms_body", body);
@@ -162,6 +164,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param body the body
 	 */
 	public void sendMail(String recipient, String subject, String body) {
+		Log.d(LOG_TAG, "sendMail: recipient: " + recipient + " subject: " + subject + " body: " + body);
 		Intent i = new Intent(Intent.ACTION_SEND);
 		i.setType("plain/text");
 		i.putExtra(android.content.Intent.EXTRA_EMAIL, new String[] { recipient });
@@ -193,6 +196,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param number the number
 	 */
 	public void makeCall(String number) {
+		Log.d(LOG_TAG, "makeCall: number: " + number);
 		String url = createTelUrl(number);
 		if (url == null) {
 			mOrmmaView.raiseError("Bad Phone Number","makeCall");
@@ -212,6 +216,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param body the body
 	 */
 	public void createEvent(final String date, final String title, final String body) {
+		Log.d(LOG_TAG, "createEvent: date: " + date + " title: " + title + " body: " + body);
 		final ContentResolver cr = mContext.getContentResolver();
 		Cursor cursor;
 		final String[] cols = new String[] { "_id", "displayName", "_sync_account" };
@@ -358,6 +363,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param event the event
 	 */
 	public void activate(String event) {
+		Log.d(LOG_TAG, "activate: " + event);
 		if (event.equalsIgnoreCase(Defines.Events.NETWORK_CHANGE)) {
 			mNetworkController.startNetworkListener();
 		}else if (mLocationController.allowLocationServices() && event.equalsIgnoreCase(Defines.Events.LOCATION_CHANGE)) {
@@ -371,8 +377,6 @@ public class OrmmaUtilityController extends OrmmaController {
 		}else if (event.equalsIgnoreCase(Defines.Events.ORIENTATION_CHANGE)) {
 			mDisplayController.startConfigurationListener();
 		}
-		
-		// Log.d(TAG,"activate"+event);
 	}
 
 	/**
@@ -381,6 +385,7 @@ public class OrmmaUtilityController extends OrmmaController {
 	 * @param event the event
 	 */
 	public void deactivate(String event) {
+		Log.d(LOG_TAG, "deactivate: " + event);
 		if (event.equalsIgnoreCase(Defines.Events.NETWORK_CHANGE)) {
 			mNetworkController.stopNetworkListener();
 		} else if (event.equalsIgnoreCase(Defines.Events.LOCATION_CHANGE)) {
@@ -394,7 +399,7 @@ public class OrmmaUtilityController extends OrmmaController {
 		}else if (event.equalsIgnoreCase(Defines.Events.ORIENTATION_CHANGE)) {
 			mDisplayController.stopConfigurationListener();
 		}
-		// Log.d(TAG,"deactivate"+event);
+		
 
 	}
 
@@ -422,7 +427,7 @@ public class OrmmaUtilityController extends OrmmaController {
 
 	
 	public void showAlert(final String message) {
-		Log.e(TAG,message);
+		Log.e(LOG_TAG,message);
 	}
 	
 }
