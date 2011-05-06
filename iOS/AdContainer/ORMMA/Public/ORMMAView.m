@@ -102,7 +102,7 @@ NSString * const kInitialORMMAPropertiesFormat = @"{ state: '%@'," \
 												   " screenSize: { width: %f, height: %f },"\
 												   " defaultPosition: { x: %f, y: %f, width: %f, height: %f },"\
 												   " orientation: %i,"\
-												   " supports: [ 'level-1', 'level-2', 'orientation', 'network', 'screen', 'shake', 'size', 'tilt', 'audio', 'video', 'map'%@ ] }";
+												   " supports: [ 'level-1', 'level-2', 'orientation', 'network', 'heading', 'location', 'screen', 'shake', 'size', 'tilt', 'sms', 'phone', 'email', 'audio', 'video', 'map'%@ ] }";
 
 NSString * const kDefaultPositionORMMAPropertiesFormat = @"{ defaultPosition: { x: %f, y: %f, width: %f, height: %f }, size: { width: %f, height: %f } }";
 
@@ -899,6 +899,10 @@ lockOrientation:(BOOL)allowOrientationChange
 			 isHTML:(BOOL)html
 {
 	// make sure that we can send email
+    
+    
+    //TODO pop up dialog to ask for user confirmation if this code does not do it already
+    
 	if ( [MFMailComposeViewController canSendMail] )
 	{
 		MFMailComposeViewController *vc = [[[MFMailComposeViewController alloc] init] autorelease];
