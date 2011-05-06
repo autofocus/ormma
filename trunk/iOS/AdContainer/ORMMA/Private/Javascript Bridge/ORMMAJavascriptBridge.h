@@ -110,7 +110,8 @@
 		 withURL:(NSURL *)url
 	   inWebView:(UIWebView *)webView
    blockingColor:(UIColor *)blockingColor
- blockingOpacity:(CGFloat)blockingOpacity;
+ blockingOpacity:(CGFloat)blockingOpacity
+ lockOrientation:(BOOL)allowOrientationChange;
 
 - (void)sendEMailTo:(NSString *)to
 		withSubject:(NSString *)subject

@@ -535,11 +535,13 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 	NSLog( @"Expanding to ( %f, %f ) ( %f x %f ) showing %@", x, y, w, h, url );
     // The newFrame is the not rotated frame. The callee has to take the current rotation into consideration.
 	CGRect newFrame = CGRectMake( x, ( y + yDelta ), w, h );
+	BOOL allowOrientation = [self booleanFromDictionary:parameters forKey:@"lockOrientation"];
 	[self.bridgeDelegate expandTo:newFrame
 						  withURL:url
 						inWebView:webView
 					blockingColor:blockerColor
-				  blockingOpacity:bgOpacity];
+				  blockingOpacity:bgOpacity
+				  lockOrientation:allowOrientation];
 	return YES;
 }
 
