@@ -899,10 +899,6 @@ lockOrientation:(BOOL)allowOrientationChange
 			 isHTML:(BOOL)html
 {
 	// make sure that we can send email
-    
-    
-    //TODO pop up dialog to ask for user confirmation if this code does not do it already
-    
 	if ( [MFMailComposeViewController canSendMail] )
 	{
 		MFMailComposeViewController *vc = [[[MFMailComposeViewController alloc] init] autorelease];
