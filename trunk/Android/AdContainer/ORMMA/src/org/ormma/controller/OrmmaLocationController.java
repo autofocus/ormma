@@ -78,6 +78,7 @@ public class OrmmaLocationController extends OrmmaController {
 	 * @return the location
 	 */
 	public String getLocation() {
+		Log.d(LOG_TAG, "getLocation: hasPermission: " + hasPermission);
 		if (!hasPermission) {
 			return null;
 		}
@@ -90,6 +91,7 @@ public class OrmmaLocationController extends OrmmaController {
 				break;
 			}
 		}
+		Log.d(LOG_TAG, "getLocation: " + lastKnown);
 		if (lastKnown != null) {
 			return formatLocation(lastKnown);
 		} else

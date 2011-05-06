@@ -60,6 +60,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param height the height
 	 */
 	public void resize(int width, int height) {
+		Log.d(LOG_TAG, "resize: width: " + width + " height: " + height);
 		if (((mMaxHeight > 0) && (height > mMaxHeight)) || ((mMaxWidth > 0) && (width > mMaxWidth))) {
 			mOrmmaView.raiseError("Maximum size exceeded", "resize");
 		} else
@@ -76,6 +77,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param refresh show the refresh button
 	 */
 	public void open(String url, boolean back, boolean forward, boolean refresh) {
+		Log.d(LOG_TAG, "open: url: " + url + " back: " + back + " forward: " + forward + " refresh: " + refresh);
 		if(!URLUtil.isValidUrl(url)){
 			mOrmmaView.raiseError("Invalid url", "open");
 		}else{
@@ -90,6 +92,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param fullscreen - boolean indicating whether map to be launched in full screen
 	 */
 	public void openMap(String url, boolean fullscreen) {
+		Log.d(LOG_TAG, "openMap: url: " + url);
 		mOrmmaView.openMap(url, fullscreen);
 	}
 	
@@ -105,6 +108,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param stopStyle - normal/exit (exit if player should exit after audio stops)
 	 */
 	public void playAudio(String url, boolean autoPlay, boolean controls, boolean loop, boolean position, String startStyle, String stopStyle) {
+		Log.d(LOG_TAG, "playAudio: url: " + url + " autoPlay: " + autoPlay + " controls: " + controls + " loop: " + loop + " position: " + position + " startStyle: " + startStyle + " stopStyle: "+stopStyle);
 		if(!URLUtil.isValidUrl(url)){
 			mOrmmaView.raiseError("Invalid url", "playAudio");
 		}else{
@@ -126,6 +130,8 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param stopStyle - normal/exit (exit if player should exit after video stops)
 	 */
 	public void playVideo(String url, boolean audioMuted, boolean autoPlay, boolean controls, boolean loop, int[] position, String startStyle, String stopStyle) {
+		Log.d(LOG_TAG, "playVideo: url: " + url + " audioMuted: " + audioMuted + " autoPlay: " + autoPlay + " controls: " + controls + " loop: " + loop + " x: " + position[0] + 
+				" y: " + position[1] + " width: " + position[2] + " height: " + position[3] + " startStyle: " + startStyle + " stopStyle: " + stopStyle);
 		Dimensions d = null;
 		if(position[0] != -1) {
 			d = new Dimensions();
@@ -175,7 +181,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * @param properties the properties for the expansion
 	 */
 	public void expand(String dimensions, String URL, String properties) {
-
+        Log.d(LOG_TAG, "expand: dimensions: " + dimensions + " url: " + URL + " properties: " + properties);
 		try {
 			Dimensions d = (Dimensions) getFromJSON(new JSONObject(dimensions), Dimensions.class);
 			mOrmmaView.expand(getDeviceDimensions(d), URL, (Properties) getFromJSON(new JSONObject(properties), Properties.class));
@@ -201,6 +207,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * Close the view
 	 */
 	public void close() {
+		Log.d(LOG_TAG, "close");
 		mOrmmaView.close();
 	}
 
@@ -208,6 +215,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * Hide the view
 	 */
 	public void hide() {
+		Log.d(LOG_TAG, "hide");
 		mOrmmaView.hide();
 	}
 
@@ -215,6 +223,7 @@ public class OrmmaDisplayController extends OrmmaController {
 	 * Show the view
 	 */
 	public void show() {
+		Log.d(LOG_TAG, "show");
 		mOrmmaView.show();
 	}
 
@@ -264,6 +273,7 @@ public class OrmmaDisplayController extends OrmmaController {
 			ret = 270;
 			break;
 		}
+		Log.d(LOG_TAG, "getOrientation: " +  ret);
 		return ret;
 	}
 

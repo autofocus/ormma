@@ -83,11 +83,6 @@
    };
  
  
- 	ormmaview.logHTML = function(){
- 		ORMMADisplayControllerBridge.logHTML(document.documentElement.innerHTML);
- 	
- 	};
- 
    /**
     * Called by the JAVA SDK when an asset has been automatically
 	* removed from the cache for reasons outside the control of the creative.
