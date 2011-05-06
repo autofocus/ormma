@@ -699,6 +699,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 	inWebView:(UIWebView *)webView
    blockingColor:(UIColor *)blockingColor
 blockingOpacity:(CGFloat)blockingOpacity
+lockOrientation:(BOOL)allowOrientationChange
 {
 	// OK, here's what we have to do when the creative want's to expand
 	// Note that this is NOT the same as resize.
@@ -744,6 +745,7 @@ blockingOpacity:(CGFloat)blockingOpacity
 	[self fireAdWillExpandToFrame:endingFrame];
 	[self fireAppShouldSuspend];
 
+	allowAdOrientation = allowOrientationChange;
 	// step 2: get a handle to the key window
 	UIApplication *app = [UIApplication sharedApplication];
 	UIWindow *keyWindow = [app keyWindow];
@@ -1052,7 +1054,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 		[event setCalendar:[eventStore defaultCalendarForNewEvents]];
 		[eventStore saveEvent:event 
 						 span:EKSpanThisEvent 
-						error:&err];       
+						error:&err]; 
+		[eventStore release];      
 	}
 }
 
@@ -1367,7 +1370,8 @@ blockingOpacity:(CGFloat)blockingOpacity
 	{
 		// finish the close expanded function
 		// step 4: restore our frame to the original untranslated frame
-        // m_originalFrame might get changed by the host application while the ORMMAView was in the expanded state.
+		// m_originalFrame might get changed by the host application while the ORMMAView was in the expanded state.
+       
         
         
 		// step 5: get a handle to the key window

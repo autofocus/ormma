@@ -71,6 +71,7 @@ typedef enum ORMMAViewStateEnum
     
 	
 	NSMutableArray *m_externalProtocols;
+	BOOL allowAdOrientation;
     
     // Save the frame that the host application wants us to apply
     // and apply it to the ormmaView when it is not in expanded state

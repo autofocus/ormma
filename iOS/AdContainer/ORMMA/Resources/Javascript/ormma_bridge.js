@@ -341,6 +341,12 @@
 		 if ( ( typeof expandProperties.backgroundOpacity != "undefined" ) && ( expandProperties.backgroundOpacity != null ) ) {
 			cmd += ", 'bgOpacity', " + expandProperties.backgroundOpacity;
 		 }
+		 if ( ( typeof expandProperties.lockOrientation != "undefined" ) && ( expandProperties.lockOrientation != null ) ) {
+			cmd += ", 'lkOrientation', '" + ( expandProperties.lockOrientation ? "Y" : "N" ) + "'";
+		 }
+		 
+		 
+		 
 		 cmd += " );";
 		 eval( cmd );
 	  } catch ( e ) {

@@ -152,11 +152,6 @@
         height:function(value) { return !isNaN(value) && value >= 0 && value <= screenSize.height; }
     };
     
-    var sizeValidators = {
-        width:function(value) { return !isNaN(value) && value >= 0 && value <= maxSize.width; },
-        height:function(value) { return !isNaN(value) && value >= 0 && value <= maxSize.height; }
-    };
-    
     var expandPropertyValidators = {
         useBackground:function(value) { return (value === true || value === false); },
         backgroundColor:function(value) { return (typeof value == 'string' && value.substr(0,1) == '#' && !isNaN(parseInt(value.substr(1), 16))); },
@@ -439,8 +434,6 @@
         return clone(maxSize);
     };
     
-    // ormma.getResizeProperties = function() {};
-    
     ormma.getSize = function() {
         return clone(size);
     };
@@ -513,8 +506,6 @@
             ormmaview.setExpandProperties(properties);
         }
     };
-    
-    // ormma.setResizeProperties = function(properties) {};
     
     ormma.show = function() {
         if (state != STATES.HIDDEN) {
