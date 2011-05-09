@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <MessageUI/MessageUI.h>
+#import <EventKit/EventKit.h>
 #import "ORMMAWebBrowserViewController.h"
 #import "ORMMAAVPlayer.h"
 
@@ -72,6 +73,9 @@ typedef enum ORMMAViewStateEnum
 	
 	NSMutableArray *m_externalProtocols;
 	BOOL allowAdOrientation;
+	
+	EKEventStore *eventStore;
+	EKEvent *event;
     
     // Save the frame that the host application wants us to apply
     // and apply it to the ormmaView when it is not in expanded state
