@@ -235,6 +235,21 @@ public class OrmmaView extends WebView implements OnGlobalLayoutListener {
 		
 		initialize();
 	}
+	
+	public OrmmaView(Context context, String mapAPIKey, OrmmaViewListener listener){
+		super(context);
+		
+		if(!(context instanceof MapActivity)){
+			throw new IllegalArgumentException("MapActivity context required");
+		}
+		
+		this.mapAPIKey = mapAPIKey;
+		
+		setListener(listener); 
+		
+		initialize();
+	}
+
 
 	/**
 	 * Sets the max size.
