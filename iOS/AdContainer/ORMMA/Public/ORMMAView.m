@@ -6,7 +6,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#import <EventKit/EventKit.h>
+#import <QuartzCore/QuartzCore.h>
 #import "ORMMAView.h"
 #import "UIDevice-Hardware.h"
 #import "UIDevice-ORMMA.h"
@@ -817,6 +817,15 @@ lockOrientation:(BOOL)allowOrientationChange
     CGRect webFrame = [self webFrameAccordingToOrientation:endingFrame];
 	webView.frame = webFrame;
 	
+//	CATransition *transition = [CATransition animation];
+//	transition.duration = 0.75;
+//	transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+//	transition.type = kCATransitionReveal;
+//	transition.subtype = kCATransitionFromLeft;
+//	[webFrame addAnimation:transition forKey:@"Test"];
+//	[ addSubview:webFrame];	
+//	[window bringSubviewToFront:webFrame];
+	
 	[UIView commitAnimations];
 	
 	// step 13: wait for the animation to complete
@@ -1040,22 +1049,24 @@ lockOrientation:(BOOL)allowOrientationChange
 	else
 	{
 		// handle internally
-		EKEventStore *eventStore = [[EKEventStore alloc] init];
-		
-		EKEvent *event  = [EKEvent eventWithEventStore:eventStore];
+		eventStore = [[EKEventStore alloc] init];
+		event = [[EKEvent eventWithEventStore:eventStore] retain];
 		event.title = title;
 		event.notes = body;
 		
 		event.startDate = date;
 		event.endDate   = [[NSDate alloc] initWithTimeInterval:600 
 													 sinceDate:event.startDate];
-		
-		NSError *err;
 		[event setCalendar:[eventStore defaultCalendarForNewEvents]];
-		[eventStore saveEvent:event 
-						 span:EKSpanThisEvent 
-						error:&err]; 
-		[eventStore release];      
+		
+		UIAlertView *addEventAlert = [[UIAlertView alloc] initWithTitle:@"Event Status" 
+																		 message:@"Do you wish to save calendar event?" 
+																		delegate:self
+															   cancelButtonTitle:@"NO" 
+															   otherButtonTitles:@"YES", nil];
+		addEventAlert.tag = 100;
+		[addEventAlert show];
+		[addEventAlert release];
 	}
 }
 
@@ -1687,8 +1698,8 @@ lockOrientation:(BOOL)allowOrientationChange
 	}
 	
 	// see if calendar support is available
-	Class eventStore = NSClassFromString( @"EKEventStore" );
-	if ( eventStore != nil )
+	Class testEventStore = NSClassFromString( @"EKEventStore" );
+	if ( testEventStore != nil )
 	{
 		[features appendString:@", 'calendar'"]; 
 	}
@@ -1996,6 +2007,7 @@ lockOrientation:(BOOL)allowOrientationChange
 												   delegate:self 
 										  cancelButtonTitle:@"Cancel" 
 										  otherButtonTitles: @"Continue", nil];
+	alert.tag = 101;									  
 	[alert show];	
 	[alert release];
 }
@@ -2004,16 +2016,48 @@ lockOrientation:(BOOL)allowOrientationChange
 - (void)alertView:(UIAlertView *)alertView 
 clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if ( buttonIndex != alertView.cancelButtonIndex )
+	if (alertView.tag == 100) 
 	{
-		[[UIApplication sharedApplication] openURL:self.launchURL];
+		if (buttonIndex == 1) 
+		{
+			NSError *err;
+			BOOL status = [eventStore saveEvent:event 
+										   span:EKSpanThisEvent 
+										   error:&err]; 
+			if (status)
+			{
+				UIAlertView *eventSavedSuccessfully = [[UIAlertView alloc] initWithTitle:@"Event Status" 
+																				 message:@"Event successfully added." 
+																				delegate:nil 
+																	   cancelButtonTitle:@"Ok" 
+																	   otherButtonTitles:nil];
+				[eventSavedSuccessfully show];
+				[eventSavedSuccessfully release];
+			}
+			else 
+			{
+				UIAlertView *eventSavedUNSuccessfully = [[UIAlertView alloc] initWithTitle:@"Event Status" 
+																				   message:@"Event not added." 
+																				  delegate:nil 
+																		 cancelButtonTitle:@"Ok" 
+																		 otherButtonTitles:nil];
+				[eventSavedUNSuccessfully show];
+				[eventSavedUNSuccessfully release];
+			}
+		}
+		[event release]; event = nil;
+		[eventStore release]; eventStore = nil;
 	}
-	
-	self.launchURL = nil;
+	else 
+	{
+		if ( buttonIndex != alertView.cancelButtonIndex )
+		{
+			[[UIApplication sharedApplication] openURL:self.launchURL];
+		}
+		
+		self.launchURL = nil;
+	}
 }
-
-
-
 
 
 
