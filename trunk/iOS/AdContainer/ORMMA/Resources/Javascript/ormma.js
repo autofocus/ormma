@@ -35,7 +35,8 @@
         SHAKE               :'shake',
         SIZECHANGE          :'sizeChange',
         STATECHANGE         :'stateChange',
-        TILTCHANGE          :'tiltChange'
+        TILTCHANGE          :'tiltChange',
+        VIEWABLECHANGE      :'viewableChange'
     };
     
     var CONTROLS = ormma.CONTROLS = {
@@ -134,6 +135,8 @@
     var assets = {};
     
     var cacheRemaining = -1;
+ 
+    var viewable = false;
     
     // PRIVATE PROPERTIES (internal) //////////////////////////////////////////////////////
     
@@ -242,6 +245,10 @@
         cacheRemaining:function(val) {
             broadcastEvent(EVENTS.INFO, 'setting cacheRemaining to ' + stringify(val));
             cacheRemaining = val;
+        },
+        viewable:function(val) {
+            broadcastEvent(EVENTS.VIEWABLECHANGE, 'setting viewable to ' + stringify(val));
+            viewable = val;
         }
     };
     
@@ -726,5 +733,9 @@
             delete assets[alias];
             broadcastEvent(EVENTS.ASSETREMOVED, alias);
         }
+    };
+ 
+    ormma.getViewable = function() {
+        return viewable;
     };
 })();

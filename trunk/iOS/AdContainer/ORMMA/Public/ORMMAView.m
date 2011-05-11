@@ -76,6 +76,7 @@
 - (void)setJavascriptDefaultFrame:(CGRect)frame;
 - (CGRect)convertedRectAccordingToOrientation:(CGRect)rect;
 - (CGSize)statusBarSize:(CGSize)size accordingToOrientation:(UIInterfaceOrientation)orientation;
+- (void)fireViewableChange;
 @end
 
 
@@ -506,9 +507,11 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 // These method let the app indicate whether it considers the ORMMAView to be visible or not.  
 // This is useful when ORMMAView are embedded in a scrolling view and need to be loaded in advance.
 // Calling these method will let the ORMMAView set the proper default ad position based on the currently displayed view.
-- (void)ormmaViewDisplayed
+- (void)ormmaViewDisplayed:(BOOL)isDisplayed
 {
     [self setJavascriptDefaultFrame:self.frame];
+    m_bIsDisplayed = isDisplayed;
+    [self fireViewableChange];
 }
 
 #pragma mark -
@@ -1746,6 +1749,7 @@ lockOrientation:(BOOL)allowOrientationChange
 	[self usingWebView:webView 
 	 executeJavascript:@"window.ormmaview.fireChangeEvent( %@ );", properties];
     
+    [self fireViewableChange];
 	// make sure things are visible
     //	[self fireAdDidShow];
 }
@@ -1993,6 +1997,16 @@ lockOrientation:(BOOL)allowOrientationChange
     }
 }
 
+
+- (void)fireViewableChange
+{
+    NSString *isDisplayed = @"false";
+    if(m_bIsDisplayed)
+    {
+        isDisplayed = @"true";
+    }
+    [self usingWebView:m_webView executeJavascript:@"window.ormmaview.fireChangeEvent({viewable:'%@'});", isDisplayed];
+}
 
 #pragma mark -
 #pragma mark Launch External Locations
