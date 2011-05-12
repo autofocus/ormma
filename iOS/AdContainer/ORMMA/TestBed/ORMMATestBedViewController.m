@@ -119,7 +119,7 @@ typedef enum OTBAdAnimationDirectionEnum
 	CGSize maxSize = { 320, 250 };
 	self.ormmaView.maxSize = maxSize;
     
-    [self.ormmaView registerProtocol: @"gsm"];
+    
 	
 	self.view.backgroundColor = [UIColor purpleColor];
 	
