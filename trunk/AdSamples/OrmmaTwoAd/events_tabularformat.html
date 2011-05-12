@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+ <script src="/ormma_bridge.js" type="text/javascript"></script>
+   <script src="/ormma.js" type="text/javascript"></script>
+
+<style>
+body{
+margin:0px;
+padding:0px;
+cursor:pointer;
+}
+
+#outerframe {
+background:#a98b72;
+width:320px;
+height:480px;
+}
+
+.lbl,#expand,span{
+font-weight:bold;
+}
+
+table th{
+background:#779b0e;
+font-weight:bold;
+}
+
+#controls,table td,#info {
+border:2px solid #3c7e84;
+margin-left:20px;
+}
+
+table,#info {
+margin-top:20px;
+width:280px;
+}
+
+table td {
+font-weight:bold;
+padding:0px 15px;
+}
+
+.sel ,.lbl{
+margin-top:20x;
+width:100px;
+}
+
+#info {
+width:280px;
+height:40px;
+background:#94c112;
+font-weight:bold;
+overflow:auto;
+color:#000;
+text-align:center;
+}
+
+#createevt {
+width:280px;
+margin-left:20px;
+}
+</style>
+
+
+</head>
+<body>
+		<div id='outerframe'>
+			<div id='createevt'>
+			<label class='lbl'>Create Event:</label>
+			<select class='sel'>
+				<option>---select---</option>
+				<option id= 'now' onclick="events(this.value);">Schedule Meeting Now</option>
+				<option id='week' onclick="events(this.value);">Meeting in a week</option>
+				<option id='month' onclick="events(this.value);">Meeting in a month</option>
+			</select><br/>
+			</div>
+			
+			<table id="controls">
+        <tr>
+	        <th>Feature</th><th>Y/N</th><th colspan="2">Sta/Sto</th>
+        </tr>
+		<tr>
+        	<td>Location</td>
+            <td><span id='support0'></span></td>            
+            <td><span id='btn0' onclick="getLoc();">Start</span></td>            
+        </tr>
+		<tr>
+        	<td>Heading</td>
+            <td><span id='support1'></span></td>            
+            <td><span id='btn1' onclick="getHeading();">Start</span></td>           
+        </tr>
+		<tr>
+        	<td>Network</td>
+            <td><span id='support2'></span></td>            
+            <td><span id='btn2' onclick="getNetwork();">Start</span></td>            
+        </tr>
+        <tr>
+        	<td>Screensize</td>
+            <td><span id='support3'></span></td>                      
+        </tr>    
+        
+        <tr>
+        	<td>Orientation</td>
+            <td><span id='support4'></span></td>                 
+        </tr>
+		
+		<tr>
+        	<td>Shake</td>
+            <td><span id='support5'></span></td>                    
+        </tr>
+		<tr>
+        	<td>Tilt</td>
+            <td><span id='support6'></span></td>            
+        </tr>
+		<tr>
+        	<td>Keyboard</td>
+            <td><span id='support7'></span></td>            
+        </tr>
+    </table>
+	
+	<textarea id="info" disabled=disabled></textarea>
+	
+</div>
+		
+<script>
+
+		var loc= document.getElementById('locationsupport');
+		var heading = document.getElementById('headingsupport');
+		var network = document.getElementById('networksupport');
+		var screenSize = document.getElementById('screensizesupport');
+		var orient = document.getElementById('orientationsupport');
+		var shake = document.getElementById('shakesupport');
+		var tilt = document.getElementById('tiltsupport');
+		var keyboard = document.getElementById('keyboardsupport');
+
+		
+		
+		
+		var screenstart = document.getElementById('screenstart');
+		var orientstart = document.getElementById('orientstart');
+		var shakestart = document.getElementById('shakestart');
+
+		var info = document.getElementById('info');
+
+	function ORMMAReady(){
+		ormma.addEventListener( 'error', handleError );			
+		ifSupports();
+		ormma.addEventListener('shake', getShakeProp);
+		ormma.addEventListener('tiltChange', getTiltProp);
+		ormma.addEventListener('keyboardChange', getKeyboard);
+		ormma.addEventListener('orientationChange', getOrient);
+		ormma.addEventListener('screenChange', getScreensize);
+		}
+
+	function ifSupports() {	
+	var supportsArr = ['location','heading','network','screensize','orientation','shake','tilt','keyboard'];
+	
+		for(var i=0;i<supportsArr.length;i++) {
+			
+			if(ormma.supports(supportsArr[i])){				
+				document.getElementById('support'+i).innerHTML = 'Y';
+			} else {				
+				document.getElementById('support'+i).innerHTML = 'N';				
+			}
+		}
+
+		for(var i = 0;i<3;i++) {
+			if(document.getElementById('support'+i).innerHTML == 'N') {
+				document.getElementById('btn'+i).innerHTML = 'NA';
+			}
+		}
+
+
+}
+
+	function getLoc() {
+		var locstart = document.getElementById('btn1');
+		if(locstart.innerHTML == 'Start') {
+			var prop = ormma.getLocation();
+			info.innerHTML+= 'Location:- lat: '+prop.lat+' '+'lon: '+prop.lon+' '+'acc: '+prop.acc+'\n';		
+			locstart.innerHTML = 'Stop';
+			} else {
+			locstart.innerHTML = 'Start';
+		}		
+	}
+
+	function getTiltProp() {			
+		ifSupports();
+		var prop = ormma.getTilt();
+		info.innerHTML+= 'Tilt Properties:- X:'+prop.x+' '+'Y:'+prop.y+' '+'Z:'+prop.z+'\n';
+		ormma.removeEventListener('tiltChange', getTiltProp);
+	}
+
+	function getHeading() {
+		var headstart = document.getElementById('btn1');
+		info.innerHTML+= 'Heading: '+ormma.getHeading()+'\n';	
+		if(headstart.innerHTML== 'Start') {			
+			headstart.innerHTML = 'Stop';
+				
+			} else {
+			headstart.innerHTML== 'Start'
+			}
+		if(heading.innerHTML == 'N') {
+				alert('This feature is not supported');
+			}
+	}
+
+	function getKeyboard() {
+		if(ormma.getKeyboard()) {
+			info.innerHTML+= 'Keyboard: virtual keyboard is present'+'\n';
+		} else {
+			info.innerHTML+='Keyboard: virtual keyboard is NOT present'+'\n';
+		}
+		ormma.removeEventListener('keyboardChange', getKeyboard);
+	}
+
+	function getNetwork() {
+		var netstart = document.getElementById('btn2');
+		if(netstart.innerHTML== 'Start') {
+			info.innerHTML+= 'Network: '+ormma.getNetwork()+'\n';		
+			netstart.innerHTML = 'Stop';			
+		} else {
+				netstart.innerHTML = 'Start';
+			}		
+	}
+
+	function getOrient() {
+		info.innerHTML+= 'Orientation: '+ormma.getOrientation()+'\n';
+		ormma.removeEventListener('orientationChange', getOrient);
+	}
+
+	function getScreensize() {
+		info.innerHTML+= 'ScreenSize width: '+ormma.getScreenSize().width+' '+'height: '+ormma.getScreenSize().height+'\n';
+		ormma.removeEventListener('screenChange', getScreensize);
+	}
+
+	function getShakeProp() {
+		info.innerHTML+= 'Shake Properties:- interval: '+ormma.getShakeProperties().interval+' '+'intensity: '+ormma.getShakeProperties().interval+'\n';
+		ormma.removeEventListener('shake', getShakeProp);
+	}
+
+	function handleError( message, action ) {
+      var msg = "ORMMA ERROR ";
+	  if ( action != null ) {
+	     msg += "caused by action '" + action + "', ";
+      }
+      msg += "Message: " + message;
+	 // alert(msg);
+	}
+
+	
+	
+	function events(title) {
+		var currentDate= new Date();			
+		if(document.getElementById('week').value == title) {
+			currentDate.setDate(currentDate.getDate() + 7);
+		} 
+		if(document.getElementById('month').value == title) {
+			currentDate.setDate(currentDate.getDate() + 30);
+		}
+		
+		ormma.createEvent(currentDate,title,title+' '+'reminder');
+	}
+
+	function expandAd() {	
+		var prop = ormma.getExpandProperties();
+		ormma.setExpandProperties(prop);
+
+		ormma.addEventListener('stateChange',function() {
+			logit('ad is expanded');
+			ormma.removeEventListener('stateChange');
+		});
+		
+		var maxSize = ormma.getMaxSize();		
+		var pos= ormma.getDefaultPosition();		
+		ormma.expand({'x' : pos.x, 'y' : pos.y, 'width' : maxSize.width, 'height' : maxSize.height}, null);
+				
+	}
+	
+</script>
+
+</body>
+</html>
+
