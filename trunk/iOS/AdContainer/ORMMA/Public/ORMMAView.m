@@ -16,6 +16,8 @@
 #import "ORMMAWebBrowserViewController.h"
 #import "ORMMAAVPlayer.h"
 
+#define ROTATION_ANIMATION_DURATION (0.4)
+
 @interface ORMMAView () <UIWebViewDelegate,
 						 ORMMAJavascriptBridgeDelegate,
 						 ORMMALocalServerDelegate>
@@ -77,6 +79,7 @@
 - (CGRect)convertedRectAccordingToOrientation:(CGRect)rect;
 - (CGSize)statusBarSize:(CGSize)size accordingToOrientation:(UIInterfaceOrientation)orientation;
 - (void)fireViewableChange;
+- (UIInterfaceOrientation)currentInterfaceOrientation;
 @end
 
 
@@ -1268,16 +1271,19 @@ lockOrientation:(BOOL)allowOrientationChange
         {
             modifiedOriginalFrame.origin.y += 20; 
         }
-        UIInterfaceOrientation orientation = app.statusBarOrientation;
+        
+        // Use device orientation not the statusBarOrientation
+        UIInterfaceOrientation orientation = [self currentInterfaceOrientation];
+        
+        
+        [UIView beginAnimations:@"rotate-expanded-ad" context:nil];
+        [UIView setAnimationDuration:ROTATION_ANIMATION_DURATION];
         [self rotateExpandedWindowsToOrientation:orientation];
+        [UIView commitAnimations];
         CGRect endingFrame = m_expandedFrame;
         UIWindow *keyWindow = [app keyWindow];
         CGRect screenFrame = keyWindow.frame;
-        CGFloat statusBarHeight = 0;
-        if(!app.statusBarHidden)
-        {
-            statusBarHeight = [self statusBarSize:app.statusBarFrame.size accordingToOrientation:orientation].height;
-        }
+
         switch (orientation) 
         {
             case UIInterfaceOrientationPortraitUpsideDown:
@@ -2144,8 +2150,7 @@ clickedButtonAtIndex:(NSInteger)buttonIndex
 - (CGRect)webFrameAccordingToOrientation:(CGRect)rect
 {
     CGRect webFrame = CGRectZero;
-    UIApplication *app = [UIApplication sharedApplication];
-    UIInterfaceOrientation orientation = app.statusBarOrientation;
+    UIInterfaceOrientation orientation = [self currentInterfaceOrientation];
     if(UIInterfaceOrientationIsPortrait(orientation))
     {
         webFrame = CGRectMake( 0, 0, rect.size.width, rect.size.height );
@@ -2154,7 +2159,6 @@ clickedButtonAtIndex:(NSInteger)buttonIndex
     {
         webFrame = CGRectMake( 0, 0, rect.size.height, rect.size.width );
     }
-    //webFrame = CGRectMake( 0, 0, rect.size.height, rect.size.width );
     return webFrame;
 }
 
@@ -2169,7 +2173,7 @@ clickedButtonAtIndex:(NSInteger)buttonIndex
         // status bar is visible
         statusBarHeight = 20;
 	}
-    UIInterfaceOrientation orientation = app.statusBarOrientation;
+    UIInterfaceOrientation orientation = [self currentInterfaceOrientation];
     switch (orientation) { 
         case UIInterfaceOrientationPortraitUpsideDown:
             rect.origin.y = keyWindow.frame.size.height - rect.origin.y - rect.size.height;
@@ -2193,14 +2197,8 @@ clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     UIApplication *app = [UIApplication sharedApplication];
     UIWindow      *keyWindow = [app keyWindow];
-	CGFloat statusBarHeight = 0;
-    if ( !app.statusBarHidden )
-	{
-        // status bar is visible
-        statusBarHeight = 20;
-	}
-    
-    UIInterfaceOrientation orientation = app.statusBarOrientation;
+  
+    UIInterfaceOrientation orientation = [self currentInterfaceOrientation];
     switch (orientation) { 
         case UIInterfaceOrientationPortraitUpsideDown:
             rect.origin.y = keyWindow.frame.size.height - rect.origin.y - rect.size.height;
@@ -2226,5 +2224,25 @@ clickedButtonAtIndex:(NSInteger)buttonIndex
         size = CGSizeMake(size.height, size.width);
     }
     return size;
+}
+
+
+- (UIInterfaceOrientation)currentInterfaceOrientation
+{
+    // Use device orientation not the statusBarOrientation because the device orientation is being set more accurately.
+    // Important when rapidly rotating the device.
+    UIDevice *device = [UIDevice currentDevice];
+    UIDeviceOrientation orientation = device.orientation;
+    if((UIDeviceOrientationPortrait != orientation) &&
+       (UIDeviceOrientationPortraitUpsideDown != orientation) &&
+       (UIDeviceOrientationLandscapeLeft != orientation) &&
+       (UIDeviceOrientationLandscapeRight != orientation))
+    {
+        // Orientation is not of the interface orientation.
+        UIApplication *app = [UIApplication sharedApplication];
+        orientation = app.statusBarOrientation;
+        
+    }
+    return orientation;
 }
 @end // ORMMAView
