@@ -1015,7 +1015,14 @@ const CGFloat kDefaultShakeIntensity = 1.5;
 - (void)orientationChanged:(NSNotification *)notification
 {
 	UIDevice *device = [UIDevice currentDevice];
-	UIDeviceOrientation orientation = device.orientation;
+    
+    // TODO TBD
+    // Some device orientations cannot be used to calculate screen size.
+	// Use status bar orientation since it can be only portrait or landscape
+    UIApplication *app = [UIApplication sharedApplication];
+    UIInterfaceOrientation orientation = app.statusBarOrientation;
+ 	// UIDeviceOrientation orientation = device.orientation;
+ 
     NSInteger orientationAngle = -1;
 	switch ( orientation )
 	{

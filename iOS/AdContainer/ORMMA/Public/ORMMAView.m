@@ -1711,13 +1711,23 @@ lockOrientation:(BOOL)allowOrientationChange
 	CGSize size = m_webView.frame.size;
 	
     // setup orientation
-    UIDeviceOrientation orientation = m_currentDevice.orientation;
-	NSInteger angle = [self angleFromOrientation:orientation];
+    // TODO TBD
+    // Some device orientations cannot be used to calculate screen size.
+	// Use status bar orientation since it can be only portrait or landscape
+    UIApplication *app = [UIApplication sharedApplication];
+    UIDeviceOrientation orientation = app.statusBarOrientation;
+    NSInteger angle = [self angleFromOrientation:orientation];
+    /*UIDeviceOrientation orientation = m_currentDevice.orientation;
+    if(UIDeviceOrientationUnknown == orientation)
+    {
+        orientation = app.statusBarOrientation;
+        
+    }*/
+    
 	
 	// setup the screen size
     // Some device orientations cannot be used to calculate screen size.
 	// Use status bar orientation since it can be only portrait or landscape
-    UIApplication *app = [UIApplication sharedApplication];
     UIInterfaceOrientation interfaceOrientation = app.statusBarOrientation;
     UIDevice *device = [UIDevice currentDevice];
 	CGSize screenSize = [device screenSizeForOrientation:interfaceOrientation];	
