@@ -2109,9 +2109,8 @@ clickedButtonAtIndex:(NSInteger)buttonIndex
     m_originalFrame = frame;
     if( ORMMAViewStateExpanded != self.currentState )
     {
-        
-        [super setFrame:frame];
-        [self setJavascriptDefaultFrame:frame];
+        [super setFrame:m_originalFrame];
+        [self setJavascriptDefaultFrame:m_originalFrame];
     }
 }
 
