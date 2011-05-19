@@ -61,28 +61,26 @@ ORMMA-SPECIFIC METHODS FOR IN-APP PRESENTATION
 */
 function testOrmmaResize() {
 	// get the properties needed
-	var props = ormma.getResizeProperties(),
-		size = ormma.getSize(),
+	var size = ormma.getSize(),
 		maxSize = ormma.getMaxSize();
 	
 	// resize to the same size, same properties
-	ormma.setResizeProperties(props);
-	ormma.addEventListener('resizeChange', function () {
-		logit('ad is resized to same size');
-		ormma.removeEventListener('resizeChange');
+	ormma.addEventListener('sizeChange', function () {
+		logit('ad is resized by 1 pixel');
+		ormma.removeEventListener('sizeChange');
 
 	// resize to maximum size
-		ormma.addEventListener('resizeChange', function () {
+		ormma.addEventListener('sizeChange', function () {
 			logit('ad is max sized');
-			ormma.removeEventListener('resizeChange');
+			ormma.removeEventListener('sizeChange');
 
 	// back to normal
 			logit('reverting to starting size');		
-			ormma.resize(size);
+			ormma.resize(size.width, size.height);
 		});
-		ormma.resize(maxSize);
+		ormma.resize(maxSize.width, maxSize.height);
 	});
-	ormma.resize(size);
+	ormma.resize(size.width-1, size.height-1);
 }
 
 /**
@@ -191,37 +189,51 @@ PRIMARY ENTRY POINT: ORMMA READY
 */
 window.ormmaAvail = false;
 function ORMMAReady(evt) {
-	//clear any timers that have been waiting for ORMMA
-	window.clearTimeout(window.ormmaWaitId);
-	window.ormmaAvail = true;
-
-	//show ormma confirmation to user
-	document.getElementById('ormma').style.display = 'block';
-	logit('ORMMA found');
-
-	//register the event listeners
-	ormma.addEventListener('error', reportEvent);
-	ormma.addEventListener('sizeChange', reportEvent);
-	ormma.addEventListener('stateChange', reportEvent);
-
-	//load all the level1 properties - some are unused in this example
-	var screenSize = ormma.getSize(),
-	    maxAdSize = ormma.getMaxSize(),
-		myState = ormma.getState(),
-		myPosition = ormma.getDefaultPosition(),
-		expandProps = ormma.getExpandProperties(),
-		resizeProps = ormma.getResizeProperties(),
-		supportsTilt = ormma.supports('tilt');
-
-	//show the ad if originally loaded by developer as hidden
-	if (myState === 'hidden') {
+	try {
+		//clear any timers that have been waiting for ORMMA
+		window.clearTimeout(window.ormmaWaitId);
+		window.ormmaAvail = true;
+	
+		//show ormma confirmation to user
+		document.getElementById('ormma').style.display = 'block';
+		logit('ORMMA found');
+	
+		//check that all expected Level1 methods are available		
+		var ormmaMethods = ['getSize','getMaxSize','getState','getDefaultPosition','getExpandProperties','setExpandProperties','supports','addEventListener','removeEventListener','resize','expand','open','show','close','hide'];
+		var hasOrmmaMethods = [];
+		for (var i = 0; i < ormmaMethods.length; i++) {
+			ormmaMethod = ormmaMethods[i];
+			hasOrmmaMethods[ormmaMethod] = (typeof(ormma[ormmaMethod]) === 'function');
+			if (!hasOrmmaMethods[ormmaMethod]) logit ('method ' + ormmaMethod + ' not found');
+		}
+	
+		//register the event listeners
+		ormma.addEventListener('error', reportEvent);
+		ormma.addEventListener('sizeChange', reportEvent);
+		ormma.addEventListener('stateChange', reportEvent);
+	
+		//load all the level1 properties - some are unused in this example
+		var screenSize = ormma.getSize(),
+			maxAdSize = ormma.getMaxSize(),
+			myState = ormma.getState(),
+			myPosition = ormma.getDefaultPosition(),
+			expandProps = ormma.getExpandProperties(),
+			supportsTilt = ormma.supports('tilt');
+	
+		//show the ad if originally loaded by developer as hidden
+		if (myState === 'hidden') {
+		} else {
+			ormma.hide();
+		}
 		ormma.addEventListener('stateChange', confirmShow);
 		ormma.show(); //side-effect will exercise ormma.resize methods
-	}
-	
-	//identify is ormma container supports tilt
-	if (supportsTilt) {
-		logit('ad supports tilt');
+		
+		//identify if ormma container supports tilt
+		if (supportsTilt) {
+			logit('ad supports tilt');
+		}
+	} catch (e) {
+		logit('ORMMA found, but errors encountered in ORMMAReady: ' + e);
 	}
 }
 
