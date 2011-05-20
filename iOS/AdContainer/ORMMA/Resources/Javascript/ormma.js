@@ -151,8 +151,8 @@
     var dimensionValidators = {
         x:function(value) { return !isNaN(value) && value >= 0; },
         y:function(value) { return !isNaN(value) && value >= 0; },
-        width:function(value) { return !isNaN(value) && value >= 0 && value <= screenSize.width; },
-        height:function(value) { return !isNaN(value) && value >= 0 && value <= screenSize.height; }
+        width:function(value) { return !isNaN(value) && value >= 0},
+        height:function(value) { return !isNaN(value) && value >= 0}
     };
     
     var expandPropertyValidators = {
