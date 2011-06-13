@@ -12,7 +12,7 @@
 		37AF0C31136209A300363D4F /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C30136209A300363D4F /* MapKit.framework */; };
 		37AF0C33136209B000363D4F /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C32136209B000363D4F /* MediaPlayer.framework */; };
 		37AF0C35136209DF00363D4F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C34136209DF00363D4F /* UIKit.framework */; };
-		37F360C41371FDB1002DCF6B /* ormma_bridge.js in Sources */ = {isa = PBXBuildFile; fileRef = 37F360C31371FDB1002DCF6B /* ormma_bridge.js */; };
+		37D07A6E13A6BE5A00CE0E60 /* ormma_bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = 37F360C31371FDB1002DCF6B /* ormma_bridge.js */; };
 		AA747D9F0F9514B9006C5449 /* ORMMA_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		FA61E227129C27CB00214103 /* ORMMAView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = FAD28BC112381B2A00562D0B /* ORMMAView.h */; };
@@ -795,6 +795,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37D07A6E13A6BE5A00CE0E60 /* ormma_bridge.js in Resources */,
 				FAD3FA4D126CA0B100468F35 /* 1.sql in Resources */,
 				FAD3FAAB126CABD000468F35 /* 2.sql in Resources */,
 				FAD3FAAC126CABD000468F35 /* 3.sql in Resources */,
@@ -905,7 +906,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				37F360C41371FDB1002DCF6B /* ormma_bridge.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1018,20 +1018,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ORMMA Bundle-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/Debug-iphoneos\"",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/Debug-iphonesimulator\"",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/Debug-universal\"",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/ORMMA.build/Debug-iphoneos/ORMMA Library.build/Objects-normal/armv6\"",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/ORMMA.build/Debug-iphoneos/ORMMA Library.build/Objects-normal/armv7\"",
-					"\"$(SRCROOT)/../../latest_iPhone_miAPILite/miAPILite/miAPILite/build/Debug-iphonesimulator\"",
-					"\"$(SRCROOT)/build/Debug-iphoneos\"",
-					"\"$(SRCROOT)/build/Debug-iphonesimulator\"",
-					"\"$(SRCROOT)/build/Debug-universal\"",
-					"\"$(SRCROOT)/build/ORMMA.build/Debug-iphoneos/ORMMA Library.build/Objects-normal/armv6\"",
-					"\"$(SRCROOT)/build/ORMMA.build/Debug-iphoneos/ORMMA Library.build/Objects-normal/armv7\"",
-				);
+				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -1056,20 +1043,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ORMMA Bundle-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/Debug-iphoneos\"",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/Debug-iphonesimulator\"",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/Debug-universal\"",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/ORMMA.build/Debug-iphoneos/ORMMA Library.build/Objects-normal/armv6\"",
-					"\"$(SRCROOT)/../../INDIA_ORMMA_IOS/build/ORMMA.build/Debug-iphoneos/ORMMA Library.build/Objects-normal/armv7\"",
-					"\"$(SRCROOT)/../../latest_iPhone_miAPILite/miAPILite/miAPILite/build/Debug-iphonesimulator\"",
-					"\"$(SRCROOT)/build/Debug-iphoneos\"",
-					"\"$(SRCROOT)/build/Debug-iphonesimulator\"",
-					"\"$(SRCROOT)/build/Debug-universal\"",
-					"\"$(SRCROOT)/build/ORMMA.build/Debug-iphoneos/ORMMA Library.build/Objects-normal/armv6\"",
-					"\"$(SRCROOT)/build/ORMMA.build/Debug-iphoneos/ORMMA Library.build/Objects-normal/armv7\"",
-				);
+				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
