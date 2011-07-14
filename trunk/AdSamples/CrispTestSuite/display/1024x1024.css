@@ -1,0 +1,44 @@
+/*  Copyright (c) 2011 The ORMMA.org project authors. All Rights Reserved.
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree. All contributing project authors may
+ *  be found in the AUTHORS file in the root of the source tree.
+ */
+
+#banner {
+	position: absolute;
+}
+
+#hotspot {
+	position: absolute;
+	width: 600px;
+	height: 600px;
+}
+
+img {
+	border: none;
+}
+
+@media all and (orientation:portrait) {
+        #banner {
+		left: -128px;
+		top: -10px;
+        }
+        #hotspot {
+		left: 84px;
+		top: 202px;
+        }
+}
+
+@media all and (orientation:landscape) {
+        #banner {
+		left: 0px;
+		top: -138px;
+        }
+        #hotspot {
+		left: 212px;
+		top: 74px;
+        }
+}
+
