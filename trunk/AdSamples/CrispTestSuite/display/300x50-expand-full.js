@@ -142,22 +142,22 @@ function ORMMAReady(evt) {
 		var panel = document.getElementById('panel');
 
 		if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
-			panel.style.left = '10px';
-			panel.style.top = '125px';
+			panel.style.left = '-48px';
+			panel.style.top = '42px';
 		} else {
-			panel.style.left = '90px';
-			panel.style.top = '45px';
+			panel.style.left = '32px';
+			panel.style.top = '-37px';
 		}
 		ormma.addEventListener('orientationChange', function(orient) {
 			if (!orient) {
 				orient = ormma.getOrientation()
 			}			
 			if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
-				panel.style.left = '10px';
-				panel.style.top = '125px';
+				panel.style.left = '-48px';
+				panel.style.top = '42px';
 			} else {
-				panel.style.left = '90px';
-				panel.style.top = '45px';
+				panel.style.left = '32px';
+				panel.style.top = '-37px';
 			}
 		});
 	}

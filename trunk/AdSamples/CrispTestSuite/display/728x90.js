@@ -69,14 +69,7 @@ function ORMMAReady(evt) {
 	if (window.ormmaAvail !== ORMMAReadyStatus.NOT_FOUND) {
 		//clear any timers that have been waiting for ORMMA
 		window.clearTimeout(window.ormmaWaitId);
-
 		logit('ORMMA found');
-
-		if (typeof ormma === 'undefined') {
-			showit('ormma object not found - failed.', 'result', true);
-		} else if (typeof(ormma['open']) !== 'function') {
-			showit('open() method not found - failed.', 'result', true);
-		}
 	}
 }
 

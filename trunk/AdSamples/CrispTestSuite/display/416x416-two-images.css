@@ -8,33 +8,37 @@
 
 #banner {
 	position: absolute;
-	left: 0px;
-	top: 0px;
-}
-
-#panel {
-	position: absolute;
-	display: none;
-	left: 0px;
-	top: 0px;
-}
-
-#close {
-	position: absolute;
-	left: 550px;
-	top: 0px;
-	cursor: pointer;
-	display: none;
 }
 
 #hotspot {
 	position: absolute;
-	display: none;
-	left: 0px;
-	top: 77px;
+	width: 120px;
+	height: 90px;
 }
 
 img {
 	border: none;
+}
+
+@media all and (orientation:portrait) {
+        #banner {
+		left: -48px;
+		top: 22px;
+        }
+        #hotspot {
+		left: 35px;
+		top: 105px;
+        }
+}
+
+@media all and (orientation:landscape) {
+        #banner {
+		left: 32px;
+		top: -58px;
+        }
+        #hotspot {
+		left: 120px;
+		top: 185px;
+        }
 }
 

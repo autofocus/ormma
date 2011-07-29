@@ -66,7 +66,7 @@ function ormmaExpand() {
 	if (!window.ormmaAvail) {
 		return (false);
 	}
-	ormma.expand({'x' : 0, 'y' : 20, 'width' : 600, 'height' : 600}, null);
+	ormma.expand({'x' : 0, 'y' : 0, 'width' : 1024, 'height' : 1024}, null);
 	return (false);
 }
 
@@ -137,6 +137,29 @@ function ORMMAReady(evt) {
 		window.ormmaAvail = true;
 		window.clearTimeout(window.ormmaWaitId);
 		logit('ORMMA found');
+
+		var orient = ormma.getOrientation();
+		var panel = document.getElementById('panel');
+
+		if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
+			panel.style.left = '84px';
+			panel.style.top = '222px';
+		} else {
+			panel.style.left = '212px';
+			panel.style.top = '94px';
+		}
+		ormma.addEventListener('orientationChange', function(orient) {
+			if (!orient) {
+				orient = ormma.getOrientation()
+			}			
+			if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
+				panel.style.left = '84px';
+				panel.style.top = '222px';
+			} else {
+				panel.style.left = '212px';
+				panel.style.top = '94px';
+			}
+		});
 	}
 }
 

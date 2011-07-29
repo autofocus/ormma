@@ -69,21 +69,7 @@ function ORMMAReady(evt) {
 	if (window.ormmaAvail !== ORMMAReadyStatus.NOT_FOUND) {
 		//clear any timers that have been waiting for ORMMA
 		window.clearTimeout(window.ormmaWaitId);
-
 		logit('ORMMA found');
-
-		if (typeof ormma === 'undefined') {
-			showit('ormma object not found - failed.', 'result', true);
-		} else if (typeof(ormma['open']) !== 'function') {
-			showit('open() method not found - failed.', 'result', true);
-		} else {
-			showit('open method found - passed.', 'result', true);
-			showit('Visual confirmation needed...', 'result');
-			showit(['<ul><li>Browser opened in-app?</li>',
-				'<li>ormma.org site displayed?</li>',
-				'<li>Browser navigation available?</li>',
-				'<li>Browser close returned to ad?</li></ul>'].join(''), 'result');
-		}
 	}
 }
 
