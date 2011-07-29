@@ -22,7 +22,7 @@
 #close {
 	position: absolute;
 	left: 290px;
-	top: 80px;
+	top: 130px;
 	cursor: pointer;
 	display: none;
 	z-index: 2;

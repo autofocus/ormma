@@ -23,7 +23,7 @@
 #close {
 	position: absolute;
 	left: 250px;
-	top: 0px;
+	top: 50px;
 	cursor: pointer;
 	display: none;
 }
