@@ -66,7 +66,7 @@ function ormmaExpand() {
 	if (!window.ormmaAvail) {
 		return (false);
 	}
-	ormma.expand({'x' : 0, 'y' : 0, 'width' : 480, 'height' : 480}, null);
+	ormma.expand({'x' : 0, 'y' : 0, 'width' : 1024, 'height' : 1024}, null);
 	return (false);
 }
 
@@ -122,6 +122,14 @@ function collapse() {
 	return ormmaClose();
 }
 
+function preExpandAd() {
+	if (typeof ormma.getViewable === 'function' && (!ormma.getViewable() || ormma.getViewable() === 'false')) {
+		setTimeout(preExpandAd, 500);
+		return;
+	}
+	expand();
+}
+
 /**
  * ORMMAReady called by the SDK
  * Sets global 'ormmaAvail' to true
@@ -142,24 +150,25 @@ function ORMMAReady(evt) {
 		var panel = document.getElementById('panel');
 
 		if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
-			panel.style.left = '10px';
-			panel.style.top = '125px';
+			panel.style.left = '84px';
+			panel.style.top = '222px';
 		} else {
-			panel.style.left = '90px';
-			panel.style.top = '45px';
+			panel.style.left = '212px';
+			panel.style.top = '94px';
 		}
 		ormma.addEventListener('orientationChange', function(orient) {
 			if (!orient) {
 				orient = ormma.getOrientation()
-			}			
+			}
 			if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
-				panel.style.left = '10px';
-				panel.style.top = '125px';
+				panel.style.left = '84px';
+				panel.style.top = '222px';
 			} else {
-				panel.style.left = '90px';
-				panel.style.top = '45px';
+				panel.style.left = '212px';
+				panel.style.top = '94px';
 			}
 		});
+		preExpandAd();
 	}
 }
 

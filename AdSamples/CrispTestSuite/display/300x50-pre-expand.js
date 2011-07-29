@@ -122,6 +122,14 @@ function collapse() {
 	return ormmaClose();
 }
 
+function preExpandAd() {
+	if (typeof ormma.getViewable === 'function' && (!ormma.getViewable() || ormma.getViewable() === 'false')) {
+		setTimeout(preExpandAd, 500);
+		return;
+	}
+	expand();
+}
+
 /**
  * ORMMAReady called by the SDK
  * Sets global 'ormmaAvail' to true
@@ -151,7 +159,7 @@ function ORMMAReady(evt) {
 		ormma.addEventListener('orientationChange', function(orient) {
 			if (!orient) {
 				orient = ormma.getOrientation()
-			}			
+			}
 			if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
 				panel.style.left = '10px';
 				panel.style.top = '125px';
@@ -160,6 +168,7 @@ function ORMMAReady(evt) {
 				panel.style.top = '45px';
 			}
 		});
+		preExpandAd();
 	}
 }
 

@@ -66,7 +66,7 @@ function ormmaExpand() {
 	if (!window.ormmaAvail) {
 		return (false);
 	}
-	ormma.expand({'x' : 0, 'y' : 0, 'width' : 480, 'height' : 480}, null);
+	ormma.expand({'x' : 0, 'y' : 0, 'width' : 1024, 'height' : 1024}, null);
 	return (false);
 }
 
@@ -142,22 +142,22 @@ function ORMMAReady(evt) {
 		var panel = document.getElementById('panel');
 
 		if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
-			panel.style.left = '10px';
-			panel.style.top = '125px';
+			panel.style.left = '-128px';
+			panel.style.top = '10px';
 		} else {
-			panel.style.left = '90px';
-			panel.style.top = '45px';
+			panel.style.left = '0px';
+			panel.style.top = '-118px';
 		}
 		ormma.addEventListener('orientationChange', function(orient) {
 			if (!orient) {
 				orient = ormma.getOrientation()
 			}			
 			if (parseInt(orient, 10) % 180 === 0 || orient === -1) {
-				panel.style.left = '10px';
-				panel.style.top = '125px';
+				panel.style.left = '-128px';
+				panel.style.top = '10px';
 			} else {
-				panel.style.left = '90px';
-				panel.style.top = '45px';
+				panel.style.left = '0px';
+				panel.style.top = '-118px';
 			}
 		});
 	}
