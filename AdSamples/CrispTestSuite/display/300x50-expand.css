@@ -21,8 +21,8 @@
 
 #close {
 	position: absolute;
-	left: 262px;
-	top: 40px;
+	left: 244px;
+	top: 0px;
 	cursor: pointer;
 	display: none;
 }
