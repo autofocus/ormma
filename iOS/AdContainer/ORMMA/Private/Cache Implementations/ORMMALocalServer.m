@@ -296,7 +296,7 @@ NSString * const kORMMALocalServerResourceType = @"resource";
 	// see if this is a fragment or not
 	NSString *workHtml = [baseHtml lowercaseString];
 	NSString *html;
-	NSRange r = [workHtml rangeOfString:@"<html"];
+	NSRange r = [workHtml rangeOfString:@"/html>"];
 	if ( r.location != NSNotFound )
 	{
 		// full doc, no need to wrap
