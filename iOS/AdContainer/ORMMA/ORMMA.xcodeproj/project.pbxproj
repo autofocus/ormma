@@ -13,6 +13,7 @@
 		37AF0C33136209B000363D4F /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C32136209B000363D4F /* MediaPlayer.framework */; };
 		37AF0C35136209DF00363D4F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AF0C34136209DF00363D4F /* UIKit.framework */; };
 		37D07A6E13A6BE5A00CE0E60 /* ormma_bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = 37F360C31371FDB1002DCF6B /* ormma_bridge.js */; };
+		90ECF1831502798F003C9E5F /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90ECF1821502798F003C9E5F /* libz.dylib */; };
 		AA747D9F0F9514B9006C5449 /* ORMMA_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		FA61E227129C27CB00214103 /* ORMMAView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = FAD28BC112381B2A00562D0B /* ORMMAView.h */; };
@@ -107,7 +108,6 @@
 		FAD905CD129D8B4900C3F5DE /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A51E124159BE00285B32 /* EventKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAD905CE129D8B4900C3F5DE /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A520124159BE00285B32 /* EventKitUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAD905CF129D8B4900C3F5DE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
-		FAD905D0129D8B4900C3F5DE /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89E12429F8B00285B32 /* libz.1.2.3.dylib */; };
 		FAD905D1129D8B4900C3F5DE /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89412429F8B00285B32 /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FAD905D2129D8B4900C3F5DE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89612429F8B00285B32 /* MobileCoreServices.framework */; };
 		FAD905D3129D8B4900C3F5DE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAE3A89812429F8B00285B32 /* QuartzCore.framework */; };
@@ -185,6 +185,7 @@
 		37AF0C32136209B000363D4F /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		37AF0C34136209DF00363D4F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		37F360C31371FDB1002DCF6B /* ormma_bridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ormma_bridge.js; sourceTree = "<group>"; };
+		90ECF1821502798F003C9E5F /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		AA747D9E0F9514B9006C5449 /* ORMMA_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORMMA_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libORMMA.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libORMMA.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -304,7 +305,6 @@
 		FAE3A89812429F8B00285B32 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		FAE3A89A12429F8B00285B32 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		FAE3A89C12429F8B00285B32 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		FAE3A89E12429F8B00285B32 /* libz.1.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.3.dylib; path = usr/lib/libz.1.2.3.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -330,6 +330,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90ECF1831502798F003C9E5F /* libz.dylib in Frameworks */,
 				37AF0C35136209DF00363D4F /* UIKit.framework in Frameworks */,
 				37AF0C33136209B000363D4F /* MediaPlayer.framework in Frameworks */,
 				37AF0C31136209A300363D4F /* MapKit.framework in Frameworks */,
@@ -343,7 +344,6 @@
 				FAD905CF129D8B4900C3F5DE /* Foundation.framework in Frameworks */,
 				FAD90617129D8C4200C3F5DE /* libORMMA.a in Frameworks */,
 				FAD90626129D8CB700C3F5DE /* libsqlite3.0.dylib in Frameworks */,
-				FAD905D0129D8B4900C3F5DE /* libz.1.2.3.dylib in Frameworks */,
 				FAD905D1129D8B4900C3F5DE /* MessageUI.framework in Frameworks */,
 				FAD905D2129D8B4900C3F5DE /* MobileCoreServices.framework in Frameworks */,
 				FAD905D3129D8B4900C3F5DE /* QuartzCore.framework in Frameworks */,
@@ -397,7 +397,7 @@
 				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
 				FAD90625129D8CB700C3F5DE /* libsqlite3.0.dylib */,
 				FAE3A89412429F8B00285B32 /* MessageUI.framework */,
-				FAE3A89E12429F8B00285B32 /* libz.1.2.3.dylib */,
+				90ECF1821502798F003C9E5F /* libz.dylib */,
 				FAE3A89612429F8B00285B32 /* MobileCoreServices.framework */,
 				FAE3A89812429F8B00285B32 /* QuartzCore.framework */,
 				FAE3A89A12429F8B00285B32 /* SystemConfiguration.framework */,
