@@ -30,6 +30,8 @@ import android.os.StatFs;
 
 import org.ormma.view.OrmmaView;
 
+import android.util.Log;
+
 /**
  * The Class OrmmaAssetController. This class handles asset management for orrma
  */
@@ -206,6 +208,7 @@ public class OrmmaAssetController extends OrmmaController {
 					digest.update(buff);
 				}
 				out.write(buff, 0, numread);
+				
 				// System.out.println("numread" + numread);
 				i++;
 			} while (true);
@@ -285,7 +288,8 @@ public class OrmmaAssetController extends OrmmaController {
 			} while (true);
 
 			String wholeHTML = fromFile.toString();
-			boolean hasHTMLWrap = wholeHTML.indexOf("<html") >= 0;
+			Log.d("html",wholeHTML);
+			boolean hasHTMLWrap = wholeHTML.indexOf("</html>") >= 0;
 
 			// TODO cannot have injection when full html
 
